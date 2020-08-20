@@ -1,6 +1,6 @@
-# ProjectI
+# Project-I
 
-ProjectI is compiler for generic Pascal-like imperative language 
+Project-I is compiler for generic Pascal-like imperative language 
 with execution on top of Java Virtual Machine. 
 
 *NOTE*: This application is created for education purpose.
