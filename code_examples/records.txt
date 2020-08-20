@@ -1,0 +1,26 @@
+type vector is record
+    var x: real is 0
+    var y: real is 0
+    var z: real is 0
+end
+
+routine add(v1: vector, v2: vector): vector is
+    var result is vector
+
+    result.x := v1.x + v2.x
+    result.y := v1.y + v2.y
+    result.z := v1.z + v2.z
+
+    return result
+end
+
+routine main() is
+    var v1 is vector
+    v1.y := 1
+
+    var v2 is vector
+    v2.x := -2
+    v2.z := 2
+
+    var v3 is add(v1, v2)
+end

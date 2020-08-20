@@ -1,0 +1,7 @@
+routine main() is
+    var a is 0
+
+    while a < 10 loop
+        a := a + 1
+    end
+end
