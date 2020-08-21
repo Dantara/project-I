@@ -1,0 +1,20 @@
+routine main() is
+    var a: integer
+    var b: real
+    var c: boolean
+
+    a := 1
+    a := 0.0
+    a := true
+
+    b := 1
+    b := 0.0
+    b := false
+
+    c := true
+    c := 1
+
+    if a then
+        c := false
+    end
+end
