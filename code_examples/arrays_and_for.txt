@@ -1,6 +1,6 @@
 var a is array[10] integer
 
-routine sum(arr: array[] integer): integer is
+routine get_sum(arr: array[] integer): integer is
     var result is 0
 
     for i in 1 .. arr.size loop
