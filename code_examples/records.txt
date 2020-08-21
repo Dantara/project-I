@@ -5,7 +5,7 @@ type vector is record
 end
 
 routine add(v1: vector, v2: vector): vector is
-    var result is vector
+    var result: vector
 
     result.x := v1.x + v2.x
     result.y := v1.y + v2.y
@@ -15,10 +15,10 @@ routine add(v1: vector, v2: vector): vector is
 end
 
 routine main() is
-    var v1 is vector
+    var v1: vector
     v1.y := 1
 
-    var v2 is vector
+    var v2: vector
     v2.x := -2
     v2.z := 2
 

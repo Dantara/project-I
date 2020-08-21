@@ -1,5 +1,5 @@
 routine main() is
-    var a: integer;
+    var a: integer
 
     a := 1
     a := 1; a := 2
