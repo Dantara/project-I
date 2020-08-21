@@ -17,7 +17,7 @@ routine main() is
         sum := sum + i
     end
 
-    for i in reverse 1 .. 10 loop
+    for i in reverse 1 .. a.size loop
         sum := sum + i
     end
 end
