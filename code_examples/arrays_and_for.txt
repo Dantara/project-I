@@ -1,9 +1,9 @@
 var a is array[10] integer
 
-routine sum(arr: array[] integer): integer is
+routine get_sum(arr: array[] integer): integer is
     var result is 0
 
-    for i in 1 .. arr.length loop
+    for i in 1 .. arr.size loop
         result := result + arr[i]
     end
 
@@ -17,7 +17,7 @@ routine main() is
         sum := sum + i
     end
 
-    for i in reverse 1 .. 10 loop
+    for i in reverse 1 .. a.size loop
         sum := sum + i
     end
 end
