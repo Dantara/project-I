@@ -11,7 +11,11 @@ public class Lexer {
         programText = changeNewLinesToConventional(programText);
         var words = new ArrayList<>(Arrays.asList(splitToWords(programText)));
         separateDeclarations(words);
-        separateSymbolicOperators(words);
+
+        for (int order = 0; order < operatorOrders.length; order++) {
+            separateSymbolicOperators(words, order);
+        }
+
         return toTokens(words);
     }
 
@@ -62,12 +66,12 @@ public class Lexer {
         }
     }
 
-    private static void separateSymbolicOperators(List<String> words) {
+    private static void separateSymbolicOperators(List<String> words, int order) {
         for (int index = 0; index < words.size(); index++) {
             var word = words.get(index);
             if (isIntegerLiteral(word) || isRealLiteral(word)) continue;
 
-            var position = getPositionOfSymbolicOperator(word);
+            var position = getPositionOfSymbolicOperator(word, order);
             var operatorIndex = position.getValue0();
             var operatorLength = position.getValue1();
             if (operatorIndex == -1 || operatorLength == word.length()) continue;
@@ -84,20 +88,22 @@ public class Lexer {
         removeBlank(words);
     }
 
-    private static Pair<Integer, Integer> getPositionOfSymbolicOperator(String word) {
+    private static Pair<Integer, Integer> getPositionOfSymbolicOperator(String word, int order) {
         int index = -1;
         int length = 0;
 
-        for (String operator : operators) {
-            if (!isSymbolic(operator)) continue;
+        for (int operatorsIndex = 0; operatorsIndex < operatorOrders.length && operatorsIndex <= order; operatorsIndex++) {
+            for (String operator : operatorOrders[operatorsIndex]) {
+                if (!isSymbolic(operator)) continue;
 
-            var operatorIndex = word.indexOf(operator);
-            if (operatorIndex == -1) continue;
-            if (index != -1 && operatorIndex > index) continue;
-            if (operator.length() < length) continue;
+                var operatorIndex = word.indexOf(operator);
+                if (operatorIndex == -1) continue;
+                if (index != -1 && operatorIndex > index) continue;
+                if (operator.length() < length) continue;
 
-            index = operatorIndex;
-            length = operator.length();
+                index = operatorIndex;
+                length = operator.length();
+            }
         }
 
         return new Pair<>(index, length);
@@ -137,8 +143,10 @@ public class Lexer {
         token = tryResolveSpecificToken(lexeme, keywords, TokenType.Keyword);
         if (token != null) return token;
 
-        token = tryResolveSpecificToken(lexeme, operators, TokenType.Operator);
-        if (token != null) return token;
+        for (String[] operators : operatorOrders) {
+            token = tryResolveSpecificToken(lexeme, operators, TokenType.Operator);
+            if (token != null) return token;
+        }
 
         token = tryResolveSpecificToken(lexeme, declarationSeparators, TokenType.DeclarationSeparator);
         if (token != null) return token;
@@ -209,9 +217,16 @@ public class Lexer {
 
     private static final char[] declarationSeparators = {';', '\n'};
 
-    private static final String[] operators = {"and", "or", "xor",
-            "not", "<", "<=", ">", "=", "/=", "*", "/", "%",
-            "+", "-", "..", "[", "]", ".", "(", ")", ":=", ":", ","};
+    private static final String[][] operatorOrders = {
+            {
+                "and", "or", "xor",
+                "not", "<", "<=", ">", ">=", "=", "/=", "*", "/", "%",
+                "+", "-", "..", "[", "]", "(", ")", ":=", ":", ","
+            },
+            {
+                "."
+            }
+    };
 
     private static final String[] keywords = {"var", "is", "type", "record", "end",
             "array", "if", "then", "else", "routine", "size", "true", "false", "for",

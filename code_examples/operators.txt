@@ -1,0 +1,11 @@
+routine main() is
+    var a is 5.0*15
+    var b is 1.0<5.0
+    var c is 1 >= 5
+    var d is 1 > 5
+    var e is 1 <= 5
+    var f is true and true
+    var g is true xor false
+    var h is not false
+    var i is true or false
+end
