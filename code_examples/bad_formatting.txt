@@ -1,0 +1,8 @@
+routine main() is
+var a is 1
+for i in 1..10 loop
+if a%2/=0 then
+a:=a+i
+end
+end
+end

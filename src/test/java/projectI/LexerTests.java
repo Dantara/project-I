@@ -817,6 +817,57 @@ public class LexerTests extends TestCase {
         }, tokens);
     }
 
+    public void testBadFormatting() throws InvalidLexemeException, IOException {
+        var tokens = scanFile("code_examples/bad_formatting.txt");
+        assertArrayEquals(new Token[] {
+                keyword("routine"),
+                identifier("main"),
+                operator("("),
+                operator(")"),
+                keyword("is"),
+                newLine(),
+
+                keyword("var"),
+                identifier("a"),
+                keyword("is"),
+                literal("1"),
+                newLine(),
+
+                keyword("for"),
+                identifier("i"),
+                keyword("in"),
+                literal("1"),
+                operator(".."),
+                literal("10"),
+                keyword("loop"),
+                newLine(),
+
+                keyword("if"),
+                identifier("a"),
+                operator("%"),
+                literal("2"),
+                operator("/="),
+                literal("0"),
+                keyword("then"),
+                newLine(),
+
+                identifier("a"),
+                operator(":="),
+                identifier("a"),
+                operator("+"),
+                identifier("i"),
+                newLine(),
+
+                keyword("end"),
+                newLine(),
+
+                keyword("end"),
+                newLine(),
+
+                keyword("end")
+        }, tokens);
+    }
+
     private Token[] scanFile(String path) throws InvalidLexemeException, IOException {
         var programText = Files.readString(Path.of(path));
         return lexer.scan(programText);
