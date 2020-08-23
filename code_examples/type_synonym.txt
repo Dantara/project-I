@@ -1,0 +1,6 @@
+type arr8 is array[8] integer
+
+routine main() is
+    var a: arr8
+    a[0] := a.size
+end

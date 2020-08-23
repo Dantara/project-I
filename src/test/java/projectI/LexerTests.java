@@ -868,6 +868,47 @@ public class LexerTests extends TestCase {
         }, tokens);
     }
 
+    public void testTypeSynonym() throws InvalidLexemeException, IOException {
+        var tokens = scanFile("code_examples/type_synonym.txt");
+        assertArrayEquals(new Token[] {
+                keyword("type"),
+                identifier("arr8"),
+                keyword("is"),
+                keyword("array"),
+                operator("["),
+                literal("8"),
+                operator("]"),
+                keyword("integer"),
+                newLine(),
+                newLine(),
+
+                keyword("routine"),
+                identifier("main"),
+                operator("("),
+                operator(")"),
+                keyword("is"),
+                newLine(),
+
+                keyword("var"),
+                identifier("a"),
+                operator(":"),
+                identifier("arr8"),
+                newLine(),
+
+                identifier("a"),
+                operator("["),
+                literal("0"),
+                operator("]"),
+                operator(":="),
+                identifier("a"),
+                operator("."),
+                keyword("size"),
+                newLine(),
+
+                keyword("end")
+        }, tokens);
+    }
+
     private Token[] scanFile(String path) throws InvalidLexemeException, IOException {
         var programText = Files.readString(Path.of(path));
         return lexer.scan(programText);
