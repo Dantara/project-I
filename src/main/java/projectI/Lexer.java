@@ -1,9 +1,8 @@
 package projectI;
 
 import org.javatuples.Pair;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+
+import java.util.*;
 import java.util.regex.Pattern;
 
 public class Lexer {
@@ -12,7 +11,7 @@ public class Lexer {
         var words = new ArrayList<>(Arrays.asList(splitToWords(programText)));
         separateDeclarations(words);
 
-        for (int order = 0; order < operatorOrders.length; order++) {
+        for (int order = 0; order < operatorOrders.size(); order++) {
             separateSymbolicOperators(words, order);
         }
 
@@ -92,8 +91,8 @@ public class Lexer {
         int index = -1;
         int length = 0;
 
-        for (int operatorsIndex = 0; operatorsIndex < operatorOrders.length && operatorsIndex <= order; operatorsIndex++) {
-            for (String operator : operatorOrders[operatorsIndex]) {
+        for (int operatorsIndex = 0; operatorsIndex < operatorOrders.size() && operatorsIndex <= order; operatorsIndex++) {
+            for (String operator : operatorOrders.get(operatorsIndex)) {
                 if (!isSymbolic(operator)) continue;
 
                 var operatorIndex = word.indexOf(operator);
@@ -143,7 +142,7 @@ public class Lexer {
         token = tryResolveSpecificToken(lexeme, keywords, TokenType.Keyword);
         if (token != null) return token;
 
-        for (String[] operators : operatorOrders) {
+        for (Set<String> operators : operatorOrders) {
             token = tryResolveSpecificToken(lexeme, operators, TokenType.Operator);
             if (token != null) return token;
         }
@@ -158,11 +157,9 @@ public class Lexer {
         return token;
     }
 
-    private static Token tryResolveSpecificToken(String lexeme, String[] definedLexemes, TokenType type) {
-        for (String definedLexeme : definedLexemes) {
-            if (definedLexeme.equals(lexeme))
-                return new Token(type, lexeme);
-        }
+    private static Token tryResolveSpecificToken(String lexeme, Set<String> definedLexemes, TokenType type) {
+        if (definedLexemes.contains(lexeme))
+            return new Token(type, lexeme);
 
         return null;
     }
@@ -217,18 +214,14 @@ public class Lexer {
 
     private static final char[] declarationSeparators = {';', '\n'};
 
-    private static final String[][] operatorOrders = {
-            {
-                "and", "or", "xor",
-                "not", "<", "<=", ">", ">=", "=", "/=", "*", "/", "%",
-                "+", "-", "..", "[", "]", "(", ")", ":=", ":", ","
-            },
-            {
-                "."
-            }
-    };
+    private static final List<Set<String>> operatorOrders = Arrays.asList(
+            new HashSet<>(Arrays.asList("and", "or", "xor",
+                    "not", "<", "<=", ">", ">=", "=", "/=", "*", "/", "%",
+                    "+", "-", "..", "[", "]", "(", ")", ":=", ":", ",")),
+            new HashSet<>(Arrays.asList(".")));
 
-    private static final String[] keywords = {"var", "is", "type", "record", "end",
+    private static final Set<String> keywords = new HashSet<>(Arrays.asList(
+            "var", "is", "type", "record", "end",
             "array", "if", "then", "else", "routine", "size", "true", "false", "for",
-            "in", "reverse", "loop", "integer", "real", "boolean", "return", "while"};
+            "in", "reverse", "loop", "integer", "real", "boolean", "return", "while"));
 }
