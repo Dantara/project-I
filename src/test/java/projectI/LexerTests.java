@@ -40,7 +40,7 @@ public class LexerTests extends TestCase {
                 newLine(), newLine(),
 
                 keyword("routine"),
-                identifier("sum"),
+                identifier("get_sum"),
                 operator("("),
                 identifier("arr"),
                 operator(":"),
@@ -128,7 +128,9 @@ public class LexerTests extends TestCase {
                 keyword("reverse"),
                 literal("1"),
                 operator(".."),
-                literal("10"),
+                identifier("a"),
+                operator("."),
+                keyword("size"),
                 keyword("loop"),
                 newLine(),
 
