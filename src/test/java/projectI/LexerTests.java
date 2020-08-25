@@ -911,6 +911,57 @@ public class LexerTests extends TestCase {
         }, tokens);
     }
 
+    public void testNestedLoop() throws InvalidLexemeException, IOException {
+        var tokens = scanFile("code_examples/nested_loop.txt");
+        assertArrayEquals(new Token[] {
+                keyword("routine"),
+                identifier("main"),
+                operator("("),
+                operator(")"),
+                keyword("is"),
+                newLine(),
+
+                keyword("var"),
+                identifier("counter"),
+                keyword("is"),
+                literal("0"),
+                newLine(), newLine(),
+
+                keyword("for"),
+                identifier("i"),
+                keyword("in"),
+                literal("1"),
+                operator(".."),
+                literal("6"),
+                keyword("loop"),
+                newLine(),
+
+                keyword("for"),
+                identifier("j"),
+                keyword("in"),
+                literal("2"),
+                operator(".."),
+                literal("7"),
+                keyword("loop"),
+                newLine(),
+
+                identifier("counter"),
+                operator(":="),
+                identifier("i"),
+                operator("*"),
+                identifier("j"),
+                newLine(),
+
+                keyword("end"),
+                newLine(),
+
+                keyword("end"),
+                newLine(), newLine(),
+
+                keyword("end")
+        }, tokens);
+    }
+
     private Token[] scanFile(String path) throws InvalidLexemeException, IOException {
         var programText = Files.readString(Path.of(path));
         return lexer.scan(programText);
