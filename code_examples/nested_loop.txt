@@ -1,0 +1,10 @@
+routine main() is
+    var counter is 0
+
+    for i in 1 .. 6 loop
+        for j in 2 .. 7 loop
+            counter := i * j
+        end
+    end
+
+end

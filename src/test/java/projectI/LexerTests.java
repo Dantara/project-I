@@ -40,7 +40,7 @@ public class LexerTests extends TestCase {
                 newLine(), newLine(),
 
                 keyword("routine"),
-                identifier("sum"),
+                identifier("get_sum"),
                 operator("("),
                 identifier("arr"),
                 operator(":"),
@@ -128,7 +128,9 @@ public class LexerTests extends TestCase {
                 keyword("reverse"),
                 literal("1"),
                 operator(".."),
-                literal("10"),
+                identifier("a"),
+                operator("."),
+                keyword("size"),
                 keyword("loop"),
                 newLine(),
 
@@ -904,6 +906,57 @@ public class LexerTests extends TestCase {
                 operator("."),
                 keyword("size"),
                 newLine(),
+
+                keyword("end")
+        }, tokens);
+    }
+
+    public void testNestedLoop() throws InvalidLexemeException, IOException {
+        var tokens = scanFile("code_examples/nested_loop.txt");
+        assertArrayEquals(new Token[] {
+                keyword("routine"),
+                identifier("main"),
+                operator("("),
+                operator(")"),
+                keyword("is"),
+                newLine(),
+
+                keyword("var"),
+                identifier("counter"),
+                keyword("is"),
+                literal("0"),
+                newLine(), newLine(),
+
+                keyword("for"),
+                identifier("i"),
+                keyword("in"),
+                literal("1"),
+                operator(".."),
+                literal("6"),
+                keyword("loop"),
+                newLine(),
+
+                keyword("for"),
+                identifier("j"),
+                keyword("in"),
+                literal("2"),
+                operator(".."),
+                literal("7"),
+                keyword("loop"),
+                newLine(),
+
+                identifier("counter"),
+                operator(":="),
+                identifier("i"),
+                operator("*"),
+                identifier("j"),
+                newLine(),
+
+                keyword("end"),
+                newLine(),
+
+                keyword("end"),
+                newLine(), newLine(),
 
                 keyword("end")
         }, tokens);
