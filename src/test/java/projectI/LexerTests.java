@@ -145,7 +145,7 @@ public class LexerTests extends TestCase {
                 newLine(),
 
                 keyword("end"),
-        }, tokens);
+            }, tokens);
     }
 
     public void testBasic() throws InvalidLexemeException, IOException {
@@ -184,7 +184,7 @@ public class LexerTests extends TestCase {
                 newLine(),
 
                 keyword("end")
-        }, tokens);
+            }, tokens);
     }
 
     public void testConditional() throws InvalidLexemeException, IOException {
@@ -243,7 +243,7 @@ public class LexerTests extends TestCase {
                 newLine(),
 
                 keyword("end")
-        }, tokens);
+            }, tokens);
     }
 
     public void testDenseCode() throws InvalidLexemeException, IOException {
@@ -372,7 +372,7 @@ public class LexerTests extends TestCase {
                 newLine(),
 
                 keyword("end")
-        }, tokens);
+            }, tokens);
     }
 
     public void testRecords() throws InvalidLexemeException, IOException {
@@ -532,7 +532,7 @@ public class LexerTests extends TestCase {
                 newLine(),
 
                 keyword("end")
-        }, tokens);
+            }, tokens);
     }
 
     public void testRoutineCall() throws InvalidLexemeException, IOException {
@@ -609,7 +609,7 @@ public class LexerTests extends TestCase {
                 newLine(),
 
                 keyword("end")
-        }, tokens);
+            }, tokens);
     }
 
     public void testTypeConversion() throws InvalidLexemeException, IOException {
@@ -694,7 +694,7 @@ public class LexerTests extends TestCase {
                 newLine(),
 
                 keyword("end")
-        }, tokens);
+            }, tokens);
     }
 
     public void testWhileLoop() throws InvalidLexemeException, IOException {
@@ -731,7 +731,7 @@ public class LexerTests extends TestCase {
                 newLine(),
 
                 keyword("end")
-        }, tokens);
+            }, tokens);
     }
 
     public void testOperators() throws InvalidLexemeException, IOException {
@@ -816,7 +816,7 @@ public class LexerTests extends TestCase {
                 newLine(),
 
                 keyword("end")
-        }, tokens);
+            }, tokens);
     }
 
     public void testBadFormatting() throws InvalidLexemeException, IOException {
@@ -867,7 +867,7 @@ public class LexerTests extends TestCase {
                 newLine(),
 
                 keyword("end")
-        }, tokens);
+            }, tokens);
     }
 
     public void testTypeSynonym() throws InvalidLexemeException, IOException {
@@ -908,7 +908,7 @@ public class LexerTests extends TestCase {
                 newLine(),
 
                 keyword("end")
-        }, tokens);
+            }, tokens);
     }
 
     public void testNestedLoop() throws InvalidLexemeException, IOException {
@@ -959,7 +959,92 @@ public class LexerTests extends TestCase {
                 newLine(), newLine(),
 
                 keyword("end")
-        }, tokens);
+            }, tokens);
+    }
+
+    public void testArrayOfRecords() throws InvalidLexemeException, IOException {
+        var tokens = scanFile("code_examples/array_of_records.txt");
+        assertArrayEquals(new Token[] {
+                keyword("type"),
+                identifier("rec"),
+                keyword("is"),
+                keyword("record"),
+                newLine(),
+
+                keyword("var"),
+                identifier("either"),
+                operator(":"),
+                keyword("boolean"),
+                newLine(),
+
+                keyword("var"),
+                identifier("num"),
+                operator(":"),
+                keyword("integer"),
+                newLine(),
+
+                keyword("end"),
+                newLine(), newLine(),
+
+                keyword("type"),
+                identifier("recordArray16"),
+                keyword("is"),
+                keyword("array"),
+                operator("["),
+                literal("16"),
+                operator("]"),
+                identifier("rec"),
+                newLine(), newLine(),
+
+                keyword("routine"),
+                identifier("main"),
+                operator("("),
+                operator(")"),
+                keyword("is"),
+                newLine(),
+
+                keyword("var"),
+                identifier("arr"),
+                operator(":"),
+                identifier("recordArray16"),
+                newLine(),
+
+
+                keyword("var"),
+                identifier("myRec"),
+                operator(":"),
+                identifier("rec"),
+                newLine(),
+
+                identifier("myRec"),
+                operator("."),
+                identifier("either"),
+                operator(":="),
+                keyword("true"),
+                newLine(),
+
+
+                identifier("myRec"),
+                operator("."),
+                identifier("num"),
+                operator(":="),
+                identifier("arr"),
+                operator("."),
+                keyword("size"),
+                newLine(), newLine(),
+
+                identifier("arr"),
+                operator("["),
+                literal("0"),
+                operator("]"),
+                operator(":="),
+                identifier("myRec"),
+                newLine(),
+
+                keyword("end"),
+                newLine()
+
+            }, tokens);
     }
 
     private Token[] scanFile(String path) throws InvalidLexemeException, IOException {
