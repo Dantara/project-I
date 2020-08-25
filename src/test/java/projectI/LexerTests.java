@@ -1009,12 +1009,11 @@ public class LexerTests extends TestCase {
                 identifier("recordArray16"),
                 newLine(),
 
-
                 keyword("var"),
                 identifier("myRec"),
                 operator(":"),
                 identifier("rec"),
-                newLine(),
+                newLine(), newLine(),
 
                 identifier("myRec"),
                 operator("."),
@@ -1022,7 +1021,6 @@ public class LexerTests extends TestCase {
                 operator(":="),
                 keyword("true"),
                 newLine(),
-
 
                 identifier("myRec"),
                 operator("."),
@@ -1043,7 +1041,6 @@ public class LexerTests extends TestCase {
 
                 keyword("end"),
                 newLine()
-
             }, tokens);
     }
 
