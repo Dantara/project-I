@@ -10,13 +10,13 @@ import java.nio.file.Path;
 
 import static org.junit.Assert.assertArrayEquals;
 
-public class LexerTests extends TestCase {
-    public LexerTests(String testName) {
+public class LexerTest extends TestCase {
+    public LexerTest(String testName) {
         super(testName);
     }
 
     public static Test suite() {
-        return new TestSuite(LexerTests.class);
+        return new TestSuite(LexerTest.class);
     }
 
     private Lexer lexer;
