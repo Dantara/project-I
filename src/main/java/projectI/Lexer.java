@@ -2,7 +2,6 @@ package projectI;
 
 import org.javatuples.Pair;
 
-import java.lang.reflect.Array;
 import java.util.*;
 import java.util.regex.Pattern;
 
@@ -10,7 +9,7 @@ public class Lexer {
     private List<StringWithLocation> words;
 
     public StringWithLocation[] getStringsWithLocations() {
-        var stringWithLocations = (StringWithLocation[]) Array.newInstance(StringWithLocation.class, words.size());
+        var stringWithLocations = new StringWithLocation[words.size()];
         words.toArray(stringWithLocations);
         return stringWithLocations;
     }
