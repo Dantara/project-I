@@ -5,6 +5,14 @@ package projectI;
  */
 public class InvalidLexemeException extends Exception {
     /**
+     * Get the lexeme that cause the exception.
+     * @return lexeme with location
+     */
+    public StringWithLocation getLexeme() {
+        return lexeme;
+    }
+
+    /**
      * Create an exception for the passed invalid lexeme.
      * @param lexeme invalid lexeme
      */
