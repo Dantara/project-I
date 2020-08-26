@@ -1044,6 +1044,54 @@ public class LexerTests extends TestCase {
             }, tokens);
     }
 
+    public void testArrayWithBooleanSize() throws InvalidLexemeException, IOException {
+        var tokens = scanFile("code_examples/array_with_boolean_size.txt");
+        assertArrayEquals(new Token[] {
+                keyword("type"),
+                identifier("booleanArray"),
+                keyword("is"),
+                keyword("array"),
+                operator("["),
+                keyword("true"),
+                operator("or"),
+                keyword("false"),
+                operator("]"),
+                keyword("boolean"),
+                newLine(), newLine(),
+
+                keyword("routine"),
+                identifier("main"),
+                operator("("),
+                operator(")"),
+                operator(":"),
+                keyword("integer"),
+                keyword("is"),
+                newLine(),
+
+                keyword("var"),
+                identifier("arr"),
+                operator(":"),
+                identifier("booleanArray"),
+                newLine(),
+
+                identifier("arr"),
+                operator("["),
+                literal("0"),
+                operator("]"),
+                operator(":="),
+                keyword("true"),
+                newLine(), newLine(),
+
+                keyword("return"),
+                identifier("arr"),
+                operator("."),
+                keyword("size"),
+                newLine(),
+
+                keyword("end"),
+                newLine()
+            }, tokens);
+    }
     private Token[] scanFile(String path) throws InvalidLexemeException, IOException {
         var programText = Files.readString(Path.of(path));
         return lexer.scan(programText);
