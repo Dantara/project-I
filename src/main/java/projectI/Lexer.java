@@ -5,15 +5,28 @@ import org.javatuples.Pair;
 import java.util.*;
 import java.util.regex.Pattern;
 
+/**
+ * A stage of compilation that splits the given source code into a sequence of tokens.
+ */
 public class Lexer {
     private List<StringWithLocation> words;
 
-    public StringWithLocation[] getStringsWithLocations() {
+    /**
+     * Create an array with lexeme + its location for each token (the last scan is considered).
+     * @return lexemes with locations.
+     */
+    public StringWithLocation[] getLexemesWithLocations() {
         var stringWithLocations = new StringWithLocation[words.size()];
         words.toArray(stringWithLocations);
         return stringWithLocations;
     }
 
+    /**
+     * Split the program text in a sequence of tokens.
+     * @param programText source code to scan
+     * @return Sequence of tokens
+     * @throws InvalidLexemeException when lexer is unable to recognize a token
+     */
     public Token[] scan(String programText) throws InvalidLexemeException {
         programText = changeNewLinesToConventional(programText);
         words = splitToWords(programText);
@@ -30,6 +43,11 @@ public class Lexer {
         return programText.replaceAll("\r\n", "\n");
     }
 
+    /**
+     * Generate a list of words storing their locations
+     * @param programText source code
+     * @return a list of lexemes with locations
+     */
     private List<StringWithLocation> splitToWords(String programText) {
         var strings = new ArrayList<StringWithLocation>();
         var buffer = new StringBuilder();
@@ -68,6 +86,10 @@ public class Lexer {
         return strings;
     }
 
+    /**
+     * Split words containing declaration character(s).
+     * @param words a list of lexemes with locations
+     */
     private void separateDeclarations(List<StringWithLocation> words) {
         for (int index = 0; index < words.size(); index++) {
             var word = words.get(index);
@@ -107,6 +129,11 @@ public class Lexer {
         }
     }
 
+    /**
+     * Split words containing operators (only those that cannot be a part of an identifier).
+     * @param words a list of lexemes with locations
+     * @param order the order of operators to consider
+     */
     private static void separateSymbolicOperators(List<StringWithLocation> words, int order) {
         for (int index = 0; index < words.size(); index++) {
             var word = words.get(index);
@@ -168,7 +195,7 @@ public class Lexer {
             var token = tryResolveToken(word.getString());
 
             if (token == null)
-                throw new InvalidLexemeException(word.getString());
+                throw new InvalidLexemeException(word);
 
             tokens.add(token);
         }

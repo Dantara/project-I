@@ -158,6 +158,6 @@ public class LexerLocationsTest extends TestCase {
     private StringWithLocation[] scanFile(String path) throws InvalidLexemeException, IOException {
         var programText = Files.readString(Path.of(path));
         lexer.scan(programText);
-        return lexer.getStringsWithLocations();
+        return lexer.getLexemesWithLocations();
     }
 }
