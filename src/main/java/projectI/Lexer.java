@@ -6,39 +6,81 @@ import java.util.*;
 import java.util.regex.Pattern;
 
 public class Lexer {
+    private List<StringWithLocation> words;
+
+    public StringWithLocation[] getStringsWithLocations() {
+        var stringWithLocations = new StringWithLocation[words.size()];
+        words.toArray(stringWithLocations);
+        return stringWithLocations;
+    }
+
     public Token[] scan(String programText) throws InvalidLexemeException {
         programText = changeNewLinesToConventional(programText);
-        var words = new ArrayList<>(Arrays.asList(splitToWords(programText)));
+        words = splitToWords(programText);
         separateDeclarations(words);
 
         for (int order = 0; order < operatorOrders.size(); order++) {
             separateSymbolicOperators(words, order);
         }
 
-        return toTokens(words);
+        return toTokens();
     }
 
     private static String changeNewLinesToConventional(String programText) {
         return programText.replaceAll("\r\n", "\n");
     }
 
-    private String[] splitToWords(String programText) {
-        return programText.split(" ");
+    private List<StringWithLocation> splitToWords(String programText) {
+        var strings = new ArrayList<StringWithLocation>();
+        var buffer = new StringBuilder();
+
+        var lineIndex = 0;
+        var wordBeginningIndex = 0;
+
+        for (var character : programText.toCharArray()) {
+            if (character == ' ' || character == '\n' || character == '\t') {
+                int offset = 1;
+
+                if (buffer.length() > 0) {
+                    var word = buffer.toString();
+                    offset += word.length();
+                    strings.add(new StringWithLocation(word, lineIndex, wordBeginningIndex));
+                    buffer.setLength(0);
+                }
+
+                wordBeginningIndex += offset;
+
+                if (character == '\n') {
+                    strings.add(new StringWithLocation("\n", lineIndex, wordBeginningIndex - 1));
+                    wordBeginningIndex = 0;
+                    lineIndex++;
+                }
+            } else {
+                buffer.append(character);
+            }
+        }
+
+        if (buffer.length() > 0) {
+            var word = buffer.toString();
+            strings.add(new StringWithLocation(word, lineIndex, wordBeginningIndex));
+        }
+
+        return strings;
     }
 
-    private void separateDeclarations(List<String> words) {
+    private void separateDeclarations(List<StringWithLocation> words) {
         for (int index = 0; index < words.size(); index++) {
             var word = words.get(index);
-            var separatorIndex = getIndexOfDeclarationSeparator(word);
-            if (separatorIndex == -1 || word.length() == 1) continue;
+            var separatorIndex = getIndexOfDeclarationSeparator(word.getString());
+            if (separatorIndex == -1 || word.getString().length() == 1) continue;
 
-            var left = word.substring(0, separatorIndex);
-            var separator = word.charAt(separatorIndex);
-            var right = word.substring(separatorIndex + 1);
+            var left = word.getString().substring(0, separatorIndex);
+            var separator = word.getString().charAt(separatorIndex);
+            var right = word.getString().substring(separatorIndex + 1);
 
-            words.set(index, left);
-            words.add(index + 1, Character.toString(separator));
-            words.add(index + 2, right);
+            words.set(index, new StringWithLocation(left, word.getLineIndex(), word.getBeginningIndex()));
+            words.add(index + 1, new StringWithLocation(Character.toString(separator), word.getLineIndex(), word.getBeginningIndex() + left.length()));
+            words.add(index + 2, new StringWithLocation(right, word.getLineIndex(), word.getBeginningIndex() + left.length() + 1));
         }
 
         removeBlank(words);
@@ -58,30 +100,30 @@ public class Lexer {
         return index;
     }
 
-    private static void removeBlank(List<String> strings) {
+    private static void removeBlank(List<StringWithLocation> strings) {
         for (int index = strings.size() - 1; index >= 0; index--) {
-            if (strings.get(index).isEmpty())
+            if (strings.get(index).getString().isEmpty())
                 strings.remove(index);
         }
     }
 
-    private static void separateSymbolicOperators(List<String> words, int order) {
+    private static void separateSymbolicOperators(List<StringWithLocation> words, int order) {
         for (int index = 0; index < words.size(); index++) {
             var word = words.get(index);
-            if (isIntegerLiteral(word) || isRealLiteral(word)) continue;
+            if (isIntegerLiteral(word.getString()) || isRealLiteral(word.getString())) continue;
 
-            var position = getPositionOfSymbolicOperator(word, order);
+            var position = getPositionOfSymbolicOperator(word.getString(), order);
             var operatorIndex = position.getValue0();
             var operatorLength = position.getValue1();
-            if (operatorIndex == -1 || operatorLength == word.length()) continue;
+            if (operatorIndex == -1 || operatorLength == word.getString().length()) continue;
 
-            var left = word.substring(0, operatorIndex);
-            var operator = word.substring(operatorIndex, operatorIndex + operatorLength);
-            var right = word.substring(operatorIndex + operatorLength);
+            var left = word.getString().substring(0, operatorIndex);
+            var operator = word.getString().substring(operatorIndex, operatorIndex + operatorLength);
+            var right = word.getString().substring(operatorIndex + operatorLength);
 
-            words.set(index, left);
-            words.add(index + 1, operator);
-            words.add(index + 2, right);
+            words.set(index, new StringWithLocation(left, word.getLineIndex(), word.getBeginningIndex()));
+            words.add(index + 1, new StringWithLocation(operator, word.getLineIndex(), word.getBeginningIndex() + left.length()));
+            words.add(index + 2, new StringWithLocation(right, word.getLineIndex(), word.getBeginningIndex() + left.length() + operator.length()));
         }
 
         removeBlank(words);
@@ -119,14 +161,14 @@ public class Lexer {
         return true;
     }
 
-    private static Token[] toTokens(List<String> words) throws InvalidLexemeException {
+    private Token[] toTokens() throws InvalidLexemeException {
         var tokens = new ArrayList<Token>();
 
-        for (String word : words) {
-            var token = tryResolveToken(word);
+        for (StringWithLocation word : words) {
+            var token = tryResolveToken(word.getString());
 
             if (token == null)
-                throw new InvalidLexemeException(word);
+                throw new InvalidLexemeException(word.getString());
 
             tokens.add(token);
         }
