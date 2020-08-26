@@ -1,0 +1,8 @@
+type booleanArray is array[true or false] boolean
+
+routine main() : integer is
+    var arr : booleanArray
+    arr[0] := true
+   
+    return arr.size
+end
