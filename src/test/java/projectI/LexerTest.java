@@ -3,6 +3,7 @@ package projectI;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+import org.junit.Assert;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -1177,6 +1178,24 @@ public class LexerTest extends TestCase {
                 keyword("end"),
                 newLine()
             }, tokens);
+    }
+
+    public void testInvalidIdentifier() {
+        try {
+            lexer.scan("1a");
+            fail("Test should throw an exception.");
+        } catch (InvalidLexemeException exception) {
+            assertEquals(new StringWithLocation("1a", 0, 0), exception.getLexeme());
+        }
+    }
+
+    public void testInvalidOperator() {
+        try {
+            lexer.scan("!=");
+            fail("Test should throw an exception.");
+        } catch (InvalidLexemeException exception) {
+            assertEquals(new StringWithLocation("!", 0, 0), exception.getLexeme());
+        }
     }
 
     private Token[] scanFile(String path) throws InvalidLexemeException, IOException {
