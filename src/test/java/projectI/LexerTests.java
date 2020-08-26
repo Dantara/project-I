@@ -1092,6 +1092,93 @@ public class LexerTests extends TestCase {
                 newLine()
             }, tokens);
     }
+
+    public void testManyBrackets() throws InvalidLexemeException, IOException {
+        var tokens = scanFile("code_examples/many_brackets.txt");
+        assertArrayEquals(new Token[] {
+                keyword("routine"),
+                identifier("main"),
+                operator("("),
+                operator(")"),
+                keyword("is"),
+                newLine(),
+
+                keyword("var"),
+                identifier("i"),
+                operator(":"),
+                keyword("integer"),
+                newLine(),
+
+                identifier("i"),
+                operator(":="),
+                operator("("),
+                operator("("),
+                literal("1"),
+                operator("+"),
+                literal("3"),
+                operator(")"),
+                operator("*"),
+                operator("("),
+                literal("5"),
+                operator("-"),
+                literal("2"),
+                operator(")"),
+                operator(")"),
+                operator("*"),
+                literal("3"),
+                newLine(), newLine(),
+
+                keyword("var"),
+                identifier("b"),
+                operator(":"),
+                keyword("boolean"),
+                newLine(),
+
+                identifier("b"),
+                operator(":="),
+                keyword("false"),
+                operator("or"),
+                operator("("),
+                operator("("),
+                keyword("true"),
+                operator("or"),
+                keyword("false"),
+                operator(")"),
+                operator("and"),
+                literal("1"),
+                operator(")"),
+                newLine(), newLine(),
+
+                keyword("var"),
+                identifier("r"),
+                operator(":"),
+                keyword("real"),
+                newLine(),
+
+                identifier("r"),
+                operator(":="),
+                literal("1.0"),
+                operator("*"),
+                operator("("),
+                operator("("),
+                operator("("),
+                literal("4.2"),
+                operator("/"),
+                literal("2.1"),
+                operator(")"),
+                operator("+"),
+                literal("5.0"),
+                operator(")"),
+                operator("-"),
+                literal("2.3"),
+                operator(")"),
+                newLine(),
+
+                keyword("end"),
+                newLine()
+            }, tokens);
+    }
+
     private Token[] scanFile(String path) throws InvalidLexemeException, IOException {
         var programText = Files.readString(Path.of(path));
         return lexer.scan(programText);

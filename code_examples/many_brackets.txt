@@ -1,0 +1,10 @@
+routine main() is
+    var i : integer
+    i := ((1 + 3) * (5 - 2)) * 3
+
+    var b : boolean
+    b := false or ((true or false) and 1)
+
+    var r : real
+    r := 1.0 * (((4.2 / 2.1) + 5.0) - 2.3)
+end
