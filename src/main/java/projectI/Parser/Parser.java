@@ -10,35 +10,40 @@ public class Parser {
     }
 
     private ProgramNode tryParseProgram(int begin, int endExclusive) {
-        var node = new ProgramNode();
-        int index = begin;
+        var program = new ProgramNode();
+        int left = begin;
 
-        while (index < endExclusive) {
-            int separatorIndex = getIndexOfFirstDeclarationSeparator(index, endExclusive);
-
-            if (separatorIndex == index) {
-                index++;
+        while (left < endExclusive) {
+            if (tokens[left].getType() == TokenType.DeclarationSeparator) {
+                left++;
                 continue;
             }
 
-            var declaration = tryParseDeclaration(index, separatorIndex);
+            DeclarationNode declaration = null;
+
+            for (int rightExclusive = endExclusive; rightExclusive > left; rightExclusive--) {
+                declaration = tryParseDeclaration(left, rightExclusive);
+
+                if (declaration != null) {
+                    left = rightExclusive;
+                    break;
+                }
+            }
+
             if (declaration == null) return null;
 
-            node.Declarations.add(declaration);
-            index = separatorIndex + 1;
+            program.Declarations.add(declaration);
+
+            if (left == endExclusive) break;
+
+            if (tokens[left].getType() != TokenType.DeclarationSeparator) return null;
+
+            while (left < endExclusive && tokens[left].getType() == TokenType.DeclarationSeparator) {
+                left++;
+            }
         }
 
-        return node;
-    }
-
-    private int getIndexOfFirstDeclarationSeparator(int begin, int endExclusive) {
-        for (int index = begin; index < endExclusive; index++) {
-            Token token = tokens[index];
-            if (token.getType() == TokenType.DeclarationSeparator)
-                return index;
-        }
-
-        return -1;
+        return program;
     }
 
     private DeclarationNode tryParseDeclaration(int begin, int endExclusive) {

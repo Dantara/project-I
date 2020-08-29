@@ -291,4 +291,15 @@ public class ParserTest extends TestCase {
         assertNotNull(expression);
         assertEquals(expectedExpression, expression);
     }
+
+    public void testSeveralVariableDeclarations() throws InvalidLexemeException {
+        var program = parse("\nvar a is 1\n\nvar b is 2\n");
+
+        var expectedProgram = new ProgramNode();
+        expectedProgram.Declarations.add(createParser("var a is 1").tryParseVariableDeclaration(0, 4));
+        expectedProgram.Declarations.add(createParser("var b is 2").tryParseVariableDeclaration(0, 4));
+
+        assertNotNull(program);
+        assertEquals(expectedProgram, program);
+    }
  }
