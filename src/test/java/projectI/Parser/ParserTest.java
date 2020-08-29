@@ -293,7 +293,7 @@ public class ParserTest extends TestCase {
     }
 
     public void testSeveralVariableDeclarations() throws InvalidLexemeException {
-        var program = parse("\nvar a is 1\n\nvar b is 2\n");
+        var program = parse("\nvar a is 1\n\nvar b is 2\n\n");
 
         var expectedProgram = new ProgramNode();
         expectedProgram.Declarations.add(createParser("var a is 1").tryParseVariableDeclaration(0, 4));
@@ -301,5 +301,94 @@ public class ParserTest extends TestCase {
 
         assertNotNull(program);
         assertEquals(expectedProgram, program);
+    }
+
+    public void testRecord() throws InvalidLexemeException {
+        var record = createParser("record \nvar a is 1\n end").tryParseRecordType(0, 8);
+
+        var variable = createParser("var a is 1").tryParseVariableDeclaration(0, 4);
+        var expectedRecord = new RecordTypeNode();
+        expectedRecord.Variables.add(variable);
+
+        assertNotNull(record);
+        assertEquals(expectedRecord, record);
+    }
+
+    public void testComplexRecord() throws InvalidLexemeException {
+        var record = createParser("record \nvar a is 1; var b is 2\n end").tryParseRecordType(0, 13);
+
+        var variable1 = createParser("var a is 1").tryParseVariableDeclaration(0, 4);
+        var variable2 = createParser("var b is 2").tryParseVariableDeclaration(0, 4);
+        var expectedRecord = new RecordTypeNode();
+        expectedRecord.Variables.add(variable1);
+        expectedRecord.Variables.add(variable2);
+
+        assertNotNull(record);
+        assertEquals(expectedRecord, record);
+    }
+
+    public void testEmptyRecord() throws InvalidLexemeException {
+        var record = createParser("record end").tryParseRecordType(0, 2);
+
+        assertNotNull(record);
+        assertEquals(new RecordTypeNode(), record);
+    }
+
+    public void testNotSeparatedRecord() throws InvalidLexemeException {
+        var record = createParser("record \nvar a is 1 var b is 2\n end").tryParseRecordType(0, 12);
+
+        assertNull(record);
+    }
+
+    public void testArrayType() throws InvalidLexemeException {
+        var array = createParser("array [10] integer").tryParseArrayType(0, 5);
+
+        var expectedArray = new ArrayTypeNode(ExpressionNode.integerLiteral(10), new PrimitiveTypeNode(PrimitiveTypeNode.Type.INTEGER));
+        assertNotNull(array);
+        assertEquals(expectedArray, array);
+    }
+
+    public void testArrayOfArrays() throws InvalidLexemeException {
+        var array = createParser("array [10] array [10] integer").tryParseArrayType(0, 9);
+
+        var expectedArray = new ArrayTypeNode(ExpressionNode.integerLiteral(10),
+                new ArrayTypeNode(ExpressionNode.integerLiteral(10), new PrimitiveTypeNode(PrimitiveTypeNode.Type.INTEGER)));
+        assertNotNull(array);
+        assertEquals(expectedArray, array);
+    }
+
+    public void testPrimitiveTypeDeclaration() throws InvalidLexemeException {
+        var type = createParser("type i is integer").tryParseTypeDeclaration(0, 4);
+
+        var expectedType = new TypeDeclarationNode(new IdentifierNode("i"), new PrimitiveTypeNode(PrimitiveTypeNode.Type.INTEGER));
+        assertNotNull(type);
+        assertEquals(expectedType, type);
+    }
+
+    public void testArrayTypeDeclaration() throws InvalidLexemeException {
+        var type = createParser("type i is array [10] integer").tryParseTypeDeclaration(0, 8);
+
+        var expectedType = new TypeDeclarationNode(new IdentifierNode("i"),
+                new ArrayTypeNode(ExpressionNode.integerLiteral(10), new PrimitiveTypeNode(PrimitiveTypeNode.Type.INTEGER)));
+        assertNotNull(type);
+        assertEquals(expectedType, type);
+    }
+
+    public void testEmptyRecordTypeDeclaration() throws InvalidLexemeException {
+        var type = createParser("type i is record end").tryParseTypeDeclaration(0, 5);
+
+        var expectedType = new TypeDeclarationNode(new IdentifierNode("i"), new RecordTypeNode());
+        assertNotNull(type);
+        assertEquals(expectedType, type);
+    }
+
+    public void testEmptyRecordDeclaration() throws InvalidLexemeException {
+        var type = createParser("type i is record var a is 1 end").tryParseTypeDeclaration(0, 9);
+
+        var record = new RecordTypeNode();
+        record.Variables.add(createParser("var a is 1").tryParseVariableDeclaration(0, 4));
+        var expectedType = new TypeDeclarationNode(new IdentifierNode("i"), record);
+        assertNotNull(type);
+        assertEquals(expectedType, type);
     }
  }

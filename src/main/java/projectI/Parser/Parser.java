@@ -37,10 +37,6 @@ public class Parser {
             if (left == endExclusive) break;
 
             if (tokens[left].getType() != TokenType.DeclarationSeparator) return null;
-
-            while (left < endExclusive && tokens[left].getType() == TokenType.DeclarationSeparator) {
-                left++;
-            }
         }
 
         return program;
@@ -431,13 +427,13 @@ public class Parser {
         };
     }
 
-    private ArrayTypeNode tryParseArrayType(int begin, int endExclusive) {
+    public ArrayTypeNode tryParseArrayType(int begin, int endExclusive) {
         if (begin >= endExclusive) return null;
         if (!tokens[begin].equals(TokenType.Keyword, "array")) return null;
         if (begin + 1 >= endExclusive) return null;
-        if (!tokens[begin + 1].equals(TokenType.Operator, "]")) return null;
+        if (!tokens[begin + 1].equals(TokenType.Operator, "[")) return null;
 
-        var closingBracketIndex = getIndexOfFirstStandaloneClosingBracket(begin, endExclusive, '[', ']');
+        var closingBracketIndex = getIndexOfFirstStandaloneClosingBracket(begin + 2, endExclusive, '[', ']');
         if (closingBracketIndex == -1) return null;
 
         var expression = tryParseExpression(begin + 2, closingBracketIndex);
@@ -449,12 +445,14 @@ public class Parser {
         return new ArrayTypeNode(expression, type);
     }
 
-    private RecordTypeNode tryParseRecordType(int begin, int endExclusive) {
+    public RecordTypeNode tryParseRecordType(int begin, int endExclusive) {
         if (begin >= endExclusive) return null;
         if (!tokens[begin].equals(TokenType.Keyword, "record")) return null;
         if (!tokens[endExclusive - 1].equals(TokenType.Keyword, "end")) return null;
 
         var record = new RecordTypeNode();
+        begin += 1;
+        endExclusive -= 1;
         var left = begin;
 
         while (left < endExclusive) {
@@ -463,24 +461,21 @@ public class Parser {
                 continue;
             }
 
-            int foundRightExclusive = -1;
+            VariableDeclarationNode variable = null;
 
             for (int rightExclusive = endExclusive; rightExclusive > left; rightExclusive--) {
-                var variable = tryParseVariableDeclaration(left, rightExclusive);
-                if (variable == null) continue;
+                variable = tryParseVariableDeclaration(left, rightExclusive);
 
-                record.Variables.add(variable);
-                foundRightExclusive = rightExclusive;
-                break;
+                if (variable != null) {
+                    record.Variables.add(variable);
+                    left = rightExclusive;
+                    break;
+                }
             }
 
-            if (foundRightExclusive == -1) return null;
-            if (foundRightExclusive != endExclusive &&
-                    tokens[foundRightExclusive].getType() != TokenType.DeclarationSeparator) {
-                return null;
-            }
-
-            left = foundRightExclusive;
+            if (variable == null) return null;
+            if (left >= endExclusive) break;
+            if (tokens[left].getType() != TokenType.DeclarationSeparator) return null;
         }
 
         return record;
@@ -509,12 +504,25 @@ public class Parser {
         return -1;
     }
 
-    private TypeDeclarationNode tryParseTypeDeclaration(int begin, int endExclusive) {
-        return null;
+    public TypeDeclarationNode tryParseTypeDeclaration(int begin, int endExclusive) {
+        if (begin >= endExclusive) return null;
+        if (!tokens[begin].equals(TokenType.Keyword, "type")) return null;
+        if (begin + 1 >= endExclusive) return null;
+
+        var identifier = tryParseIdentifier(begin + 1, begin + 2);
+        if (identifier == null) return null;
+
+        if (begin + 2 >= endExclusive) return null;
+        if (!tokens[begin + 2].equals(TokenType.Keyword, "is")) return null;
+
+        var type = tryParseType(begin + 3, endExclusive);
+        if (type == null) return null;
+
+        return new TypeDeclarationNode(identifier, type);
     }
 
     private RoutineDeclarationNode tryParseRoutineDeclaration(int begin, int endExclusive) {
-        return null;
+        throw new IllegalStateException();
     }
 
     public Parser(Token[] tokens) {
