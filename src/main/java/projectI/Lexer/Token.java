@@ -1,4 +1,4 @@
-package projectI;
+package projectI.Lexer;
 
 import java.util.Objects;
 

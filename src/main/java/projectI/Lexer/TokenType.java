@@ -1,4 +1,4 @@
-package projectI;
+package projectI.Lexer;
 
 /**
  * Token variant.

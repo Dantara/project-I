@@ -1,10 +1,11 @@
-package projectI;
+package projectI.Lexer;
 
 import static org.junit.Assert.assertArrayEquals;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+import org.junit.Assert;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -28,7 +29,7 @@ public class LexerLocationsTest extends TestCase {
 
     public void testLocationsBasic() throws InvalidLexemeException, IOException{
         var stringsWithLocations = scanFile("code_examples/basic.txt");
-        assertArrayEquals(new StringWithLocation[] {
+        Assert.assertArrayEquals(new StringWithLocation[] {
                 new StringWithLocation("routine", 0, 0),
                 new StringWithLocation("main", 0, 8),
                 new StringWithLocation("(", 0, 12),

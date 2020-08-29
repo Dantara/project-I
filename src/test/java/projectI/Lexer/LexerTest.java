@@ -1,4 +1,4 @@
-package projectI;
+package projectI.Lexer;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -29,7 +29,7 @@ public class LexerTest extends TestCase {
 
     public void testArraysAndFor() throws InvalidLexemeException, IOException {
         var tokens = scanFile("code_examples/arrays_and_for.txt");
-        assertArrayEquals(new Token[] {
+        Assert.assertArrayEquals(new Token[] {
                 keyword("var"),
                 identifier("a"),
                 keyword("is"),
