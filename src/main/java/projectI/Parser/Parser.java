@@ -522,7 +522,7 @@ public class Parser {
     }
 
     private RoutineDeclarationNode tryParseRoutineDeclaration(int begin, int endExclusive) {
-        throw new IllegalStateException();
+        return null;
     }
 
     public Parser(Token[] tokens) {
