@@ -67,6 +67,10 @@ public class Token {
                 '}';
     }
 
+    public boolean equals(TokenType type, String lexeme) {
+        return this.type == type && this.lexeme.equals(lexeme);
+    }
+
     private final TokenType type;
     private final String lexeme;
 }
