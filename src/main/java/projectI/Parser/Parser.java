@@ -32,7 +32,7 @@ public class Parser {
 
             if (declaration == null) return null;
 
-            program.Declarations.add(declaration);
+            program.declarations.add(declaration);
 
             if (left == endExclusive) break;
 
@@ -297,6 +297,9 @@ public class Parser {
         var realLiteral = tryParseRealLiteral(begin, endExclusive);
         if (realLiteral != null) return realLiteral;
 
+        var routineCall = tryParseRoutineCall(begin, endExclusive);
+        if (routineCall != null) return routineCall;
+
         if (begin == endExclusive - 1) {
             var booleanLiteralType = tryParseBooleanLiteralType(tokens[begin]);
             if (booleanLiteralType != null) return new BooleanLiteralNode(booleanLiteralType);
@@ -391,9 +394,15 @@ public class Parser {
 
             if (token.equals(TokenType.Operator, ".")) {
                 var member = tryParseIdentifier(left, left + 1);
-                if (member == null) return null;
 
-                modifiablePrimary.addMember(member);
+                if (member != null) {
+                    modifiablePrimary.addMember(member);
+                } else if (tokens[left].equals(TokenType.Keyword, "size")) {
+                    modifiablePrimary.addArraySize();
+                } else {
+                    return null;
+                }
+
                 left++;
             } else if (token.equals(TokenType.Operator, "[")){
                 var closingBracketIndex = getIndexOfFirstStandaloneClosingBracket(left, endExclusive, '[', ']');
@@ -677,7 +686,7 @@ public class Parser {
             if (tokens[left].getType() != TokenType.DeclarationSeparator) return null;
         }
 
-        return null;
+        return body;
     }
 
     public StatementNode tryParseStatement(int begin, int endExclusive) {
@@ -696,7 +705,10 @@ public class Parser {
         var forLoop = tryParseForLoop(begin, endExclusive);
         if (forLoop != null) return forLoop;
 
-        return tryParseIfStatement(begin, endExclusive);
+        var ifStatement = tryParseIfStatement(begin, endExclusive);
+        if (ifStatement != null) return ifStatement;
+
+        return tryParseReturn(begin, endExclusive);
     }
 
     public AssignmentNode tryParseAssignment(int begin, int endExclusive) {
@@ -873,6 +885,18 @@ public class Parser {
         if (body == null) return null;
 
         return new IfStatementNode(condition, body);
+    }
+
+    public ReturnStatementNode tryParseReturn(int begin, int endExclusive) {
+        if (begin >= endExclusive) return null;
+        if (!tokens[begin].equals(TokenType.Keyword, "return")) return null;
+
+        if (begin == endExclusive - 1) return new ReturnStatementNode();
+
+        var expression = tryParseExpression(begin + 1, endExclusive);
+        if (expression == null) return null;
+
+        return new ReturnStatementNode(expression);
     }
 
     public Parser(Token[] tokens) {

@@ -28,7 +28,7 @@ public class ParserTest extends TestCase {
         var program = parse("");
 
         assertNotNull(program);
-        assertEquals(0, program.Declarations.size());
+        assertEquals(0, program.declarations.size());
     }
 
     public void testIdentifier() throws InvalidLexemeException {
@@ -296,8 +296,8 @@ public class ParserTest extends TestCase {
         var program = parse("\nvar a is 1\n\nvar b is 2\n\n");
 
         var expectedProgram = new ProgramNode();
-        expectedProgram.Declarations.add(createParser("var a is 1").tryParseVariableDeclaration(0, 4));
-        expectedProgram.Declarations.add(createParser("var b is 2").tryParseVariableDeclaration(0, 4));
+        expectedProgram.declarations.add(createParser("var a is 1").tryParseVariableDeclaration(0, 4));
+        expectedProgram.declarations.add(createParser("var b is 2").tryParseVariableDeclaration(0, 4));
 
         assertNotNull(program);
         assertEquals(expectedProgram, program);
@@ -655,5 +655,105 @@ public class ParserTest extends TestCase {
                         new BodyNode().add(new RoutineCallNode(new IdentifierNode("main"))),
                         new BodyNode().add(new RoutineCallNode(new IdentifierNode("main")))),
                 ifStatement);
+    }
+
+    public void testComplexRoutine() throws InvalidLexemeException {
+        var routine = createParser("routine main() is\nvar a is 1\nvar b is 2\nend")
+                .tryParseRoutineDeclaration(0, 17);
+
+        var expectedBody = new BodyNode()
+                .add(new VariableDeclarationNode(new IdentifierNode("a"), null, ExpressionNode.integerLiteral(1)))
+                .add(new VariableDeclarationNode(new IdentifierNode("b"), null, ExpressionNode.integerLiteral(2)));
+        var expectedRoutine = new RoutineDeclarationNode(new IdentifierNode("main"), new ParametersNode(), expectedBody);
+        assertNotNull(routine);
+        assertEquals(expectedRoutine, routine);
+    }
+
+    public void testComplexBody() throws InvalidLexemeException {
+        var body = createParser("\nvar a is 1\nvar b is 1\n")
+                .tryParseBody(0, 11);
+
+        var expectedBody = new BodyNode()
+                .add(new VariableDeclarationNode(new IdentifierNode("a"), null, ExpressionNode.integerLiteral(1)))
+                .add(new VariableDeclarationNode(new IdentifierNode("b"), null, ExpressionNode.integerLiteral(1)));
+        assertNotNull(body);
+        assertEquals(expectedBody, body);
+    }
+
+    public void testComplexTypeDeclaration() throws InvalidLexemeException {
+        var type = createParser("type arr8 is array[8] integer")
+                .tryParseTypeDeclaration(0, 8);
+
+        assertNotNull(type);
+        assertEquals(new TypeDeclarationNode(new IdentifierNode("arr8"),
+                new ArrayTypeNode(ExpressionNode.integerLiteral(8), new PrimitiveTypeNode(PrimitiveTypeNode.Type.INTEGER))),
+                type);
+    }
+
+    public void testBooleanSizeArray() throws InvalidLexemeException {
+        var type = createParser("type booleanArray is array[true or false] boolean")
+                .tryParseTypeDeclaration(0, 10);
+
+        assertNotNull(type);
+    }
+
+    public void testArraySize() throws InvalidLexemeException {
+        var modifiable = createParser("a.size")
+                .tryParseModifiablePrimary(0, 3);
+
+        assertNotNull(modifiable);
+        assertEquals(new ModifiablePrimaryNode(new IdentifierNode("a"))
+                .addArraySize(), modifiable);
+    }
+
+    public void testManyBrackets1() throws InvalidLexemeException {
+        var expression = createParser("((1 + 3) * (5 - 2)) * 3")
+                .tryParseExpression(0, 15);
+
+        assertNotNull(expression);
+    }
+
+    public void testManyBrackets2() throws InvalidLexemeException {
+        var expression = createParser("1.0 * (((4.2 / 2.1) + 5.0) - 2.3)")
+                .tryParseExpression(0, 15);
+
+        assertNotNull(expression);
+    }
+
+    public void testReturnStatement() throws InvalidLexemeException {
+        var returnStatement = createParser("return 0").tryParseReturn(0, 2);
+
+        assertNotNull(returnStatement);
+        assertEquals(new ReturnStatementNode(ExpressionNode.integerLiteral(0)), returnStatement);
+    }
+
+    public void testBodyWithReturn() throws InvalidLexemeException {
+        var body = createParser("return 0").tryParseBody(0, 2);
+
+        assertNotNull(body);
+        assertEquals(new BodyNode().add(new ReturnStatementNode(ExpressionNode.integerLiteral(0))), body);
+    }
+
+    public void testEmptyReturn() throws InvalidLexemeException {
+        var returnStatement = createParser("return").tryParseReturn(0, 1);
+
+        assertNotNull(returnStatement);
+        assertEquals(new ReturnStatementNode(), returnStatement);
+    }
+
+    public void testRoutineWithReturn() throws InvalidLexemeException {
+        var routine = createParser("routine main(): integer is return 0 end")
+                .tryParseRoutineDeclaration(0, 10);
+
+        var body = new BodyNode()
+                .add(new ReturnStatementNode(ExpressionNode.integerLiteral(0)));
+
+        var expectedRoutine = new RoutineDeclarationNode(new IdentifierNode("main"),
+                new ParametersNode(),
+                new PrimitiveTypeNode(PrimitiveTypeNode.Type.INTEGER),
+                body);
+
+        assertNotNull(routine);
+        assertEquals(expectedRoutine, routine);
     }
  }

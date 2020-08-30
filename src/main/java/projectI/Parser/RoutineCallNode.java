@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class RoutineCallNode implements StatementNode {
+public class RoutineCallNode implements StatementNode, PrimaryNode {
     public final IdentifierNode name;
     public final List<ExpressionNode> arguments = new ArrayList<>();
 
