@@ -7,6 +7,11 @@ import java.util.Objects;
 public class BodyNode implements ASTNode {
     public final List<StatementNode> statements = new ArrayList<>();
 
+    public BodyNode add(StatementNode statement) {
+        statements.add(statement);
+        return this;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

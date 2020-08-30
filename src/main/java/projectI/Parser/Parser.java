@@ -561,7 +561,7 @@ public class Parser {
     public RoutineDeclarationNode tryParseRoutineDeclaration(int begin, int endExclusive) {
         if (begin >= endExclusive) return null;
         if (!tokens[begin].equals(TokenType.Keyword, "routine")) return null;
-        if (tokens[endExclusive - 1].equals(TokenType.Keyword, "end")) return null;
+        if (!tokens[endExclusive - 1].equals(TokenType.Keyword, "end")) return null;
 
         endExclusive--;
 
@@ -580,22 +580,299 @@ public class Parser {
 
         if (matchingParenthesisIndex + 1 >= endExclusive) return null;
 
-        if (tokens[matchingParenthesisIndex + 1].equals(TokenType.Operator, "is")) {
+        if (tokens[matchingParenthesisIndex + 1].equals(TokenType.Keyword, "is")) {
             var body = tryParseBody(matchingParenthesisIndex + 2, endExclusive);
             if (body == null) return null;
 
             return new RoutineDeclarationNode(identifier, parameters, body);
+        } else if (tokens[matchingParenthesisIndex + 1].equals(TokenType.Operator, ":")) {
+            for (int isIndex = matchingParenthesisIndex + 2; isIndex < endExclusive; isIndex++) {
+                if (!tokens[isIndex].equals(TokenType.Keyword, "is")) continue;
+
+                var returnType = tryParseType(matchingParenthesisIndex + 2, isIndex);
+                if (returnType == null) continue;
+
+                var body = tryParseBody(isIndex + 1, endExclusive);
+                if (body == null) continue;
+
+                return new RoutineDeclarationNode(identifier, parameters, returnType, body);
+            }
         }
 
         return null;
     }
 
     public ParametersNode tryParseParameters(int begin, int endExclusive) {
-        return null;
+        var parameters = new ParametersNode();
+        if (begin >= endExclusive) return parameters;
+
+        var left = begin;
+
+        while (left < endExclusive) {
+            var commaIndex = getIndexOfFirstToken(left, endExclusive, TokenType.Operator, ",");
+
+            if (commaIndex == -1) {
+                if (left + 2 >= endExclusive) return null;
+                if (!tokens[left + 1].equals(TokenType.Operator, ":")) return null;
+
+                var identifier = tryParseIdentifier(left, left + 1);
+                if (identifier == null) return null;
+
+                var type = tryParseType(left + 2, endExclusive);
+                if (type == null) return null;
+
+                parameters.parameters.add(new Pair<>(identifier, type));
+                left = endExclusive;
+            } else {
+                if (left + 2 >= commaIndex) return null;
+                if (commaIndex == endExclusive - 1) return null;
+                if (!tokens[left + 1].equals(TokenType.Operator, ":")) return null;
+
+                var identifier = tryParseIdentifier(left, left + 1);
+                if (identifier == null) return null;
+
+                var type = tryParseType(left + 2, commaIndex);
+                if (type == null) return null;
+
+                parameters.parameters.add(new Pair<>(identifier, type));
+                left = commaIndex + 1;
+            }
+        }
+
+        return parameters;
+    }
+
+    private int getIndexOfFirstToken(int begin, int endExclusive, TokenType type, String lexeme) {
+        for (int index = begin; index < endExclusive; index++) {
+            if (tokens[index].equals(type, lexeme))
+                return index;
+        }
+
+        return -1;
     }
 
     public BodyNode tryParseBody(int begin, int endExclusive) {
+        var body = new BodyNode();
+        if (begin >= endExclusive) return body;
+
+        var left = begin;
+
+        while (left < endExclusive) {
+            if (tokens[left].getType() == TokenType.DeclarationSeparator) {
+                left++;
+                continue;
+            }
+
+            for (int rightExclusive = endExclusive; rightExclusive > left; rightExclusive--) {
+                var statement = tryParseStatement(left, rightExclusive);
+
+                if (statement != null) {
+                    body.statements.add(statement);
+                    left = rightExclusive;
+                    break;
+                }
+            }
+
+            if (left == endExclusive) return body;
+            if (tokens[left].getType() != TokenType.DeclarationSeparator) return null;
+        }
+
         return null;
+    }
+
+    public StatementNode tryParseStatement(int begin, int endExclusive) {
+        var simpleDeclaration = tryParseSimpleDeclaration(begin, endExclusive);
+        if (simpleDeclaration != null) return simpleDeclaration;
+
+        var assignment = tryParseAssignment(begin, endExclusive);
+        if (assignment != null) return assignment;
+
+        var routineCall = tryParseRoutineCall(begin, endExclusive);
+        if (routineCall != null) return routineCall;
+
+        var whileLoop = tryParseWhileLoop(begin, endExclusive);
+        if (whileLoop != null) return whileLoop;
+
+        var forLoop = tryParseForLoop(begin, endExclusive);
+        if (forLoop != null) return forLoop;
+
+        return tryParseIfStatement(begin, endExclusive);
+    }
+
+    public AssignmentNode tryParseAssignment(int begin, int endExclusive) {
+        int assignmentIndex = -1;
+
+        for (int index = begin + 1; index < endExclusive - 1; index++) {
+            if (tokens[index].equals(TokenType.Operator, ":=")) {
+                assignmentIndex = index;
+                break;
+            }
+        }
+
+        if (assignmentIndex == -1) return null;
+
+        var modifiable = tryParseModifiablePrimary(begin, assignmentIndex);
+        if (modifiable == null) return null;
+
+        var expression = tryParseExpression(assignmentIndex + 1, endExclusive);
+        if (expression == null) return null;
+
+        return new AssignmentNode(modifiable, expression);
+    }
+
+    public RoutineCallNode tryParseRoutineCall(int begin, int endExclusive) {
+        if (begin >= endExclusive) return null;
+
+        var name = tryParseIdentifier(begin, begin + 1);
+        if (name == null) return null;
+
+        var routineCall = new RoutineCallNode(name);
+        if (begin == endExclusive - 1) return routineCall;
+
+        if (!tokens[begin + 1].equals(TokenType.Operator, "(")) return null;
+        if (!tokens[endExclusive - 1].equals(TokenType.Operator, ")")) return null;
+
+        var left = begin + 2;
+        endExclusive--;
+
+        while (left < endExclusive) {
+            var commaIndex = getIndexOfFirstToken(left, endExclusive, TokenType.Operator, ",");
+
+            if (commaIndex == -1) {
+                var argument = tryParseExpression(left, endExclusive);
+                if (argument == null) return null;
+
+                routineCall.arguments.add(argument);
+                left = endExclusive;
+            } else {
+                var argument = tryParseExpression(left, commaIndex);
+                if (argument == null) return null;
+
+                routineCall.arguments.add(argument);
+                left = commaIndex + 1;
+                if (left == endExclusive) return null;
+            }
+        }
+
+        if (routineCall.arguments.size() == 0) return null;
+
+        return routineCall;
+    }
+
+    public WhileLoopNode tryParseWhileLoop(int begin, int endExclusive) {
+        if (begin >= endExclusive) return null;
+        if (!tokens[begin].equals(TokenType.Keyword, "while")) return null;
+        if (!tokens[endExclusive - 1].equals(TokenType.Keyword, "end")) return null;
+
+        var loopTokenIndex = -1;
+
+        for (int index = begin + 1; index < endExclusive - 1; index++) {
+            if (tokens[index].equals(TokenType.Keyword, "loop"))
+            {
+                loopTokenIndex = index;
+                break;
+            }
+        }
+
+        if (loopTokenIndex == -1) return null;
+
+        var condition = tryParseExpression(begin + 1, loopTokenIndex);
+        if (condition == null) return null;
+
+        var body = tryParseBody(loopTokenIndex + 1, endExclusive - 1);
+        if (body == null) return null;
+
+        return new WhileLoopNode(condition, body);
+    }
+
+    public ForLoopNode tryParseForLoop(int begin, int endExclusive) {
+        if (begin >= endExclusive) return null;
+        if (!tokens[begin].equals(TokenType.Keyword, "for")) return null;
+        if (!tokens[endExclusive - 1].equals(TokenType.Keyword, "end")) return null;
+
+        begin++;
+        endExclusive--;
+
+        var variable = tryParseIdentifier(begin, begin + 1);
+        if (variable == null) return null;
+
+        begin++;
+        var loopIndex = -1;
+
+        for (int index = begin; index < endExclusive; index++) {
+            if (tokens[index].equals(TokenType.Keyword, "loop")) {
+                loopIndex = index;
+                break;
+            }
+        }
+
+        if (loopIndex == -1) return null;
+
+        var range = tryParseRange(begin, loopIndex);
+        if (range == null) return null;
+
+        var body = tryParseBody(loopIndex + 1, endExclusive);
+        if (body == null) return null;
+
+        return new ForLoopNode(variable, range, body);
+    }
+
+    public RangeNode tryParseRange(int begin, int endExclusive) {
+        if (begin >= endExclusive) return null;
+        if (!tokens[begin].equals(TokenType.Keyword, "in")) return null;
+
+        begin++;
+        if (begin >= endExclusive) return null;
+
+        boolean reverse = false;
+
+        if (tokens[begin].equals(TokenType.Keyword, "reverse")) {
+            reverse = true;
+            begin++;
+        }
+
+        var dotsIndex = getIndexOfFirstToken(begin, endExclusive, TokenType.Operator, "..");
+        if (dotsIndex == -1) return null;
+
+        var from = tryParseExpression(begin, dotsIndex);
+        if (from == null) return null;
+
+        var to = tryParseExpression(dotsIndex + 1, endExclusive);
+        if (to == null) return null;
+
+        return new RangeNode(from, to, reverse);
+    }
+
+    public IfStatementNode tryParseIfStatement(int begin, int endExclusive) {
+        if (begin >= endExclusive) return null;
+        if (!tokens[begin].equals(TokenType.Keyword, "if")) return null;
+        if (!tokens[endExclusive - 1].equals(TokenType.Keyword, "end")) return null;
+
+        begin++;
+        endExclusive--;
+
+        var thenIndex = getIndexOfFirstToken(begin, endExclusive, TokenType.Keyword, "then");
+        if (thenIndex == -1) return null;
+
+        var condition = tryParseExpression(begin, thenIndex);
+        if (condition == null) return null;
+
+        for (int elseIndex = thenIndex + 1; elseIndex < endExclusive; elseIndex++) {
+            if (tokens[elseIndex].equals(TokenType.Keyword, "else")) {
+                var body = tryParseBody(thenIndex + 1, elseIndex);
+                if (body == null) continue;
+
+                var elseBody = tryParseBody(elseIndex + 1, endExclusive);
+                if (elseBody == null) continue;
+
+                return new IfStatementNode(condition, body, elseBody);
+            }
+        }
+
+        var body = tryParseBody(thenIndex + 1, endExclusive);
+        if (body == null) return null;
+
+        return new IfStatementNode(condition, body);
     }
 
     public Parser(Token[] tokens) {

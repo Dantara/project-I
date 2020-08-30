@@ -334,7 +334,7 @@ public class ParserTest extends TestCase {
         assertEquals(new RecordTypeNode(), record);
     }
 
-    public void testNotSeparatedRecord() throws InvalidLexemeException {
+    public void testNotSeparatedRecord_Invalid() throws InvalidLexemeException {
         var record = createParser("record \nvar a is 1 var b is 2\n end").tryParseRecordType(0, 12);
 
         assertNull(record);
@@ -433,5 +433,227 @@ public class ParserTest extends TestCase {
         var expectedRoutine = new RoutineDeclarationNode(new IdentifierNode("main"), new ParametersNode(), new BodyNode());
         assertNotNull(routine);
         assertEquals(expectedRoutine, routine);
+    }
+
+    public void testEmptyRoutineWithReturnType() throws InvalidLexemeException {
+        var routine = createParser("routine main(): integer is end").tryParseRoutineDeclaration(0, 8);
+
+        var expectedRoutine = new RoutineDeclarationNode(new IdentifierNode("main"), new ParametersNode(),
+                new PrimitiveTypeNode(PrimitiveTypeNode.Type.INTEGER), new BodyNode());
+        assertNotNull(routine);
+        assertEquals(expectedRoutine, routine);
+    }
+
+    public void testEmptyRoutineParameters() throws InvalidLexemeException {
+        var routine = createParser("routine main(a: integer, b: real): integer is end").tryParseRoutineDeclaration(0, 15);
+
+        var parameters = new ParametersNode();
+        parameters.parameters.add(new Pair<>(new IdentifierNode("a"), new PrimitiveTypeNode(PrimitiveTypeNode.Type.INTEGER)));
+        parameters.parameters.add(new Pair<>(new IdentifierNode("b"), new PrimitiveTypeNode(PrimitiveTypeNode.Type.REAL)));
+        var expectedRoutine = new RoutineDeclarationNode(new IdentifierNode("main"), parameters,
+                new PrimitiveTypeNode(PrimitiveTypeNode.Type.INTEGER), new BodyNode());
+        assertNotNull(routine);
+        assertEquals(expectedRoutine, routine);
+    }
+
+    public void testEmptyBody() throws InvalidLexemeException {
+        var body = createParser("").tryParseBody(0, 0);
+
+        assertNotNull(body);
+        assertEquals(new BodyNode(), body);
+    }
+
+    public void testEmptyParameters() throws InvalidLexemeException {
+        var parameters = createParser("").tryParseParameters(0, 0);
+
+        assertNotNull(parameters);
+        assertEquals(new ParametersNode(), parameters);
+    }
+
+    public void testSingleParameter() throws InvalidLexemeException {
+        var parameters = createParser("a: integer").tryParseParameters(0, 3);
+
+        var expectedParameters = new ParametersNode();
+        expectedParameters.parameters.add(new Pair<>(new IdentifierNode("a"), new PrimitiveTypeNode(PrimitiveTypeNode.Type.INTEGER)));
+        assertNotNull(parameters);
+        assertEquals(expectedParameters, parameters);
+    }
+
+    public void testSeveralParameters() throws InvalidLexemeException {
+        var parameters = createParser("a: integer, b: real, c: boolean").tryParseParameters(0, 11);
+
+        var expectedParameters = new ParametersNode();
+        expectedParameters.parameters.add(new Pair<>(new IdentifierNode("a"), new PrimitiveTypeNode(PrimitiveTypeNode.Type.INTEGER)));
+        expectedParameters.parameters.add(new Pair<>(new IdentifierNode("b"), new PrimitiveTypeNode(PrimitiveTypeNode.Type.REAL)));
+        expectedParameters.parameters.add(new Pair<>(new IdentifierNode("c"), new PrimitiveTypeNode(PrimitiveTypeNode.Type.BOOLEAN)));
+        assertNotNull(parameters);
+        assertEquals(expectedParameters, parameters);
+    }
+
+    public void testParametersWithEndingComma_Invalid() throws InvalidLexemeException {
+        var parameters = createParser("a: integer,").tryParseParameters(0, 4);
+        assertNull(parameters);
+    }
+
+    public void testBasicAssignment() throws InvalidLexemeException {
+        var assignment = createParser("a := 1").tryParseAssignment(0, 3);
+
+        assertNotNull(assignment);
+        assertEquals(new AssignmentNode(new ModifiablePrimaryNode(new IdentifierNode("a")), ExpressionNode.integerLiteral(1)), assignment);
+    }
+
+    public void testRoutineCallWithoutArguments() throws InvalidLexemeException {
+        var call = createParser("main").tryParseRoutineCall(0, 1);
+
+        assertNotNull(call);
+        assertEquals(new RoutineCallNode(new IdentifierNode("main")), call);
+    }
+
+    public void testRoutineCallWithOneArgument() throws InvalidLexemeException {
+        var call = createParser("main(1)").tryParseRoutineCall(0, 4);
+
+        var expectedCall = new RoutineCallNode(new IdentifierNode("main"));
+        expectedCall.arguments.add(ExpressionNode.integerLiteral(1));
+
+        assertNotNull(call);
+        assertEquals(expectedCall, call);
+    }
+
+    public void testRoutineCallWithSeveralArguments() throws InvalidLexemeException {
+        var call = createParser("main(1, 2, 3)").tryParseRoutineCall(0, 8);
+
+        var expectedCall = new RoutineCallNode(new IdentifierNode("main"));
+        expectedCall.arguments.add(ExpressionNode.integerLiteral(1));
+        expectedCall.arguments.add(ExpressionNode.integerLiteral(2));
+        expectedCall.arguments.add(ExpressionNode.integerLiteral(3));
+
+        assertNotNull(call);
+        assertEquals(expectedCall, call);
+    }
+
+    public void testRoutineCallWithEndingComma_Invalid() throws InvalidLexemeException {
+        var call = createParser("main(1,)").tryParseRoutineCall(0, 5);
+
+        assertNull(call);
+    }
+
+    public void testRoutineCallWithEmptyParentheses_Invalid() throws InvalidLexemeException {
+        var call = createParser("main()").tryParseRoutineCall(0, 3);
+
+        assertNull(call);
+    }
+
+    public void testEmptyWhileLoop() throws InvalidLexemeException {
+        var loop = createParser("while 1 loop end").tryParseWhileLoop(0, 4);
+
+        assertNotNull(loop);
+        assertEquals(new WhileLoopNode(ExpressionNode.integerLiteral(1), new BodyNode()), loop);
+    }
+
+    public void testWhileLoopWithoutCondition_Invalid() throws InvalidLexemeException {
+        var loop = createParser("while loop end").tryParseWhileLoop(0, 3);
+
+        assertNull(loop);
+    }
+
+    public void testWhileLoopWithoutLoop_Invalid() throws InvalidLexemeException {
+        var loop = createParser("while 1 end").tryParseWhileLoop(0, 3);
+
+        assertNull(loop);
+    }
+
+    public void testWhileLoopWithSingleStatement() throws InvalidLexemeException {
+        var loop = createParser("while 1 loop i := 1 end").tryParseWhileLoop(0, 7);
+
+        var body = new BodyNode();
+        body.statements.add(new AssignmentNode(new ModifiablePrimaryNode(new IdentifierNode("i")),
+                ExpressionNode.integerLiteral(1)));
+        var expectedLoop = new WhileLoopNode(ExpressionNode.integerLiteral(1), body);
+        assertNotNull(loop);
+        assertEquals(expectedLoop, loop);
+    }
+
+    public void testRange() throws InvalidLexemeException {
+        var range = createParser("in 1..1").tryParseRange(0, 4);
+
+        assertNotNull(range);
+        assertEquals(new RangeNode(ExpressionNode.integerLiteral(1), ExpressionNode.integerLiteral(1), false), range);
+    }
+
+    public void testRangeReverse() throws InvalidLexemeException {
+        var range = createParser("in reverse 1..1").tryParseRange(0, 5);
+
+        assertNotNull(range);
+        assertEquals(new RangeNode(ExpressionNode.integerLiteral(1), ExpressionNode.integerLiteral(1), true), range);
+    }
+
+    public void testEmptyForLoop() throws InvalidLexemeException {
+        var loop = createParser("for i in 1..1 loop end").tryParseForLoop(0, 8);
+
+        var expectedLoop = new ForLoopNode(new IdentifierNode("i"),
+                new RangeNode(ExpressionNode.integerLiteral(1), ExpressionNode.integerLiteral(1), false),
+                new BodyNode());
+        assertNotNull(loop);
+        assertEquals(expectedLoop, loop);
+    }
+
+    public void testForLoop() throws InvalidLexemeException {
+        var loop = createParser("for i in 1..1 loop main end").tryParseForLoop(0, 9);
+
+        var body = new BodyNode();
+        body.statements.add(new RoutineCallNode(new IdentifierNode("main")));
+        var expectedLoop = new ForLoopNode(new IdentifierNode("i"),
+                new RangeNode(ExpressionNode.integerLiteral(1), ExpressionNode.integerLiteral(1), false),
+                body);
+        assertNotNull(loop);
+        assertEquals(expectedLoop, loop);
+    }
+
+    public void testForWithoutVariable_Invalid() throws InvalidLexemeException {
+        var loop = createParser("for in 1..1 loop end").tryParseForLoop(0, 7);
+
+        assertNull(loop);
+    }
+
+    public void testForWithoutRange_Invalid() throws InvalidLexemeException {
+        var loop = createParser("for i in loop end").tryParseForLoop(0, 5);
+
+        assertNull(loop);
+    }
+
+    public void testForWithoutLoop_Invalid() throws InvalidLexemeException {
+        var loop = createParser("for i in 1..1 end").tryParseForLoop(0, 7);
+
+        assertNull(loop);
+    }
+
+    public void testEmptyIfStatement() throws InvalidLexemeException {
+        var ifStatement = createParser("if 1 then end").tryParseIfStatement(0, 4);
+
+        assertNotNull(ifStatement);
+        assertEquals(new IfStatementNode(ExpressionNode.integerLiteral(1), new BodyNode()), ifStatement);
+    }
+
+    public void testEmptyIfAndElseStatements() throws InvalidLexemeException {
+        var ifStatement = createParser("if 1 then else end").tryParseIfStatement(0, 5);
+
+        assertNotNull(ifStatement);
+        assertEquals(new IfStatementNode(ExpressionNode.integerLiteral(1), new BodyNode(), new BodyNode()), ifStatement);
+    }
+
+    public void testIfStatementWithoutCondition_Invalid() throws InvalidLexemeException {
+        var ifStatement = createParser("if then end").tryParseIfStatement(0, 3);
+
+        assertNull(ifStatement);
+    }
+
+    public void testIfAndElseStatements() throws InvalidLexemeException {
+        var ifStatement = createParser("if 1 then main else main end").tryParseIfStatement(0, 7);
+
+        assertNotNull(ifStatement);
+        assertEquals(new IfStatementNode(ExpressionNode.integerLiteral(1),
+                        new BodyNode().add(new RoutineCallNode(new IdentifierNode("main"))),
+                        new BodyNode().add(new RoutineCallNode(new IdentifierNode("main")))),
+                ifStatement);
     }
  }
