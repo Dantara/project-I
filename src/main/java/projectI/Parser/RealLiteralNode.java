@@ -4,9 +4,16 @@ import java.util.Objects;
 
 public class RealLiteralNode implements PrimaryNode {
     public final double value;
+    public final Sign sign;
 
     public RealLiteralNode(double value) {
         this.value = value;
+        sign = null;
+    }
+
+    public RealLiteralNode(double value, Sign sign) {
+        this.value = value;
+        this.sign = sign;
     }
 
     @Override
@@ -20,5 +27,9 @@ public class RealLiteralNode implements PrimaryNode {
     @Override
     public int hashCode() {
         return Objects.hash(value);
+    }
+
+    public enum Sign {
+        PLUS, MINUS
     }
 }

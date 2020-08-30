@@ -4,9 +4,16 @@ import java.util.Objects;
 
 public class IntegralLiteralNode implements PrimaryNode {
     public final int value;
+    public final Sign sign;
 
     public IntegralLiteralNode(int value) {
         this.value = value;
+        this.sign = null;
+    }
+
+    public IntegralLiteralNode(int value, Sign sign) {
+        this.value = value;
+        this.sign = sign;
     }
 
     @Override
@@ -20,5 +27,9 @@ public class IntegralLiteralNode implements PrimaryNode {
     @Override
     public int hashCode() {
         return Objects.hash(value);
+    }
+
+    public enum Sign {
+        PLUS, MINUS, NOT
     }
 }

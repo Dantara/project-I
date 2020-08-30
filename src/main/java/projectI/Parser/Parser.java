@@ -306,11 +306,30 @@ public class Parser {
     }
 
     public IntegralLiteralNode tryParseIntegralLiteral(int begin, int endExclusive) {
-        if (begin != endExclusive - 1) return null;
-        if (tokens[begin].getType() != TokenType.Literal) return null;
+        Token literalToken;
+        IntegralLiteralNode.Sign sign;
+
+        if (begin == endExclusive - 1) {
+            literalToken = tokens[begin];
+        } else if (begin == endExclusive - 2) {
+            literalToken = tokens[begin + 1];
+
+            if (tokens[begin].getType() != TokenType.Operator) return null;
+
+            sign = switch (tokens[begin].getLexeme()) {
+                case "+" -> IntegralLiteralNode.Sign.PLUS;
+                case "-" -> IntegralLiteralNode.Sign.MINUS;
+                case "not" -> IntegralLiteralNode.Sign.NOT;
+                default -> null;
+            };
+
+            if (sign == null) return null;
+        } else {
+            return null;
+        }
 
         try {
-            var value = Integer.parseInt(tokens[begin].getLexeme());
+            var value = Integer.parseInt(literalToken.getLexeme());
             return new IntegralLiteralNode(value);
         } catch (NumberFormatException ignored) {
             return null;
@@ -318,11 +337,29 @@ public class Parser {
     }
 
     private RealLiteralNode tryParseRealLiteral(int begin, int endExclusive) {
-        if (begin != endExclusive - 1) return null;
-        if (tokens[begin].getType() != TokenType.Literal) return null;
+        Token literalToken;
+        RealLiteralNode.Sign sign;
+
+        if (begin == endExclusive - 1) {
+            literalToken = tokens[begin];
+        } else if (begin == endExclusive - 2) {
+            literalToken = tokens[begin + 1];
+
+            if (tokens[begin].getType() != TokenType.Operator) return null;
+
+            sign = switch (tokens[begin].getLexeme()) {
+                case "+" -> RealLiteralNode.Sign.PLUS;
+                case "-" -> RealLiteralNode.Sign.MINUS;
+                default -> null;
+            };
+
+            if (sign == null) return null;
+        } else {
+            return null;
+        }
 
         try {
-            var value = Double.parseDouble(tokens[begin].getLexeme());
+            var value = Double.parseDouble(literalToken.getLexeme());
             return new RealLiteralNode(value);
         } catch (NumberFormatException ignored) {
             return null;
@@ -521,7 +558,43 @@ public class Parser {
         return new TypeDeclarationNode(identifier, type);
     }
 
-    private RoutineDeclarationNode tryParseRoutineDeclaration(int begin, int endExclusive) {
+    public RoutineDeclarationNode tryParseRoutineDeclaration(int begin, int endExclusive) {
+        if (begin >= endExclusive) return null;
+        if (!tokens[begin].equals(TokenType.Keyword, "routine")) return null;
+        if (tokens[endExclusive - 1].equals(TokenType.Keyword, "end")) return null;
+
+        endExclusive--;
+
+        if (begin + 1 >= endExclusive) return null;
+        var identifier = tryParseIdentifier(begin + 1, begin + 2);
+        if (identifier == null) return null;
+
+        if (begin + 2 >= endExclusive) return null;
+        if (!tokens[begin + 2].equals(TokenType.Operator, "(")) return null;
+
+        var matchingParenthesisIndex = getIndexOfFirstStandaloneClosingBracket(begin + 3, endExclusive, '(', ')');
+        if (matchingParenthesisIndex == -1) return null;
+
+        var parameters = tryParseParameters(begin + 3, matchingParenthesisIndex);
+        if (parameters == null) return null;
+
+        if (matchingParenthesisIndex + 1 >= endExclusive) return null;
+
+        if (tokens[matchingParenthesisIndex + 1].equals(TokenType.Operator, "is")) {
+            var body = tryParseBody(matchingParenthesisIndex + 2, endExclusive);
+            if (body == null) return null;
+
+            return new RoutineDeclarationNode(identifier, parameters, body);
+        }
+
+        return null;
+    }
+
+    public ParametersNode tryParseParameters(int begin, int endExclusive) {
+        return null;
+    }
+
+    public BodyNode tryParseBody(int begin, int endExclusive) {
         return null;
     }
 

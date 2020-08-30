@@ -348,6 +348,41 @@ public class ParserTest extends TestCase {
         assertEquals(expectedArray, array);
     }
 
+    public void testIntegerWithMinus() throws InvalidLexemeException {
+        var primary = createParser("- 1").tryParsePrimary(0, 2);
+
+        assertNotNull(primary);
+        assertEquals(new IntegralLiteralNode(1, IntegralLiteralNode.Sign.MINUS), primary);
+    }
+
+    public void testIntegerWithPlus() throws InvalidLexemeException {
+        var primary = createParser("+ 1").tryParsePrimary(0, 2);
+
+        assertNotNull(primary);
+        assertEquals(new IntegralLiteralNode(1, IntegralLiteralNode.Sign.PLUS), primary);
+    }
+
+    public void testIntegerWithNot() throws InvalidLexemeException {
+        var primary = createParser("not 1").tryParsePrimary(0, 2);
+
+        assertNotNull(primary);
+        assertEquals(new IntegralLiteralNode(1, IntegralLiteralNode.Sign.NOT), primary);
+    }
+
+    public void testRealWithMinus() throws InvalidLexemeException {
+        var primary = createParser("- 1.0").tryParsePrimary(0, 2);
+
+        assertNotNull(primary);
+        assertEquals(new RealLiteralNode(1.0, RealLiteralNode.Sign.MINUS), primary);
+    }
+
+    public void testRealWithPlus() throws InvalidLexemeException {
+        var primary = createParser("+ 1.0").tryParsePrimary(0, 2);
+
+        assertNotNull(primary);
+        assertEquals(new RealLiteralNode(1.0, RealLiteralNode.Sign.PLUS), primary);
+    }
+
     public void testArrayOfArrays() throws InvalidLexemeException {
         var array = createParser("array [10] array [10] integer").tryParseArrayType(0, 9);
 
@@ -390,5 +425,13 @@ public class ParserTest extends TestCase {
         var expectedType = new TypeDeclarationNode(new IdentifierNode("i"), record);
         assertNotNull(type);
         assertEquals(expectedType, type);
+    }
+
+    public void testEmptyRoutine() throws InvalidLexemeException {
+        var routine = createParser("routine main() is end").tryParseRoutineDeclaration(0, 6);
+
+        var expectedRoutine = new RoutineDeclarationNode(new IdentifierNode("main"), new ParametersNode(), new BodyNode());
+        assertNotNull(routine);
+        assertEquals(expectedRoutine, routine);
     }
  }

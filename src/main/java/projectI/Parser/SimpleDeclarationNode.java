@@ -1,4 +1,4 @@
 package projectI.Parser;
 
-public class SimpleDeclarationNode extends DeclarationNode {
+public class SimpleDeclarationNode extends DeclarationNode implements StatementNode {
 }
