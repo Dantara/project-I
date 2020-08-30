@@ -21,7 +21,7 @@ public class Parser {
 
             DeclarationNode declaration = null;
 
-            for (int rightExclusive = endExclusive; rightExclusive > left; rightExclusive--) {
+            for (int rightExclusive = left + 1; rightExclusive <= endExclusive; rightExclusive++) {
                 declaration = tryParseDeclaration(left, rightExclusive);
 
                 if (declaration != null) {
