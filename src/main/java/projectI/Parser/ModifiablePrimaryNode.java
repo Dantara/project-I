@@ -71,6 +71,11 @@ public class ModifiablePrimaryNode implements PrimaryNode {
         public int hashCode() {
             return Objects.hash(name);
         }
+
+        @Override
+        public String toString() {
+            return "." + name;
+        }
     }
 
     public static final class Indexer extends Accessor {
@@ -92,6 +97,11 @@ public class ModifiablePrimaryNode implements PrimaryNode {
         public int hashCode() {
             return Objects.hash(value);
         }
+
+        @Override
+        public String toString() {
+            return "[" + value + "]";
+        }
     }
 
     public static final class ArraySize extends Accessor {
@@ -103,5 +113,22 @@ public class ModifiablePrimaryNode implements PrimaryNode {
         public boolean equals(Object obj) {
             return obj != null && obj.getClass() == ArraySize.class;
         }
+
+        @Override
+        public String toString() {
+            return ".size";
+        }
+    }
+
+    @Override
+    public String toString() {
+        var builder = new StringBuilder();
+        builder.append(identifier);
+
+        for (var accessor : accessors) {
+            builder.append(accessor);
+        }
+
+        return builder.toString();
     }
 }

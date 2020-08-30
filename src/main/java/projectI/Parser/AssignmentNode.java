@@ -24,4 +24,9 @@ public class AssignmentNode implements StatementNode{
     public int hashCode() {
         return Objects.hash(modifiable, assignedValue);
     }
+
+    @Override
+    public String toString() {
+        return modifiable + " := " + assignedValue;
+    }
 }

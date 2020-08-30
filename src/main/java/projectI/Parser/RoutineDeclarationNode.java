@@ -37,4 +37,35 @@ public class RoutineDeclarationNode extends DeclarationNode {
     public int hashCode() {
         return Objects.hash(name, parameters, returnType, body);
     }
+
+    @Override
+    public String toString() {
+        var builder = new StringBuilder();
+
+        builder.append("routine name='");
+        builder.append(name);
+        builder.append("' parameters = '");
+
+        for (var parameter : parameters.parameters) {
+            builder.append(parameter);
+            builder.append(',');
+        }
+
+        builder.append("'");
+
+        builder.append(": ");
+        builder.append(returnType);
+
+        builder.append("{\n");
+
+        for (var statement : body.statements) {
+            builder.append("\t");
+            builder.append(statement);
+            builder.append("\n");
+        }
+
+        builder.append("}");
+
+        return builder.toString();
+    }
 }

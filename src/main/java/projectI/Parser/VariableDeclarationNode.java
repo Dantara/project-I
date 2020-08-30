@@ -27,4 +27,9 @@ public class VariableDeclarationNode extends SimpleDeclarationNode {
     public int hashCode() {
         return Objects.hash(identifier, type, expression);
     }
+
+    @Override
+    public String toString() {
+        return "var " + identifier + ": " + type + " is " + expression;
+    }
 }

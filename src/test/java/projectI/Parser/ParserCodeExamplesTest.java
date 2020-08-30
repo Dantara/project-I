@@ -50,6 +50,7 @@ public class ParserCodeExamplesTest extends TestCase {
         var routine = new RoutineDeclarationNode(new IdentifierNode("main"), new ParametersNode(), body);
         var expectedProgram = new ProgramNode()
                 .add(routine);
+
         assertNotNull(program);
         assertEquals(expectedProgram, program);
     }

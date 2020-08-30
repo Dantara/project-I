@@ -25,4 +25,9 @@ public class PrimitiveTypeNode implements TypeNode {
     public int hashCode() {
         return Objects.hash(type);
     }
+
+    @Override
+    public String toString() {
+        return type.toString();
+    }
 }

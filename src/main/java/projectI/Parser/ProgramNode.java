@@ -31,4 +31,20 @@ public class ProgramNode implements ASTNode {
     public int hashCode() {
         return Objects.hash(declarations);
     }
+
+
+    @Override
+    public String toString() {
+        var builder = new StringBuilder();
+        builder.append("program={\n");
+
+        for (var declaration : declarations) {
+            builder.append("\t");
+            builder.append(declaration);
+            builder.append("\n");
+        }
+
+        builder.append("}");
+        return builder.toString();
+    }
 }

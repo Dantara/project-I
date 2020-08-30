@@ -54,4 +54,20 @@ public class ExpressionNode implements SummandNode {
     private static ExpressionNode summand(SummandNode summand) {
         return new ExpressionNode(new BinaryRelationNode(new SimpleNode(new FactorNode(summand))));
     }
+
+    @Override
+    public String toString() {
+        var builder = new StringBuilder();
+        builder.append(relation);
+        builder.append(" ");
+
+        for (var other : otherRelations) {
+            builder.append(other.getValue0());
+            builder.append(" ");
+            builder.append(other.getValue1());
+            builder.append(" ");
+        }
+
+        return builder.toString();
+    }
 }

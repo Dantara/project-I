@@ -38,4 +38,20 @@ public class FactorNode implements ASTNode {
     public int hashCode() {
         return Objects.hash(summand, otherSummands);
     }
+
+    @Override
+    public String toString() {
+        var builder = new StringBuilder();
+        builder.append(summand);
+        builder.append(" ");
+
+        for (var other : otherSummands) {
+            builder.append(other.getValue0());
+            builder.append(" ");
+            builder.append(other.getValue1());
+            builder.append(" ");
+        }
+
+        return builder.toString();
+    }
 }

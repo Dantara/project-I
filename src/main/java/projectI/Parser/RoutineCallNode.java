@@ -8,6 +8,11 @@ public class RoutineCallNode implements StatementNode, PrimaryNode {
     public final IdentifierNode name;
     public final List<ExpressionNode> arguments = new ArrayList<>();
 
+    public RoutineCallNode addArgument(ExpressionNode expression) {
+        arguments.add(expression);
+        return this;
+    }
+
     public RoutineCallNode(IdentifierNode name) {
         this.name = name;
     }

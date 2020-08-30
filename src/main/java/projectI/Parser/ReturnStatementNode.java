@@ -25,4 +25,11 @@ public class ReturnStatementNode implements StatementNode {
     public int hashCode() {
         return Objects.hash(expression);
     }
+
+    @Override
+    public String toString() {
+        if (expression == null) return "return";
+
+        return "return{" + expression + "}";
+    }
 }

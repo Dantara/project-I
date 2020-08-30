@@ -24,8 +24,6 @@ public class IdentifierNode implements TypeNode {
 
     @Override
     public String toString() {
-        return "IdentifierNode{" +
-                "name='" + name + '\'' +
-                '}';
+        return name;
     }
 }

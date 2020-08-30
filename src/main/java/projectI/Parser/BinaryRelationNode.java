@@ -39,4 +39,12 @@ public class BinaryRelationNode implements RelationNode {
     public int hashCode() {
         return Objects.hash(simple, comparison, otherSimple);
     }
+
+    @Override
+    public String toString() {
+        if (comparison == null)
+            return simple.toString();
+
+        return simple + " " + comparison + " " + otherSimple;
+    }
 }

@@ -32,4 +32,15 @@ public class RealLiteralNode implements PrimaryNode {
     public enum Sign {
         PLUS, MINUS
     }
+
+    @Override
+    public String toString() {
+        var builder = new StringBuilder();
+
+        if (sign != null)
+            builder.append(sign.toString());
+
+        builder.append(value);
+        return builder.toString();
+    }
 }

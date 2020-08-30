@@ -513,7 +513,7 @@ public class Parser {
                 variable = tryParseVariableDeclaration(left, rightExclusive);
 
                 if (variable != null) {
-                    record.Variables.add(variable);
+                    record.variables.add(variable);
                     left = rightExclusive;
                     break;
                 }
@@ -733,13 +733,12 @@ public class Parser {
     }
 
     public RoutineCallNode tryParseRoutineCall(int begin, int endExclusive) {
-        if (begin >= endExclusive) return null;
+        if (begin >= endExclusive - 1) return null;
 
         var name = tryParseIdentifier(begin, begin + 1);
         if (name == null) return null;
 
         var routineCall = new RoutineCallNode(name);
-        if (begin == endExclusive - 1) return routineCall;
 
         if (!tokens[begin + 1].equals(TokenType.Operator, "(")) return null;
         if (!tokens[endExclusive - 1].equals(TokenType.Operator, ")")) return null;

@@ -308,7 +308,7 @@ public class ParserTest extends TestCase {
 
         var variable = createParser("var a is 1").tryParseVariableDeclaration(0, 4);
         var expectedRecord = new RecordTypeNode();
-        expectedRecord.Variables.add(variable);
+        expectedRecord.variables.add(variable);
 
         assertNotNull(record);
         assertEquals(expectedRecord, record);
@@ -320,8 +320,8 @@ public class ParserTest extends TestCase {
         var variable1 = createParser("var a is 1").tryParseVariableDeclaration(0, 4);
         var variable2 = createParser("var b is 2").tryParseVariableDeclaration(0, 4);
         var expectedRecord = new RecordTypeNode();
-        expectedRecord.Variables.add(variable1);
-        expectedRecord.Variables.add(variable2);
+        expectedRecord.variables.add(variable1);
+        expectedRecord.variables.add(variable2);
 
         assertNotNull(record);
         assertEquals(expectedRecord, record);
@@ -421,7 +421,7 @@ public class ParserTest extends TestCase {
         var type = createParser("type i is record var a is 1 end").tryParseTypeDeclaration(0, 9);
 
         var record = new RecordTypeNode();
-        record.Variables.add(createParser("var a is 1").tryParseVariableDeclaration(0, 4));
+        record.variables.add(createParser("var a is 1").tryParseVariableDeclaration(0, 4));
         var expectedType = new TypeDeclarationNode(new IdentifierNode("i"), record);
         assertNotNull(type);
         assertEquals(expectedType, type);
@@ -500,13 +500,6 @@ public class ParserTest extends TestCase {
 
         assertNotNull(assignment);
         assertEquals(new AssignmentNode(new ModifiablePrimaryNode(new IdentifierNode("a")), ExpressionNode.integerLiteral(1)), assignment);
-    }
-
-    public void testRoutineCallWithoutArguments() throws InvalidLexemeException {
-        var call = createParser("main").tryParseRoutineCall(0, 1);
-
-        assertNotNull(call);
-        assertEquals(new RoutineCallNode(new IdentifierNode("main")), call);
     }
 
     public void testRoutineCallWithOneArgument() throws InvalidLexemeException {
@@ -598,10 +591,10 @@ public class ParserTest extends TestCase {
     }
 
     public void testForLoop() throws InvalidLexemeException {
-        var loop = createParser("for i in 1..1 loop main end").tryParseForLoop(0, 9);
+        var loop = createParser("for i in 1..1 loop main(1) end").tryParseForLoop(0, 12);
 
         var body = new BodyNode();
-        body.statements.add(new RoutineCallNode(new IdentifierNode("main")));
+        body.statements.add(new RoutineCallNode(new IdentifierNode("main")).addArgument(ExpressionNode.integerLiteral(1)));
         var expectedLoop = new ForLoopNode(new IdentifierNode("i"),
                 new RangeNode(ExpressionNode.integerLiteral(1), ExpressionNode.integerLiteral(1), false),
                 body);
@@ -648,13 +641,13 @@ public class ParserTest extends TestCase {
     }
 
     public void testIfAndElseStatements() throws InvalidLexemeException {
-        var ifStatement = createParser("if 1 then main else main end").tryParseIfStatement(0, 7);
+        var ifStatement = createParser("if 1 then main(1) else main(1) end").tryParseIfStatement(0, 13);
 
+        var body = new BodyNode()
+                .add(new RoutineCallNode(new IdentifierNode("main"))
+                        .addArgument(ExpressionNode.integerLiteral(1)));
         assertNotNull(ifStatement);
-        assertEquals(new IfStatementNode(ExpressionNode.integerLiteral(1),
-                        new BodyNode().add(new RoutineCallNode(new IdentifierNode("main"))),
-                        new BodyNode().add(new RoutineCallNode(new IdentifierNode("main")))),
-                ifStatement);
+        assertEquals(new IfStatementNode(ExpressionNode.integerLiteral(1), body, body), ifStatement);
     }
 
     public void testComplexRoutine() throws InvalidLexemeException {

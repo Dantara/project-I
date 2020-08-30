@@ -38,4 +38,20 @@ public class SimpleNode implements ASTNode{
     public int hashCode() {
         return Objects.hash(factor, otherFactors);
     }
+
+    @Override
+    public String toString() {
+        var builder = new StringBuilder();
+        builder.append(factor);
+        builder.append(" ");
+
+        for (var other : otherFactors) {
+            builder.append(other.getValue0());
+            builder.append(" ");
+            builder.append(other.getValue1());
+            builder.append(" ");
+        }
+
+        return builder.toString();
+    }
 }
