@@ -3,12 +3,12 @@ package projectI.Parser;
 import java.util.Objects;
 
 public class ArrayTypeNode extends UserTypeNode {
-    public final ExpressionNode Size;
-    public final TypeNode ElementType;
+    public final ExpressionNode size;
+    public final TypeNode elementType;
 
     public ArrayTypeNode(ExpressionNode size, TypeNode elementType) {
-        Size = size;
-        ElementType = elementType;
+        this.size = size;
+        this.elementType = elementType;
     }
 
     @Override
@@ -16,12 +16,20 @@ public class ArrayTypeNode extends UserTypeNode {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ArrayTypeNode that = (ArrayTypeNode) o;
-        return Objects.equals(Size, that.Size) &&
-                Objects.equals(ElementType, that.ElementType);
+        return Objects.equals(size, that.size) &&
+                Objects.equals(elementType, that.elementType);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(Size, ElementType);
+        return Objects.hash(size, elementType);
+    }
+
+    @Override
+    public String toString() {
+        if (size == null)
+            return "array [] " + elementType;
+
+        return "array [" + size + "] " + elementType;
     }
 }

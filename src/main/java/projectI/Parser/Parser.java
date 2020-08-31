@@ -22,6 +22,7 @@ public class Parser {
             DeclarationNode declaration = null;
 
             for (int rightExclusive = left + 1; rightExclusive <= endExclusive; rightExclusive++) {
+                if (rightExclusive != endExclusive && tokens[rightExclusive].getType() != TokenType.DeclarationSeparator) continue;
                 declaration = tryParseDeclaration(left, rightExclusive);
 
                 if (declaration != null) {
@@ -35,7 +36,6 @@ public class Parser {
             program.declarations.add(declaration);
 
             if (left == endExclusive) break;
-
             if (tokens[left].getType() != TokenType.DeclarationSeparator) return null;
         }
 
@@ -482,13 +482,17 @@ public class Parser {
         var closingBracketIndex = getIndexOfFirstStandaloneClosingBracket(begin + 2, endExclusive, '[', ']');
         if (closingBracketIndex == -1) return null;
 
-        var expression = tryParseExpression(begin + 2, closingBracketIndex);
-        if (expression == null) return null;
+        ExpressionNode size = null;
+
+        if (closingBracketIndex != begin + 2) {
+            size = tryParseExpression(begin + 2, closingBracketIndex);
+            if (size == null) return null;
+        }
 
         var type = tryParseType(closingBracketIndex + 1, endExclusive);
         if (type == null) return null;
 
-        return new ArrayTypeNode(expression, type);
+        return new ArrayTypeNode(size, type);
     }
 
     public RecordTypeNode tryParseRecordType(int begin, int endExclusive) {
@@ -672,7 +676,8 @@ public class Parser {
                 continue;
             }
 
-            for (int rightExclusive = endExclusive; rightExclusive > left; rightExclusive--) {
+            for (int rightExclusive = left + 1; rightExclusive <= endExclusive; rightExclusive++) {
+                if (rightExclusive != endExclusive && tokens[rightExclusive].getType() != TokenType.DeclarationSeparator) continue;
                 var statement = tryParseStatement(left, rightExclusive);
 
                 if (statement != null) {
@@ -898,6 +903,10 @@ public class Parser {
 
     public Parser(Token[] tokens) {
         this.tokens = tokens;
+    }
+
+    public int getTokensCount() {
+        return tokens.length;
     }
 
     private final Token[] tokens;

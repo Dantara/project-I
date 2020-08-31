@@ -32,7 +32,7 @@ public class LexerTest extends TestCase {
         Assert.assertArrayEquals(new Token[] {
                 keyword("var"),
                 identifier("a"),
-                keyword("is"),
+                operator(":"),
                 keyword("array"),
                 operator("["),
                 literal("10"),

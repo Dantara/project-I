@@ -1,4 +1,4 @@
-var a is array[10] integer
+var a: array[10] integer
 
 routine get_sum(arr: array[] integer): integer is
     var result is 0

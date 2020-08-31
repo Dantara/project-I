@@ -749,4 +749,121 @@ public class ParserTest extends TestCase {
         assertNotNull(routine);
         assertEquals(expectedRoutine, routine);
     }
+
+    public void testBigBody1() throws InvalidLexemeException {
+        var parser = createParser("var a: integer\n" +
+                "\n" +
+                "    a := 1\n" +
+                "    a := 1; a := 2\n" +
+                "    a := 1; a := 2; a := 3\n" +
+                "    a := 1; a := 2; a := 3; a := 4\n" +
+                "    a := 1; a := 2; a := 3; a := 4; a := 5\n" +
+                "    a := 1; a := 2; a := 3; a := 4\n" +
+                "    a := 1; a := 2; a := 3\n" +
+                "    a := 1; a := 2\n" +
+                "    a := 1");
+
+        var body = parser.tryParseBody(0, parser.getTokensCount());
+
+        assertNotNull(body);
+    }
+
+    public void testBigBody2() throws InvalidLexemeException {
+        var parser = createParser("var result is 0\n" +
+                "\n" +
+                "    for i in 1 .. arr.size loop\n" +
+                "        result := result + arr[i]\n" +
+                "    end\n" +
+                "\n" +
+                "    return result");
+
+        var body = parser.tryParseBody(0, parser.getTokensCount());
+
+        assertNotNull(body);
+    }
+
+    public void testBigBody3() throws InvalidLexemeException {
+        var parser = createParser("var sum is 0\n" +
+                "\n" +
+                "    for i in 1 .. 10 loop\n" +
+                "        sum := sum + i\n" +
+                "    end\n" +
+                "\n" +
+                "    for i in reverse 1 .. a.size loop\n" +
+                "        sum := sum + i\n" +
+                "    end");
+
+        var body = parser.tryParseBody(0, parser.getTokensCount());
+
+        assertNotNull(body);
+    }
+
+    public void testBigRoutine1() throws InvalidLexemeException {
+        var parser = createParser("routine get_sum(arr: array[] integer): integer is\n" +
+                "    var result is 0\n" +
+                "\n" +
+                "    for i in 1 .. arr.size loop\n" +
+                "        result := result + arr[i]\n" +
+                "    end\n" +
+                "\n" +
+                "    return result\n" +
+                "end");
+
+        var routine = parser.tryParseRoutineDeclaration(0, parser.getTokensCount());
+
+        assertNotNull(routine);
+    }
+
+    public void testBigRoutine2() throws InvalidLexemeException {
+        var parser = createParser("routine main() is\n" +
+                "    var sum is 0\n" +
+                "\n" +
+                "    for i in 1 .. 10 loop\n" +
+                "        sum := sum + i\n" +
+                "    end\n" +
+                "\n" +
+                "    for i in reverse 1 .. a.size loop\n" +
+                "        sum := sum + i\n" +
+                "    end\n" +
+                "end");
+
+        var routine = parser.tryParseRoutineDeclaration(0, parser.getTokensCount());
+
+        assertNotNull(routine);
+    }
+
+    public void testComplexLoop() throws InvalidLexemeException {
+        var parser = createParser("for i in 1 .. arr.size loop\n" +
+                "result := result + arr[i]\n" +
+                "end");
+
+        var body = parser.tryParseForLoop(0, parser.getTokensCount());
+
+        assertNotNull(body);
+    }
+
+    public void testArrayWithoutSize() throws InvalidLexemeException {
+        var parser = createParser("array[] integer").tryParseArrayType(0, 4);
+
+        assertNotNull(parser);
+        assertEquals(new ArrayTypeNode(null, new PrimitiveTypeNode(PrimitiveTypeNode.Type.INTEGER)), parser);
+    }
+
+    public void testReverseForLoop() throws InvalidLexemeException {
+        var parser = createParser("for i in reverse 1 .. a.size loop\n" +
+                "        sum := sum + i\n" +
+                "    end");
+
+        var loop = parser.tryParseForLoop(0, parser.getTokensCount());
+
+        assertNotNull(loop);
+    }
+
+    public void testArrayVariableDeclaration() throws InvalidLexemeException {
+        var parser = createParser("var a: array[10] integer");
+
+        var declaration = parser.tryParseVariableDeclaration(0, parser.getTokensCount());
+
+        assertNotNull(declaration);
+    }
  }
