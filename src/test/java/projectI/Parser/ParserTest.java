@@ -530,10 +530,10 @@ public class ParserTest extends TestCase {
         assertNull(call);
     }
 
-    public void testRoutineCallWithEmptyParentheses_Invalid() throws InvalidLexemeException {
+    public void testRoutineCallWithEmptyParentheses() throws InvalidLexemeException {
         var call = createParser("main()").tryParseRoutineCall(0, 3);
 
-        assertNull(call);
+        assertNotNull(call);
     }
 
     public void testEmptyWhileLoop() throws InvalidLexemeException {

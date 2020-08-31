@@ -9,6 +9,6 @@ routine increment_g() is
 end
 
 routine main() is
-    increment_g
+    increment_g()
     var sum is add(g, 1)
 end

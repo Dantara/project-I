@@ -765,8 +765,6 @@ public class Parser {
             }
         }
 
-        if (routineCall.arguments.size() == 0) return null;
-
         return routineCall;
     }
 

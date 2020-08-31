@@ -596,6 +596,8 @@ public class LexerTest extends TestCase {
                 newLine(),
 
                 identifier("increment_g"),
+                operator("("),
+                operator(")"),
                 newLine(),
 
                 keyword("var"),
