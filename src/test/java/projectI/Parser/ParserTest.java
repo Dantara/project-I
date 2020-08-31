@@ -866,4 +866,18 @@ public class ParserTest extends TestCase {
 
         assertNotNull(declaration);
     }
+
+    public void testProgramWithError_Invalid() throws InvalidLexemeException {
+        var parser = createParser("var a is 2\n\n" +
+                "routine main()\n" +
+                "    var a: integer\n" +
+                "    a := 1\n" +
+                "    var b is 2\n" +
+                "    var c is a + b\n" +
+                "end");
+
+        var program = parser.tryParseProgram();
+
+        assertNull(program);
+    }
  }
