@@ -1,5 +1,5 @@
 package projectI.Parser;
 
-public interface PrimaryNode extends SummandNode {
+public interface PrimaryNode extends FactorNode {
 
 }

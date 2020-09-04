@@ -7,15 +7,15 @@ import java.util.List;
 import java.util.Objects;
 
 public class SimpleNode implements ASTNode{
-    public final FactorNode factor;
-    public final List<Pair<Operator, FactorNode>> otherFactors = new ArrayList<>();
+    public final SummandNode summand;
+    public final List<Pair<Operator, SummandNode>> otherSummands = new ArrayList<>();
 
-    public SimpleNode(FactorNode factor) {
-        this.factor = factor;
+    public SimpleNode(SummandNode summand) {
+        this.summand = summand;
     }
 
     public enum Operator {
-        MULTIPLICATION, DIVISION, MODULO
+        PLUS, MINUS
     }
 
     @Override
@@ -23,11 +23,11 @@ public class SimpleNode implements ASTNode{
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         SimpleNode that = (SimpleNode) o;
-        if (!factor.equals(that.factor)) return false;
-        if (otherFactors.size() != that.otherFactors.size()) return false;
+        if (!summand.equals(that.summand)) return false;
+        if (otherSummands.size() != that.otherSummands.size()) return false;
 
-        for (int index = 0; index < otherFactors.size(); index++) {
-            if (!otherFactors.get(index).equals(that.otherFactors.get(index)))
+        for (int index = 0; index < otherSummands.size(); index++) {
+            if (!otherSummands.get(index).equals(that.otherSummands.get(index)))
                 return false;
         }
 
@@ -36,16 +36,16 @@ public class SimpleNode implements ASTNode{
 
     @Override
     public int hashCode() {
-        return Objects.hash(factor, otherFactors);
+        return Objects.hash(summand, otherSummands);
     }
 
     @Override
     public String toString() {
         var builder = new StringBuilder();
-        builder.append(factor);
+        builder.append(summand);
         builder.append(" ");
 
-        for (var other : otherFactors) {
+        for (var other : otherSummands) {
             builder.append(other.getValue0());
             builder.append(" ");
             builder.append(other.getValue1());

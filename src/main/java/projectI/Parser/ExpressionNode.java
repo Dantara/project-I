@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class ExpressionNode implements SummandNode {
+public class ExpressionNode implements FactorNode {
     public final RelationNode relation;
     public final List<Pair<Operator, RelationNode>> otherRelations = new ArrayList<>();
 
@@ -51,8 +51,8 @@ public class ExpressionNode implements SummandNode {
         return summand(new BooleanLiteralNode(value));
     }
 
-    private static ExpressionNode summand(SummandNode summand) {
-        return new ExpressionNode(new BinaryRelationNode(new SimpleNode(new FactorNode(summand))));
+    private static ExpressionNode summand(FactorNode summand) {
+        return new ExpressionNode(new BinaryRelationNode(new SimpleNode(new SummandNode(summand))));
     }
 
     @Override

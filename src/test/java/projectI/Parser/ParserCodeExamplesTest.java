@@ -31,9 +31,9 @@ public class ParserCodeExamplesTest extends TestCase {
     public void testBasic() throws IOException, InvalidLexemeException {
         var program = tryParseProgram("code_examples/basic.txt");
 
-        var addition = new FactorNode(new ModifiablePrimaryNode(new IdentifierNode("a")));
+        var addition = new SimpleNode(new SummandNode(new ModifiablePrimaryNode(new IdentifierNode("a"))));
         addition.otherSummands.add(
-                new Pair<>(FactorNode.Operator.PLUS, new ModifiablePrimaryNode(new IdentifierNode("b"))));
+                new Pair<>(SimpleNode.Operator.PLUS, new SummandNode(new ModifiablePrimaryNode(new IdentifierNode("b")))));
 
         var body = new BodyNode()
                 .add(new VariableDeclarationNode(new IdentifierNode("a"),
@@ -45,7 +45,7 @@ public class ParserCodeExamplesTest extends TestCase {
                         ExpressionNode.integerLiteral(2)))
                 .add(new VariableDeclarationNode(new IdentifierNode("c"),
                         null,
-                        new ExpressionNode(new BinaryRelationNode(new SimpleNode(addition)))));
+                        new ExpressionNode(new BinaryRelationNode(addition))));
 
         var routine = new RoutineDeclarationNode(new IdentifierNode("main"), new ParametersNode(), body);
         var expectedProgram = new ProgramNode()

@@ -7,8 +7,6 @@ import org.javatuples.Pair;
 import projectI.Lexer.InvalidLexemeException;
 import projectI.Lexer.Lexer;
 
-import java.beans.Expression;
-
 public class ParserTest extends TestCase {
     public ParserTest(String testName) {
         super(testName);
@@ -76,31 +74,31 @@ public class ParserTest extends TestCase {
     }
 
     public void testSummandIntegralLiteral() throws InvalidLexemeException {
-        var literal = createParser("1").tryParseSummand(0, 1);
+        var literal = createParser("1").tryParseFactor(0, 1);
 
         assertNotNull(literal);
         assertEquals(new IntegralLiteralNode(1), literal);
     }
 
     public void testFactorIntegralLiteral() throws InvalidLexemeException {
-        var literal = createParser("1").tryParseFactor(0, 1);
+        var literal = createParser("1").tryParseSummand(0, 1);
 
         assertNotNull(literal);
-        assertEquals(new FactorNode(new IntegralLiteralNode(1)), literal);
+        assertEquals(new SummandNode(new IntegralLiteralNode(1)), literal);
     }
 
     public void testSimpleIntegralLiteral() throws InvalidLexemeException {
         var literal = createParser("1").tryParseSimple(0, 1);
 
         assertNotNull(literal);
-        assertEquals(new SimpleNode(new FactorNode(new IntegralLiteralNode(1))), literal);
+        assertEquals(new SimpleNode(new SummandNode(new IntegralLiteralNode(1))), literal);
     }
 
     public void testRelationIntegralLiteral() throws InvalidLexemeException {
         var literal = createParser("1").tryParseRelation(0, 1);
 
         assertNotNull(literal);
-        assertEquals(new BinaryRelationNode(new SimpleNode(new FactorNode(new IntegralLiteralNode(1)))), literal);
+        assertEquals(new BinaryRelationNode(new SimpleNode(new SummandNode(new IntegralLiteralNode(1)))), literal);
     }
 
     public void testModifiablePrimaryMember() throws InvalidLexemeException {
@@ -217,24 +215,41 @@ public class ParserTest extends TestCase {
         assertEquals(ExpressionNode.booleanLiteral(true), expression);
     }
 
-    public void testComplexFactor() throws InvalidLexemeException {
-        var factor = createParser("1+(2-3)").tryParseFactor(0, 7);
+    public void testComplexSummand() throws InvalidLexemeException {
+        var summand = createParser("1*(2-3)").tryParseSummand(0, 7);
 
-        var expectedFactor = new FactorNode(new IntegralLiteralNode(1));
-        var parentheses = createParser("2-3").tryParseExpression(0, 3);
-        expectedFactor.otherSummands.add(new Pair<>(FactorNode.Operator.PLUS, parentheses));
+        var expectedSummand = new SummandNode(new IntegralLiteralNode(1));
 
-        assertNotNull(factor);
-        assertEquals(expectedFactor, factor);
+        var innerSimple = new SimpleNode(new SummandNode(new IntegralLiteralNode(2)));
+        innerSimple.otherSummands.add(new Pair<>(SimpleNode.Operator.MINUS, new SummandNode(new IntegralLiteralNode(3))));
+        expectedSummand.otherFactors.add(new Pair<>(SummandNode.Operator.MULTIPLY, new ExpressionNode(new BinaryRelationNode(innerSimple))));
+
+        assertNotNull(summand);
+        assertEquals(expectedSummand, summand);
     }
 
     public void testComplexSimple() throws InvalidLexemeException {
+        var simple = createParser("1+(2-3)").tryParseSimple(0, 7);
+
+        var expectedSimple = new SimpleNode(new SummandNode(new IntegralLiteralNode(1)));
+        var parentheses = createParser("2-3").tryParseExpression(0, 3);
+        expectedSimple.otherSummands.add(new Pair<>(SimpleNode.Operator.PLUS, new SummandNode(parentheses)));
+
+        assertNotNull(simple);
+        assertEquals(expectedSimple, simple);
+    }
+
+    public void testMoreComplexSimple() throws InvalidLexemeException {
         var simple = createParser("1+2*(3-4)").tryParseSimple(0, 9);
 
-        var factor1 = new FactorNode(new IntegralLiteralNode(2));
-        var factor2 = new FactorNode(createParser("3-4").tryParseExpression(0, 3));
-        var expectedSimple = new SimpleNode(factor1);
-        expectedSimple.otherFactors.add(new Pair<>(SimpleNode.Operator.MULTIPLICATION, factor2));
+        var expectedSimple = new SimpleNode(new SummandNode(new IntegralLiteralNode(1)));
+        var multiplication = new SummandNode(new IntegralLiteralNode(2));
+        var parenthesesSimple = new SimpleNode(new SummandNode(new IntegralLiteralNode(3)));
+        parenthesesSimple.otherSummands.add(new Pair<>(SimpleNode.Operator.MINUS, new SummandNode(new IntegralLiteralNode(4))));
+        var parentheses = new ExpressionNode(new BinaryRelationNode(parenthesesSimple));
+
+        multiplication.otherFactors.add(new Pair<>(SummandNode.Operator.MULTIPLY, parentheses));
+        expectedSimple.otherSummands.add(new Pair<>(SimpleNode.Operator.PLUS, multiplication));
 
         assertNotNull(simple);
         assertEquals(expectedSimple, expectedSimple);
@@ -243,7 +258,7 @@ public class ParserTest extends TestCase {
     public void testComplexRelation() throws InvalidLexemeException {
         var relation = createParser("5>1+2*(3-4)").tryParseRelation(0, 11);
 
-        var expectedRelation = new BinaryRelationNode(new SimpleNode(new FactorNode(new IntegralLiteralNode(5))),
+        var expectedRelation = new BinaryRelationNode(new SimpleNode(new SummandNode(new IntegralLiteralNode(5))),
                 BinaryRelationNode.Comparison.GREATER,
                 createParser("1+2*(3-4)").tryParseSimple(0, 9));
         assertNotNull(relation);
@@ -253,7 +268,7 @@ public class ParserTest extends TestCase {
     public void testComplexExpression() throws InvalidLexemeException {
         var expression = createParser("1 and 5>1+2*(3-4)").tryParseExpression(0, 13);
 
-        var leftSide = new BinaryRelationNode(new SimpleNode(new FactorNode(new IntegralLiteralNode(1))));
+        var leftSide = new BinaryRelationNode(new SimpleNode(new SummandNode(new IntegralLiteralNode(1))));
         var rightSide = createParser("5>1+2*(3-4)").tryParseRelation(0, 11);
         var expectedExpression = new ExpressionNode(leftSide);
         expectedExpression.otherRelations.add(new Pair<>(ExpressionNode.Operator.AND, rightSide));
@@ -266,7 +281,7 @@ public class ParserTest extends TestCase {
         var expression = createParser("(1>3)").tryParseExpression(0, 5);
 
         var innerExpression = createParser("1>3").tryParseExpression(0, 3);
-        var expectedExpression = new ExpressionNode(new BinaryRelationNode(new SimpleNode(new FactorNode(innerExpression))));
+        var expectedExpression = new ExpressionNode(new BinaryRelationNode(new SimpleNode(new SummandNode(innerExpression))));
 
         assertNotNull(expression);
         assertEquals(expectedExpression, expression);
@@ -881,5 +896,71 @@ public class ParserTest extends TestCase {
         var program = parser.tryParseProgram();
 
         assertNull(program);
+    }
+
+    public void testSimpleNoParentheses() throws InvalidLexemeException {
+        var simple = createParser("1*3+2").tryParseSimple(0, 5);
+
+        var product = new SummandNode(new IntegralLiteralNode(1));
+        product.otherFactors.add(new Pair<>(SummandNode.Operator.MULTIPLY, new IntegralLiteralNode(3)));
+        var expectedSimple = new SimpleNode(product);
+        expectedSimple.otherSummands.add(new Pair<>(SimpleNode.Operator.PLUS, new SummandNode(new IntegralLiteralNode(2))));
+
+        assertNotNull(simple);
+        assertEquals(expectedSimple, simple);
+    }
+
+    public void testSimpleNoParenthesesInverseOrder() throws InvalidLexemeException {
+        var simple = createParser("2+1*3").tryParseSimple(0, 5);
+
+        var product = new SummandNode(new IntegralLiteralNode(1));
+        product.otherFactors.add(new Pair<>(SummandNode.Operator.MULTIPLY, new IntegralLiteralNode(3)));
+        var expectedSimple = new SimpleNode(new SummandNode(new IntegralLiteralNode(2)));
+        expectedSimple.otherSummands.add(new Pair<>(SimpleNode.Operator.PLUS, product));
+
+        assertNotNull(simple);
+        assertEquals(expectedSimple, simple);
+    }
+
+    public void testCompleteExpression() throws InvalidLexemeException {
+        var expression = createParser("true or not 1 < 1*(3-2)").tryParseExpression(0, 12);
+
+        var expectedExpression = new ExpressionNode(new BinaryRelationNode(new SimpleNode(new SummandNode(new BooleanLiteralNode(true)))));
+
+        var parenthesesSimple = new SimpleNode(new SummandNode(new IntegralLiteralNode(3)));
+        parenthesesSimple.otherSummands.add(new Pair<>(SimpleNode.Operator.MINUS, new SummandNode(new IntegralLiteralNode(2))));
+        var parenthesisExpression = new ExpressionNode(new BinaryRelationNode(parenthesesSimple));
+
+        var product = new SummandNode(new IntegralLiteralNode(1));
+        product.otherFactors.add(new Pair<>(SummandNode.Operator.MULTIPLY, parenthesisExpression));
+
+        var rightRelation = new BinaryRelationNode(new SimpleNode(new SummandNode(new IntegralLiteralNode(1))),
+                BinaryRelationNode.Comparison.LESS,
+                new SimpleNode(product));
+        var negatedRightRelation = new NegatedRelationNode(rightRelation);
+
+        expectedExpression.otherRelations.add(new Pair<>(ExpressionNode.Operator.OR, negatedRightRelation));
+
+        assertNotNull(expression);
+        assertEquals(expectedExpression, expression);
+    }
+
+    public void testCompleteRelation() throws InvalidLexemeException {
+        var relation = createParser("not 1 < 1*(3-2)").tryParseRelation(0, 10);
+
+        var parenthesesSimple = new SimpleNode(new SummandNode(new IntegralLiteralNode(3)));
+        parenthesesSimple.otherSummands.add(new Pair<>(SimpleNode.Operator.MINUS, new SummandNode(new IntegralLiteralNode(2))));
+        var parenthesisExpression = new ExpressionNode(new BinaryRelationNode(parenthesesSimple));
+
+        var product = new SummandNode(new IntegralLiteralNode(1));
+        product.otherFactors.add(new Pair<>(SummandNode.Operator.MULTIPLY, parenthesisExpression));
+
+        var rightRelation = new BinaryRelationNode(new SimpleNode(new SummandNode(new IntegralLiteralNode(1))),
+                BinaryRelationNode.Comparison.LESS,
+                new SimpleNode(product));
+        var expectedRelation = new NegatedRelationNode(rightRelation);
+
+        assertNotNull(relation);
+        assertEquals(expectedRelation, relation);
     }
  }

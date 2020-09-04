@@ -191,10 +191,10 @@ public class Parser {
 
     public SimpleNode tryParseSimple(int begin, int endExclusive) {
         int left = begin;
-        FactorNode factor = null;
+        SummandNode factor = null;
 
         for (int rightExclusive = endExclusive; rightExclusive > left; rightExclusive--) {
-            factor = tryParseFactor(left, rightExclusive);
+            factor = tryParseSummand(left, rightExclusive);
 
             if (factor != null) {
                 left = rightExclusive;
@@ -213,6 +213,46 @@ public class Parser {
             left++;
 
             for (int rightExclusive = endExclusive; rightExclusive > left; rightExclusive--) {
+                factor = tryParseSummand(left, rightExclusive);
+
+                if (factor != null) {
+                    left = rightExclusive;
+                    break;
+                }
+            }
+
+            if (factor == null) return null;
+
+            simple.otherSummands.add(new Pair<>(operator, factor));
+        }
+
+        return simple;
+    }
+
+    public SummandNode tryParseSummand(int begin, int endExclusive) {
+        int left = begin;
+        FactorNode factor = null;
+
+        for (int rightExclusive = endExclusive; rightExclusive > left; rightExclusive--) {
+            factor = tryParseFactor(left, rightExclusive);
+
+            if (factor != null) {
+                left = rightExclusive;
+                break;
+            }
+        }
+
+        if (factor == null) return null;
+
+        var summand = new SummandNode(factor);
+
+        while (left < endExclusive) {
+            var operator = tryParseFactorOperator(tokens[left]);
+            if (operator == null) return null;
+
+            left++;
+
+            for (int rightExclusive = endExclusive; rightExclusive > left; rightExclusive--) {
                 factor = tryParseFactor(left, rightExclusive);
 
                 if (factor != null) {
@@ -223,53 +263,13 @@ public class Parser {
 
             if (factor == null) return null;
 
-            simple.otherFactors.add(new Pair<>(operator, factor));
+            summand.otherFactors.add(new Pair<>(operator, factor));
         }
 
-        return simple;
+        return summand;
     }
 
     public FactorNode tryParseFactor(int begin, int endExclusive) {
-        int left = begin;
-        SummandNode summand = null;
-
-        for (int rightExclusive = endExclusive; rightExclusive > left; rightExclusive--) {
-            summand = tryParseSummand(left, rightExclusive);
-
-            if (summand != null) {
-                left = rightExclusive;
-                break;
-            }
-        }
-
-        if (summand == null) return null;
-
-        var factor = new FactorNode(summand);
-
-        while (left < endExclusive) {
-            var operator = tryParseFactorOperator(tokens[left]);
-            if (operator == null) return null;
-
-            left++;
-
-            for (int rightExclusive = endExclusive; rightExclusive > left; rightExclusive--) {
-                summand = tryParseSummand(left, rightExclusive);
-
-                if (summand != null) {
-                    left = rightExclusive;
-                    break;
-                }
-            }
-
-            if (summand == null) return null;
-
-            factor.otherSummands.add(new Pair<>(operator, summand));
-        }
-
-        return factor;
-    }
-
-    public SummandNode tryParseSummand(int begin, int endExclusive) {
         var primary = tryParsePrimary(begin, endExclusive);
         if (primary != null) return primary;
 
@@ -280,12 +280,13 @@ public class Parser {
         return tryParseExpression(begin + 1, endExclusive - 1);
     }
 
-    private FactorNode.Operator tryParseFactorOperator(Token token) {
+    private SummandNode.Operator tryParseFactorOperator(Token token) {
         if (token.getType() != TokenType.Operator) return null;
 
         return switch (token.getLexeme()) {
-            case "+" -> FactorNode.Operator.PLUS;
-            case "-" -> FactorNode.Operator.MINUS;
+            case "*" -> SummandNode.Operator.MULTIPLY;
+            case "/" -> SummandNode.Operator.DIVIDE;
+            case "%" -> SummandNode.Operator.MODULO;
             default -> null;
         };
     }
@@ -439,9 +440,8 @@ public class Parser {
         if (token.getType() != TokenType.Operator) return null;
 
         return switch (token.getLexeme()) {
-            case "*" -> SimpleNode.Operator.MULTIPLICATION;
-            case "/" -> SimpleNode.Operator.DIVISION;
-            case "%" -> SimpleNode.Operator.MODULO;
+            case "+" -> SimpleNode.Operator.PLUS;
+            case "-" -> SimpleNode.Operator.MINUS;
             default -> null;
         };
     }
