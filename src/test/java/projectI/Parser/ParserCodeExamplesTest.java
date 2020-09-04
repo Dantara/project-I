@@ -3,13 +3,20 @@ package projectI.Parser;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import org.javatuples.Pair;
+import projectI.AST.*;
+import projectI.AST.Declarations.*;
+import projectI.AST.Expressions.*;
+import projectI.AST.Primary.ModifiablePrimaryNode;
+import projectI.AST.Statements.AssignmentNode;
 import projectI.Lexer.InvalidLexemeException;
 import projectI.Lexer.Lexer;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+
+import static projectI.AST.ASTUtils.integerExpression;
+import static projectI.AST.ASTUtils.toExpression;
 
 public class ParserCodeExamplesTest extends TestCase {
     public ParserCodeExamplesTest(String testName) {
@@ -31,25 +38,20 @@ public class ParserCodeExamplesTest extends TestCase {
     public void testBasic() throws IOException, InvalidLexemeException {
         var program = tryParseProgram("code_examples/basic.txt");
 
-        var addition = new SimpleNode(new SummandNode(new ModifiablePrimaryNode(new IdentifierNode("a"))));
-        addition.otherSummands.add(
-                new Pair<>(SimpleNode.Operator.PLUS, new SummandNode(new ModifiablePrimaryNode(new IdentifierNode("b")))));
+        var addition = ASTUtils.toSimple(new ModifiablePrimaryNode(new IdentifierNode("a")))
+                .addSummand(AdditionOperator.PLUS, new SummandNode(new ModifiablePrimaryNode(new IdentifierNode("b"))));
 
         var body = new BodyNode()
                 .add(new VariableDeclarationNode(new IdentifierNode("a"),
-                        new PrimitiveTypeNode(PrimitiveTypeNode.Type.INTEGER),
-                        null))
-                .add(new AssignmentNode(new ModifiablePrimaryNode(new IdentifierNode("a")), ExpressionNode.integerLiteral(1)))
-                .add(new VariableDeclarationNode(new IdentifierNode("b"),
-                        null,
-                        ExpressionNode.integerLiteral(2)))
+                        new PrimitiveTypeNode(PrimitiveType.INTEGER), null))
+                .add(new AssignmentNode(new ModifiablePrimaryNode(new IdentifierNode("a")), integerExpression(1)))
+                .add(new VariableDeclarationNode(new IdentifierNode("b"), null, integerExpression(2)))
                 .add(new VariableDeclarationNode(new IdentifierNode("c"),
-                        null,
-                        new ExpressionNode(new BinaryRelationNode(addition))));
+                        null, toExpression(addition)));
 
         var routine = new RoutineDeclarationNode(new IdentifierNode("main"), new ParametersNode(), body);
         var expectedProgram = new ProgramNode()
-                .add(routine);
+                .addDeclaration(routine);
 
         assertNotNull(program);
         assertEquals(expectedProgram, program);

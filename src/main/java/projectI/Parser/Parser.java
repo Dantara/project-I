@@ -1,6 +1,18 @@
 package projectI.Parser;
 
 import org.javatuples.Pair;
+import projectI.AST.*;
+import projectI.AST.Declarations.*;
+import projectI.AST.Expressions.*;
+import projectI.AST.Flow.ForLoopNode;
+import projectI.AST.Flow.IfStatementNode;
+import projectI.AST.Flow.RangeNode;
+import projectI.AST.Flow.WhileLoopNode;
+import projectI.AST.Primary.*;
+import projectI.AST.Statements.AssignmentNode;
+import projectI.AST.Statements.ReturnStatementNode;
+import projectI.AST.Statements.RoutineCallNode;
+import projectI.AST.Statements.StatementNode;
 import projectI.Lexer.Token;
 import projectI.Lexer.TokenType;
 
@@ -143,13 +155,13 @@ public class Parser {
         return expression;
     }
 
-    private ExpressionNode.Operator tryParseLogicalOperator(Token token) {
+    private LogicalOperator tryParseLogicalOperator(Token token) {
         if (token.getType() != TokenType.Operator) return null;
 
         return switch (token.getLexeme()) {
-            case "and" -> ExpressionNode.Operator.AND;
-            case "or" -> ExpressionNode.Operator.OR;
-            case "xor" -> ExpressionNode.Operator.XOR;
+            case "and" -> LogicalOperator.AND;
+            case "or" -> LogicalOperator.OR;
+            case "xor" -> LogicalOperator.XOR;
             default -> null;
         };
     }
@@ -280,13 +292,13 @@ public class Parser {
         return tryParseExpression(begin + 1, endExclusive - 1);
     }
 
-    private SummandNode.Operator tryParseFactorOperator(Token token) {
+    private MultiplicationOperator tryParseFactorOperator(Token token) {
         if (token.getType() != TokenType.Operator) return null;
 
         return switch (token.getLexeme()) {
-            case "*" -> SummandNode.Operator.MULTIPLY;
-            case "/" -> SummandNode.Operator.DIVIDE;
-            case "%" -> SummandNode.Operator.MODULO;
+            case "*" -> MultiplicationOperator.MULTIPLY;
+            case "/" -> MultiplicationOperator.DIVIDE;
+            case "%" -> MultiplicationOperator.MODULO;
             default -> null;
         };
     }
@@ -303,7 +315,7 @@ public class Parser {
 
         if (begin == endExclusive - 1) {
             var booleanLiteralType = tryParseBooleanLiteralType(tokens[begin]);
-            if (booleanLiteralType != null) return new BooleanLiteralNode(booleanLiteralType);
+            if (booleanLiteralType != null) return BooleanLiteralNode.create(booleanLiteralType);
         }
 
         return tryParseModifiablePrimary(begin, endExclusive);
@@ -436,12 +448,12 @@ public class Parser {
         };
     }
 
-    private SimpleNode.Operator tryParseSimpleNodeOperator(Token token) {
+    private AdditionOperator tryParseSimpleNodeOperator(Token token) {
         if (token.getType() != TokenType.Operator) return null;
 
         return switch (token.getLexeme()) {
-            case "+" -> SimpleNode.Operator.PLUS;
-            case "-" -> SimpleNode.Operator.MINUS;
+            case "+" -> AdditionOperator.PLUS;
+            case "-" -> AdditionOperator.MINUS;
             default -> null;
         };
     }
@@ -466,9 +478,9 @@ public class Parser {
         if (token.getType() != TokenType.Keyword) return null;
 
         return switch (token.getLexeme()) {
-            case "integer" -> new PrimitiveTypeNode(PrimitiveTypeNode.Type.INTEGER);
-            case "real" -> new PrimitiveTypeNode(PrimitiveTypeNode.Type.REAL);
-            case "boolean" -> new PrimitiveTypeNode(PrimitiveTypeNode.Type.BOOLEAN);
+            case "integer" -> new PrimitiveTypeNode(PrimitiveType.INTEGER);
+            case "real" -> new PrimitiveTypeNode(PrimitiveType.REAL);
+            case "boolean" -> new PrimitiveTypeNode(PrimitiveType.BOOLEAN);
             default -> null;
         };
     }
