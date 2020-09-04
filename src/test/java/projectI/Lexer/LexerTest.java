@@ -27,6 +27,26 @@ public class LexerTest extends TestCase {
         lexer = new Lexer();
     }
 
+    public void testAssignment() throws InvalidLexemeException {
+        var tokens = lexer.scan("a := 1");
+
+        assertArrayEquals(new Token[] {
+                identifier("a"),
+                operator(":="),
+                literal("1")
+        }, tokens);
+    }
+
+    public void testAssignmentWithoutSpaces() throws InvalidLexemeException {
+        var tokens = lexer.scan("a:=1");
+
+        assertArrayEquals(new Token[] {
+                identifier("a"),
+                operator(":="),
+                literal("1")
+        }, tokens);
+    }
+
     public void testArraysAndFor() throws InvalidLexemeException, IOException {
         var tokens = scanFile("code_examples/arrays_and_for.txt");
         Assert.assertArrayEquals(new Token[] {

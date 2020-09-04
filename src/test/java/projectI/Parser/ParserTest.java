@@ -7,6 +7,8 @@ import org.javatuples.Pair;
 import projectI.Lexer.InvalidLexemeException;
 import projectI.Lexer.Lexer;
 
+import java.beans.Expression;
+
 public class ParserTest extends TestCase {
     public ParserTest(String testName) {
         super(testName);
