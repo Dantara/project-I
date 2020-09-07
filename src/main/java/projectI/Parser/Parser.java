@@ -817,7 +817,7 @@ public class Parser {
         var body = tryParseBody(loopTokenIndex + 1, endExclusive - 1);
         if (body == null) return null;
 
-        return new WhileLoopNode(condition, body);
+        return new WhileLoopNode(condition, body, locations[begin].getPosition());
     }
 
     public ForLoopNode tryParseForLoop(int begin, int endExclusive) {

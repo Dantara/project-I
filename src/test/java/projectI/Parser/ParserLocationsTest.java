@@ -63,4 +63,11 @@ public class ParserLocationsTest extends TestCase {
         assertNotNull(position);
         assertEquals(new CodePosition(0, 6), position);
     }
+
+    public void testWhileLoop() throws InvalidLexemeException {
+        var position = createParser("\n\nwhile 1 < 2 loop end").tryParseWhileLoop(2, 8).startPosition;
+
+        assertNotNull(position);
+        assertEquals(new CodePosition(2, 0), position);
+    }
 }
