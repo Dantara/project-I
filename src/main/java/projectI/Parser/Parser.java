@@ -883,13 +883,13 @@ public class Parser {
         if (!tokens[begin].equals(TokenType.Keyword, "if")) return null;
         if (!tokens[endExclusive - 1].equals(TokenType.Keyword, "end")) return null;
 
-        begin++;
+        int left = begin + 1;
         endExclusive--;
 
-        var thenIndex = getIndexOfFirstToken(begin, endExclusive, TokenType.Keyword, "then");
+        var thenIndex = getIndexOfFirstToken(left, endExclusive, TokenType.Keyword, "then");
         if (thenIndex == -1) return null;
 
-        var condition = tryParseExpression(begin, thenIndex);
+        var condition = tryParseExpression(left, thenIndex);
         if (condition == null) return null;
 
         for (int elseIndex = thenIndex + 1; elseIndex < endExclusive; elseIndex++) {
@@ -900,14 +900,14 @@ public class Parser {
                 var elseBody = tryParseBody(elseIndex + 1, endExclusive);
                 if (elseBody == null) continue;
 
-                return new IfStatementNode(condition, body, elseBody);
+                return new IfStatementNode(condition, body, elseBody, locations[begin].getPosition());
             }
         }
 
         var body = tryParseBody(thenIndex + 1, endExclusive);
         if (body == null) return null;
 
-        return new IfStatementNode(condition, body);
+        return new IfStatementNode(condition, body, null, locations[begin].getPosition());
     }
 
     public ReturnStatementNode tryParseReturn(int begin, int endExclusive) {
