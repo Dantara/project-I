@@ -29,12 +29,12 @@ public class RealLiteralNode implements PrimaryNode {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         RealLiteralNode that = (RealLiteralNode) o;
-        return Double.compare(that.value, value) == 0;
+        return Double.compare(that.value, value) == 0 && sign == that.sign;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(value);
+        return Objects.hash(value, sign);
     }
 
     public enum Sign {

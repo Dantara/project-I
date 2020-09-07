@@ -323,7 +323,7 @@ public class Parser {
 
     public IntegralLiteralNode tryParseIntegralLiteral(int begin, int endExclusive) {
         Token literalToken;
-        IntegralLiteralNode.Sign sign;
+        IntegralLiteralNode.Sign sign = null;
 
         if (begin == endExclusive - 1) {
             literalToken = tokens[begin];
@@ -346,15 +346,15 @@ public class Parser {
 
         try {
             var value = Integer.parseInt(literalToken.getLexeme());
-            return new IntegralLiteralNode(value);
+            return new IntegralLiteralNode(value, sign);
         } catch (NumberFormatException ignored) {
             return null;
         }
     }
 
-    private RealLiteralNode tryParseRealLiteral(int begin, int endExclusive) {
+    public RealLiteralNode tryParseRealLiteral(int begin, int endExclusive) {
         Token literalToken;
-        RealLiteralNode.Sign sign;
+        RealLiteralNode.Sign sign = null;
 
         if (begin == endExclusive - 1) {
             literalToken = tokens[begin];
@@ -376,7 +376,7 @@ public class Parser {
 
         try {
             var value = Double.parseDouble(literalToken.getLexeme());
-            return new RealLiteralNode(value);
+            return new RealLiteralNode(value, sign);
         } catch (NumberFormatException ignored) {
             return null;
         }

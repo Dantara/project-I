@@ -21,12 +21,12 @@ public class IntegralLiteralNode implements PrimaryNode {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         IntegralLiteralNode that = (IntegralLiteralNode) o;
-        return value == that.value;
+        return value == that.value && sign == that.sign;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(value);
+        return Objects.hash(value, sign);
     }
 
     public enum Sign {
