@@ -13,6 +13,7 @@ import projectI.AST.Statements.AssignmentNode;
 import projectI.AST.Statements.ReturnStatementNode;
 import projectI.AST.Statements.RoutineCallNode;
 import projectI.AST.Statements.StatementNode;
+import projectI.Lexer.StringWithLocation;
 import projectI.Lexer.Token;
 import projectI.Lexer.TokenType;
 
@@ -322,13 +323,13 @@ public class Parser {
     }
 
     public IntegralLiteralNode tryParseIntegralLiteral(int begin, int endExclusive) {
-        Token literalToken;
+        int literalTokenIndex = 0;
         IntegralLiteralNode.Sign sign = null;
 
         if (begin == endExclusive - 1) {
-            literalToken = tokens[begin];
+            literalTokenIndex = begin;
         } else if (begin == endExclusive - 2) {
-            literalToken = tokens[begin + 1];
+            literalTokenIndex = begin + 1;
 
             if (tokens[begin].getType() != TokenType.Operator) return null;
 
@@ -345,21 +346,21 @@ public class Parser {
         }
 
         try {
-            var value = Integer.parseInt(literalToken.getLexeme());
-            return new IntegralLiteralNode(value, sign);
+            var value = Integer.parseInt(tokens[literalTokenIndex].getLexeme());
+            return new IntegralLiteralNode(value, locations[literalTokenIndex].getPosition());
         } catch (NumberFormatException ignored) {
             return null;
         }
     }
 
     public RealLiteralNode tryParseRealLiteral(int begin, int endExclusive) {
-        Token literalToken;
+        int literalTokenIndex = 0;
         RealLiteralNode.Sign sign = null;
 
         if (begin == endExclusive - 1) {
-            literalToken = tokens[begin];
+            literalTokenIndex = begin;
         } else if (begin == endExclusive - 2) {
-            literalToken = tokens[begin + 1];
+            literalTokenIndex = begin + 1;
 
             if (tokens[begin].getType() != TokenType.Operator) return null;
 
@@ -375,8 +376,8 @@ public class Parser {
         }
 
         try {
-            var value = Double.parseDouble(literalToken.getLexeme());
-            return new RealLiteralNode(value, sign);
+            var value = Double.parseDouble(tokens[literalTokenIndex].getLexeme());
+            return new RealLiteralNode(value, sign, locations[literalTokenIndex].getPosition());
         } catch (NumberFormatException ignored) {
             return null;
         }
@@ -913,8 +914,9 @@ public class Parser {
         return new ReturnStatementNode(expression);
     }
 
-    public Parser(Token[] tokens) {
+    public Parser(Token[] tokens, StringWithLocation[] locations) {
         this.tokens = tokens;
+        this.locations = locations;
     }
 
     public int getTokensCount() {
@@ -922,4 +924,5 @@ public class Parser {
     }
 
     private final Token[] tokens;
+    private final StringWithLocation[] locations;
 }

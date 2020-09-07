@@ -37,7 +37,9 @@ public class ParserTest extends TestCase {
     }
 
     private static Parser createParser(String programText) throws InvalidLexemeException {
-        return new Parser(new Lexer().scan(programText));
+        var lexer = new Lexer();
+        var tokens = lexer.scan(programText);
+        return new Parser(tokens, lexer.getLexemesWithLocations());
     }
 
     public void testEmptyProgram() throws InvalidLexemeException {

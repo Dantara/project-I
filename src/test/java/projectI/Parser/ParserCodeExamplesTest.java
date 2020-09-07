@@ -32,7 +32,7 @@ public class ParserCodeExamplesTest extends TestCase {
         var lexer = new Lexer();
         var tokens = lexer.scan(programText);
 
-        return new Parser(tokens).tryParseProgram();
+        return new Parser(tokens, lexer.getLexemesWithLocations()).tryParseProgram();
     }
 
     public void testBasic() throws IOException, InvalidLexemeException {
