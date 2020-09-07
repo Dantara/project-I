@@ -91,4 +91,11 @@ public class ParserLocationsTest extends TestCase {
         assertNotNull(position);
         assertEquals(new CodePosition(0, 9), position);
     }
+
+    public void testAssignmentPosition() throws InvalidLexemeException {
+        var position = createParser("\n    a:=1").tryParseAssignment(1, 4).getStartPosition();
+
+        assertNotNull(position);
+        assertEquals(new CodePosition(1, 4), position);
+    }
 }
