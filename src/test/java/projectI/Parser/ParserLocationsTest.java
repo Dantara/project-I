@@ -49,4 +49,18 @@ public class ParserLocationsTest extends TestCase {
         assertNotNull(position);
         assertEquals(new CodePosition(0, 11), position);
     }
+
+    public void testBooleanLiteralLocation() throws InvalidLexemeException {
+        var position = createParser("\nvar a is true").tryParseBooleanLiteral(4, 5).position;
+
+        assertNotNull(position);
+        assertEquals(new CodePosition(1, 9), position);
+    }
+
+    public void testRange() throws InvalidLexemeException {
+        var position = createParser("for i in 1..2").tryParseRange(2, 6).startPosition;
+
+        assertNotNull(position);
+        assertEquals(new CodePosition(0, 6), position);
+    }
 }

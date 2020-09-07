@@ -10,6 +10,7 @@ import projectI.AST.Flow.ForLoopNode;
 import projectI.AST.Flow.IfStatementNode;
 import projectI.AST.Flow.RangeNode;
 import projectI.AST.Flow.WhileLoopNode;
+import projectI.AST.Primary.BooleanLiteralNode;
 import projectI.AST.Primary.IntegralLiteralNode;
 import projectI.AST.Primary.ModifiablePrimaryNode;
 import projectI.AST.Primary.RealLiteralNode;
@@ -978,5 +979,12 @@ public class ParserTest extends TestCase {
 
         assertNotNull(relation);
         assertEquals(expectedRelation, relation);
+    }
+
+    public void testBoolean() throws InvalidLexemeException {
+        var booleanLiteral = createParser("true").tryParseBooleanLiteral(0, 1);
+
+        assertNotNull(booleanLiteral);
+        assertEquals(trueLiteral, booleanLiteral);
     }
  }

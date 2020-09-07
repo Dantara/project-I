@@ -2,6 +2,7 @@ package projectI.AST.Flow;
 
 import projectI.AST.ASTNode;
 import projectI.AST.Expressions.ExpressionNode;
+import projectI.CodePosition;
 
 import java.util.Objects;
 
@@ -9,11 +10,20 @@ public class RangeNode implements ASTNode {
     public final ExpressionNode from;
     public final ExpressionNode to;
     public final boolean reverse;
+    public final CodePosition startPosition;
 
     public RangeNode(ExpressionNode from, ExpressionNode to, boolean reverse) {
         this.from = from;
         this.to = to;
         this.reverse = reverse;
+        this.startPosition = null;
+    }
+
+    public RangeNode(ExpressionNode from, ExpressionNode to, boolean reverse, CodePosition startPosition) {
+        this.from = from;
+        this.to = to;
+        this.reverse = reverse;
+        this.startPosition = startPosition;
     }
 
     @Override

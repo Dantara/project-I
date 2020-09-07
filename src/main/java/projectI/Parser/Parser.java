@@ -314,16 +314,14 @@ public class Parser {
         var routineCall = tryParseRoutineCall(begin, endExclusive);
         if (routineCall != null) return routineCall;
 
-        if (begin == endExclusive - 1) {
-            var booleanLiteralType = tryParseBooleanLiteralType(tokens[begin]);
-            if (booleanLiteralType != null) return BooleanLiteralNode.create(booleanLiteralType);
-        }
+        var booleanLiteral = tryParseBooleanLiteral(begin, endExclusive);
+        if (booleanLiteral != null) return booleanLiteral;
 
         return tryParseModifiablePrimary(begin, endExclusive);
     }
 
     public IntegralLiteralNode tryParseIntegralLiteral(int begin, int endExclusive) {
-        int literalTokenIndex = 0;
+        int literalTokenIndex;
         IntegralLiteralNode.Sign sign = null;
 
         if (begin == endExclusive - 1) {
@@ -347,14 +345,14 @@ public class Parser {
 
         try {
             var value = Integer.parseInt(tokens[literalTokenIndex].getLexeme());
-            return new IntegralLiteralNode(value, locations[literalTokenIndex].getPosition());
+            return new IntegralLiteralNode(value, sign, locations[literalTokenIndex].getPosition());
         } catch (NumberFormatException ignored) {
             return null;
         }
     }
 
     public RealLiteralNode tryParseRealLiteral(int begin, int endExclusive) {
-        int literalTokenIndex = 0;
+        int literalTokenIndex;
         RealLiteralNode.Sign sign = null;
 
         if (begin == endExclusive - 1) {
@@ -381,6 +379,16 @@ public class Parser {
         } catch (NumberFormatException ignored) {
             return null;
         }
+    }
+
+    public BooleanLiteralNode tryParseBooleanLiteral(int begin, int endExclusive) {
+        if (begin != endExclusive - 1) return null;
+
+        var booleanLiteralType = tryParseBooleanLiteralType(tokens[begin]);
+        if (booleanLiteralType != null)
+            return BooleanLiteralNode.create(booleanLiteralType, locations[begin].getPosition());
+
+        return null;
     }
 
     private Boolean tryParseBooleanLiteralType(Token token) {
@@ -848,26 +856,26 @@ public class Parser {
         if (begin >= endExclusive) return null;
         if (!tokens[begin].equals(TokenType.Keyword, "in")) return null;
 
-        begin++;
-        if (begin >= endExclusive) return null;
+        int left = begin + 1;
+        if (left >= endExclusive) return null;
 
         boolean reverse = false;
 
-        if (tokens[begin].equals(TokenType.Keyword, "reverse")) {
+        if (tokens[left].equals(TokenType.Keyword, "reverse")) {
             reverse = true;
-            begin++;
+            left++;
         }
 
-        var dotsIndex = getIndexOfFirstToken(begin, endExclusive, TokenType.Operator, "..");
+        var dotsIndex = getIndexOfFirstToken(left, endExclusive, TokenType.Operator, "..");
         if (dotsIndex == -1) return null;
 
-        var from = tryParseExpression(begin, dotsIndex);
+        var from = tryParseExpression(left, dotsIndex);
         if (from == null) return null;
 
         var to = tryParseExpression(dotsIndex + 1, endExclusive);
         if (to == null) return null;
 
-        return new RangeNode(from, to, reverse);
+        return new RangeNode(from, to, reverse, locations[begin].getPosition());
     }
 
     public IfStatementNode tryParseIfStatement(int begin, int endExclusive) {
