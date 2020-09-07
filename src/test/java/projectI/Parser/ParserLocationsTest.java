@@ -98,4 +98,11 @@ public class ParserLocationsTest extends TestCase {
         assertNotNull(position);
         assertEquals(new CodePosition(1, 4), position);
     }
+
+    public void testReturnStatement() throws InvalidLexemeException {
+        var position = createParser("   return a + 2").tryParseReturn(0, 4).startPosition;
+
+        assertNotNull(position);
+        assertEquals(new CodePosition(0, 3), position);
+    }
 }

@@ -914,12 +914,12 @@ public class Parser {
         if (begin >= endExclusive) return null;
         if (!tokens[begin].equals(TokenType.Keyword, "return")) return null;
 
-        if (begin == endExclusive - 1) return new ReturnStatementNode();
+        if (begin == endExclusive - 1) return new ReturnStatementNode(locations[begin].getPosition());
 
         var expression = tryParseExpression(begin + 1, endExclusive);
         if (expression == null) return null;
 
-        return new ReturnStatementNode(expression);
+        return new ReturnStatementNode(expression, locations[begin].getPosition());
     }
 
     public Parser(Token[] tokens, StringWithLocation[] locations) {
