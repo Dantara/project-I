@@ -825,16 +825,16 @@ public class Parser {
         if (!tokens[begin].equals(TokenType.Keyword, "for")) return null;
         if (!tokens[endExclusive - 1].equals(TokenType.Keyword, "end")) return null;
 
-        begin++;
+        int left = begin + 1;
         endExclusive--;
 
-        var variable = tryParseIdentifier(begin, begin + 1);
+        var variable = tryParseIdentifier(left, left + 1);
         if (variable == null) return null;
 
-        begin++;
+        left++;
         var loopIndex = -1;
 
-        for (int index = begin; index < endExclusive; index++) {
+        for (int index = left; index < endExclusive; index++) {
             if (tokens[index].equals(TokenType.Keyword, "loop")) {
                 loopIndex = index;
                 break;
@@ -843,13 +843,13 @@ public class Parser {
 
         if (loopIndex == -1) return null;
 
-        var range = tryParseRange(begin, loopIndex);
+        var range = tryParseRange(left, loopIndex);
         if (range == null) return null;
 
         var body = tryParseBody(loopIndex + 1, endExclusive);
         if (body == null) return null;
 
-        return new ForLoopNode(variable, range, body);
+        return new ForLoopNode(variable, range, body, locations[begin].getPosition());
     }
 
     public RangeNode tryParseRange(int begin, int endExclusive) {

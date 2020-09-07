@@ -65,9 +65,16 @@ public class ParserLocationsTest extends TestCase {
     }
 
     public void testWhileLoop() throws InvalidLexemeException {
-        var position = createParser("\n\nwhile 1 < 2 loop end").tryParseWhileLoop(2, 8).startPosition;
+        var position = createParser("\n\n  while 1 < 2 loop end").tryParseWhileLoop(2, 8).startPosition;
 
         assertNotNull(position);
-        assertEquals(new CodePosition(2, 0), position);
+        assertEquals(new CodePosition(2, 2), position);
+    }
+
+    public void testForLoop() throws InvalidLexemeException {
+        var position = createParser("\n for i in 1..2 loop end").tryParseForLoop(1, 9).startPosition;
+
+        assertNotNull(position);
+        assertEquals(new CodePosition(1, 1), position);
     }
 }
