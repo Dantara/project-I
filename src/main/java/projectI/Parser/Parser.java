@@ -764,7 +764,7 @@ public class Parser {
         var name = tryParseIdentifier(begin, begin + 1);
         if (name == null) return null;
 
-        var routineCall = new RoutineCallNode(name);
+        var routineCall = new RoutineCallNode(name, locations[begin].getPosition());
 
         if (!tokens[begin + 1].equals(TokenType.Operator, "(")) return null;
         if (!tokens[endExclusive - 1].equals(TokenType.Operator, ")")) return null;
