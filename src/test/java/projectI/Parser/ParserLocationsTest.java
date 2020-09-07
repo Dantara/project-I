@@ -84,4 +84,11 @@ public class ParserLocationsTest extends TestCase {
         assertNotNull(position);
         assertEquals(new CodePosition(2, 2), position);
     }
+
+    public void testModifiablePrimary() throws InvalidLexemeException {
+        var position = createParser("var n is a.size").tryParseModifiablePrimary(3, 6).startPosition;
+
+        assertNotNull(position);
+        assertEquals(new CodePosition(0, 9), position);
+    }
 }

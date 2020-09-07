@@ -2,6 +2,7 @@ package projectI.AST.Primary;
 
 import projectI.AST.Expressions.ExpressionNode;
 import projectI.AST.Declarations.IdentifierNode;
+import projectI.CodePosition;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,9 +11,16 @@ import java.util.Objects;
 public class ModifiablePrimaryNode implements PrimaryNode {
     public final IdentifierNode identifier;
     public final List<Accessor> accessors = new ArrayList<>();
+    public final CodePosition startPosition;
 
     public ModifiablePrimaryNode(IdentifierNode identifier) {
         this.identifier = identifier;
+        this.startPosition = null;
+    }
+
+    public ModifiablePrimaryNode(IdentifierNode identifier, CodePosition startPosition) {
+        this.identifier = identifier;
+        this.startPosition = startPosition;
     }
 
     public ModifiablePrimaryNode addMember(IdentifierNode identifier) {

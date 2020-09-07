@@ -407,7 +407,7 @@ public class Parser {
         var identifier = tryParseIdentifier(begin, begin + 1);
         if (identifier == null) return null;
 
-        var modifiablePrimary = new ModifiablePrimaryNode(identifier);
+        var modifiablePrimary = new ModifiablePrimaryNode(identifier, locations[begin].getPosition());
         var left = begin + 1;
 
         while (left < endExclusive) {
