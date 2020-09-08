@@ -36,6 +36,13 @@ public class BinaryRelationNode implements RelationNode {
         return simple.getPosition();
     }
 
+    @Override
+    public boolean validate() {
+        return simple != null && simple.validate() &&
+                (comparison == null && otherSimple == null && comparisonPosition == null ||
+                        comparison != null && otherSimple != null && otherSimple.validate() && comparisonPosition != null);
+    }
+
     public enum Comparison {
         LESS, LESS_EQUAL,
         GREATER, GREATER_EQUAL,

@@ -35,4 +35,9 @@ public class IdentifierNode implements TypeNode {
     public String toString() {
         return name;
     }
+
+    @Override
+    public boolean validate() {
+        return name != null && position != null;
+    }
 }

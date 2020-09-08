@@ -42,4 +42,11 @@ public class WhileLoopNode implements StatementNode {
     public CodePosition getStartPosition() {
         return startPosition;
     }
+
+    @Override
+    public boolean validate() {
+        return condition != null && condition.validate() &&
+                body != null && body.validate() &&
+                startPosition != null;
+    }
 }

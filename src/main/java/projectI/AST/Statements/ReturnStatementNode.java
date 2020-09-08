@@ -53,4 +53,10 @@ public class ReturnStatementNode implements StatementNode {
     public CodePosition getStartPosition() {
         return startPosition;
     }
+
+    @Override
+    public boolean validate() {
+        return (expression == null || expression.validate()) &&
+                startPosition != null;
+    }
 }

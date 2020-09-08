@@ -59,6 +59,11 @@ public class RealLiteralNode implements PrimaryNode {
         return valuePosition;
     }
 
+    @Override
+    public boolean validate() {
+        return valuePosition != null;
+    }
+
     public enum Sign {
         PLUS, MINUS
     }

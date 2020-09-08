@@ -1,6 +1,5 @@
 package projectI.AST.Expressions;
 
-import org.javatuples.Pair;
 import projectI.AST.ASTNode;
 import projectI.CodePosition;
 
@@ -65,5 +64,22 @@ public class SummandNode implements ASTNode {
 
     public CodePosition getPosition() {
         return factor.getPosition();
+    }
+
+    @Override
+    public boolean validate() {
+        if (factor == null || !factor.validate())
+            return false;
+
+        for (var factor : otherFactors) {
+            if (factor == null)
+                return false;
+
+            if (factor.operator == null || factor.node == null
+                    || !factor.node.validate() || factor.operatorPosition == null)
+                return false;
+        }
+
+        return true;
     }
 }

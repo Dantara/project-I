@@ -64,8 +64,24 @@ public class ModifiablePrimaryNode implements PrimaryNode {
         return startPosition;
     }
 
-    public abstract static class Accessor {
+    @Override
+    public boolean validate() {
+        if (identifier == null || !identifier.validate() || startPosition == null)
+            return false;
 
+        for (var accessor : accessors) {
+            if (accessor == null)
+                return false;
+
+            if (!accessor.validate())
+                return false;
+        }
+
+        return true;
+    }
+
+    public abstract static class Accessor {
+        public abstract boolean validate();
     }
 
     public static final class Member extends Accessor {
@@ -91,6 +107,11 @@ public class ModifiablePrimaryNode implements PrimaryNode {
         @Override
         public String toString() {
             return "." + name;
+        }
+
+        @Override
+        public boolean validate() {
+            return name != null && name.validate();
         }
     }
 
@@ -118,6 +139,11 @@ public class ModifiablePrimaryNode implements PrimaryNode {
         public String toString() {
             return "[" + value + "]";
         }
+
+        @Override
+        public boolean validate() {
+            return value != null && value.validate();
+        }
     }
 
     public static final class ArraySize extends Accessor {
@@ -133,6 +159,11 @@ public class ModifiablePrimaryNode implements PrimaryNode {
         @Override
         public String toString() {
             return ".size";
+        }
+
+        @Override
+        public boolean validate() {
+            return true;
         }
     }
 

@@ -54,6 +54,7 @@ public class ParserCodeExamplesTest extends TestCase {
                 .addDeclaration(routine);
 
         assertNotNull(program);
+        assertTrue(program.validate());
         assertEquals(expectedProgram, program);
     }
 
@@ -61,83 +62,97 @@ public class ParserCodeExamplesTest extends TestCase {
         var program = tryParseProgram("code_examples/bad_formatting.txt");
 
         assertNotNull(program);
+        assertTrue(program.validate());
     }
 
     public void testArrayOfRecords() throws IOException, InvalidLexemeException {
         var program = tryParseProgram("code_examples/array_of_records.txt");
 
         assertNotNull(program);
+        assertTrue(program.validate());
     }
 
     public void testArrayWithBooleanSize() throws IOException, InvalidLexemeException {
         var program = tryParseProgram("code_examples/array_with_boolean_size.txt");
 
         assertNotNull(program);
+        assertTrue(program.validate());
     }
 
     public void testArraysAndFor() throws IOException, InvalidLexemeException {
         var program = tryParseProgram("code_examples/arrays_and_for.txt");
 
         assertNotNull(program);
+        assertTrue(program.validate());
     }
 
     public void testConditional() throws IOException, InvalidLexemeException {
         var program = tryParseProgram("code_examples/conditional.txt");
 
         assertNotNull(program);
+        assertTrue(program.validate());
     }
 
     public void testDenseCode() throws IOException, InvalidLexemeException {
         var program = tryParseProgram("code_examples/dense_code.txt");
 
         assertNotNull(program);
+        assertTrue(program.validate());
     }
 
     public void testManyBrackets() throws IOException, InvalidLexemeException {
         var program = tryParseProgram("code_examples/many_brackets.txt");
 
         assertNotNull(program);
+        assertTrue(program.validate());
     }
 
     public void testNestedLoop() throws IOException, InvalidLexemeException {
         var program = tryParseProgram("code_examples/nested_loop.txt");
 
         assertNotNull(program);
+        assertTrue(program.validate());
     }
 
     public void testOperators() throws IOException, InvalidLexemeException {
         var program = tryParseProgram("code_examples/operators.txt");
 
         assertNotNull(program);
+        assertTrue(program.validate());
     }
 
     public void testRecords() throws IOException, InvalidLexemeException {
         var program = tryParseProgram("code_examples/records.txt");
 
         assertNotNull(program);
+        assertTrue(program.validate());
     }
 
     public void testRoutineCall() throws IOException, InvalidLexemeException {
         var program = tryParseProgram("code_examples/routine_call.txt");
 
         assertNotNull(program);
+        assertTrue(program.validate());
     }
 
     public void testTypeConversion() throws IOException, InvalidLexemeException {
         var program = tryParseProgram("code_examples/type_conversion.txt");
 
         assertNotNull(program);
+        assertTrue(program.validate());
     }
 
     public void testTypeSynonym() throws IOException, InvalidLexemeException {
         var program = tryParseProgram("code_examples/type_synonym.txt");
 
         assertNotNull(program);
+        assertTrue(program.validate());
     }
 
     public void testWhileLoop() throws IOException, InvalidLexemeException {
         var program = tryParseProgram("code_examples/while_loop.txt");
 
         assertNotNull(program);
+        assertTrue(program.validate());
     }
 }

@@ -46,4 +46,12 @@ public class ForLoopNode implements StatementNode {
     public CodePosition getStartPosition() {
         return startPosition;
     }
+
+    @Override
+    public boolean validate() {
+        return variable != null && variable.validate() &&
+                range != null && range.validate() &&
+                body != null && body.validate() &&
+                startPosition != null;
+    }
 }

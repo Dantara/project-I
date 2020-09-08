@@ -35,4 +35,9 @@ public class NegatedRelationNode implements RelationNode {
     public CodePosition getPosition() {
         return startPosition;
     }
+
+    @Override
+    public boolean validate() {
+        return innerRelation != null && innerRelation.validate() && startPosition != null;
+    }
 }

@@ -56,4 +56,16 @@ public class RecordTypeNode extends UserTypeNode {
         builder.append("}");
         return builder.toString();
     }
+
+    @Override
+    public boolean validate() {
+        if (startPosition == null) return false;
+
+        for (var variable : variables) {
+            if (variable == null || !variable.validate())
+                return false;
+        }
+
+        return true;
+    }
 }

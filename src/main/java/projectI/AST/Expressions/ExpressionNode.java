@@ -64,4 +64,21 @@ public class ExpressionNode implements FactorNode {
 
         return builder.toString();
     }
+
+    @Override
+    public boolean validate() {
+        if (relation == null || !relation.validate())
+            return false;
+
+        for (var relation : otherRelations) {
+            if (relation == null)
+                return false;
+
+            if (relation.operator == null || relation.node == null
+                    || !relation.node.validate() || relation.operatorPosition == null)
+                return false;
+        }
+
+        return true;
+    }
 }

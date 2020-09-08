@@ -65,4 +65,21 @@ public class SimpleNode implements ASTNode {
     public CodePosition getPosition() {
         return summand.getPosition();
     }
+
+    @Override
+    public boolean validate() {
+        if (summand == null || !summand.validate())
+            return false;
+
+        for (var summands : otherSummands) {
+            if (summands == null)
+                return false;
+
+            if (summands.operator == null || summands.node == null
+                    || !summands.node.validate() || summands.operatorPosition == null)
+                return false;
+        }
+
+        return true;
+    }
 }

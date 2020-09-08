@@ -43,4 +43,11 @@ public class ArrayTypeNode extends UserTypeNode {
 
         return "array [" + size + "] " + elementType;
     }
+
+    @Override
+    public boolean validate() {
+        return elementType != null && elementType.validate() &&
+                (size == null || size.validate()) &&
+                startPosition != null;
+    }
 }

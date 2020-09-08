@@ -40,4 +40,11 @@ public class RangeNode implements ASTNode {
     public int hashCode() {
         return Objects.hash(from, to, reverse);
     }
+
+    @Override
+    public boolean validate() {
+        return from != null && from.validate() &&
+                to != null && to.validate() &&
+                startPosition != null;
+    }
 }

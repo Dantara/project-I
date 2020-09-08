@@ -49,4 +49,11 @@ public class VariableDeclarationNode extends SimpleDeclarationNode {
     public CodePosition getStartPosition() {
         return startPosition;
     }
+
+    @Override
+    public boolean validate() {
+        return identifier != null && identifier.validate() &&
+                (type != null && type.validate() || expression != null && expression.validate()) &&
+                startPosition != null;
+    }
 }

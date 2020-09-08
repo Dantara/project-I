@@ -94,4 +94,13 @@ public class RoutineDeclarationNode extends DeclarationNode {
     public CodePosition getStartPosition() {
         return startPosition;
     }
+
+    @Override
+    public boolean validate() {
+        return name != null && name.validate() &&
+                parameters != null && parameters.validate() &&
+                (returnType == null || returnType.validate()) &&
+                body != null && body.validate() &&
+                startPosition != null;
+    }
 }

@@ -53,4 +53,12 @@ public class IfStatementNode implements StatementNode {
     public CodePosition getStartPosition() {
         return startPosition;
     }
+
+    @Override
+    public boolean validate() {
+        return condition != null && condition.validate() &&
+                body != null && body.validate() &&
+                (elseBody == null || elseBody.validate()) &&
+                startPosition != null;
+    }
 }

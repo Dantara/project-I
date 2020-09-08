@@ -37,4 +37,10 @@ public class AssignmentNode implements StatementNode {
     public String toString() {
         return modifiable + " := " + assignedValue;
     }
+
+    @Override
+    public boolean validate() {
+        return modifiable != null && modifiable.validate() &&
+                assignedValue != null && assignedValue.validate();
+    }
 }

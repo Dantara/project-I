@@ -6,6 +6,7 @@ import java.util.Objects;
 
 public class PrimitiveTypeNode implements TypeNode {
     public final CodePosition position;
+    public final PrimitiveType type;
 
     public PrimitiveTypeNode(PrimitiveType type) {
         this.type = type;
@@ -16,8 +17,6 @@ public class PrimitiveTypeNode implements TypeNode {
         this.type = type;
         this.position = position;
     }
-
-    public final PrimitiveType type;
 
     @Override
     public boolean equals(Object o) {
@@ -35,5 +34,10 @@ public class PrimitiveTypeNode implements TypeNode {
     @Override
     public String toString() {
         return type.toString();
+    }
+
+    @Override
+    public boolean validate() {
+        return type != null && position != null;
     }
 }

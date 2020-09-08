@@ -45,4 +45,22 @@ public class ParametersNode implements ASTNode {
     public int hashCode() {
         return Objects.hash(parameters);
     }
+
+    @Override
+    public boolean validate() {
+        if (parameters.size() > 0 && startPosition == null) return false;
+
+        for (var parameter : parameters) {
+            if (parameter == null)
+                return false;
+
+            if (parameter.getValue0() == null || !parameter.getValue0().validate())
+                return false;
+
+            if (parameter.getValue1() == null || !parameter.getValue1().validate())
+                return false;
+        }
+
+        return true;
+    }
 }

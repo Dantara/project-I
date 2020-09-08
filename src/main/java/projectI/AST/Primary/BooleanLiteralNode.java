@@ -41,4 +41,9 @@ public class BooleanLiteralNode implements PrimaryNode {
     public CodePosition getPosition() {
         return position;
     }
+
+    @Override
+    public boolean validate() {
+        return position != null;
+    }
 }

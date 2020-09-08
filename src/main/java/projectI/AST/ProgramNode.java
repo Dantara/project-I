@@ -49,4 +49,14 @@ public class ProgramNode implements ASTNode {
         builder.append("}");
         return builder.toString();
     }
+
+    @Override
+    public boolean validate() {
+        for (var declaration : declarations) {
+            if (declaration == null || !declaration.validate())
+                return false;
+        }
+
+        return true;
+    }
 }
