@@ -252,4 +252,11 @@ public class ParserLocationsTest extends TestCase {
         assertNotNull(secondVarPosition);
         assertEquals(new CodePosition(2, 4), secondVarPosition);
     }
+
+    public void testRoutineDeclaration() throws InvalidLexemeException {
+        var position = createParser(" routine main() is end").tryParseRoutineDeclaration(0, 6).startPosition;
+
+        assertNotNull(position);
+        assertEquals(new CodePosition(0, 1), position);
+    }
 }

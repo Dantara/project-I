@@ -604,6 +604,7 @@ public class Parser {
         if (!tokens[begin].equals(TokenType.Keyword, "routine")) return null;
         if (!tokens[endExclusive - 1].equals(TokenType.Keyword, "end")) return null;
 
+        var startPosition = locations[begin].getPosition();
         endExclusive--;
 
         if (begin + 1 >= endExclusive) return null;
@@ -625,7 +626,7 @@ public class Parser {
             var body = tryParseBody(matchingParenthesisIndex + 2, endExclusive);
             if (body == null) return null;
 
-            return new RoutineDeclarationNode(identifier, parameters, body);
+            return new RoutineDeclarationNode(identifier, parameters, body, startPosition);
         } else if (tokens[matchingParenthesisIndex + 1].equals(TokenType.Operator, ":")) {
             for (int isIndex = matchingParenthesisIndex + 2; isIndex < endExclusive; isIndex++) {
                 if (!tokens[isIndex].equals(TokenType.Keyword, "is")) continue;
@@ -636,7 +637,7 @@ public class Parser {
                 var body = tryParseBody(isIndex + 1, endExclusive);
                 if (body == null) continue;
 
-                return new RoutineDeclarationNode(identifier, parameters, returnType, body);
+                return new RoutineDeclarationNode(identifier, parameters, returnType, body, startPosition);
             }
         }
 
