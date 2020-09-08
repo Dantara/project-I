@@ -1,10 +1,20 @@
 package projectI.AST.Declarations;
 
+import projectI.CodePosition;
+
 import java.util.Objects;
 
 public class PrimitiveTypeNode implements TypeNode {
+    public final CodePosition position;
+
     public PrimitiveTypeNode(PrimitiveType type) {
         this.type = type;
+        this.position = null;
+    }
+
+    public PrimitiveTypeNode(PrimitiveType type, CodePosition position) {
+        this.type = type;
+        this.position = position;
     }
 
     public final PrimitiveType type;

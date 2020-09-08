@@ -491,10 +491,12 @@ public class Parser {
         var token = tokens[begin];
         if (token.getType() != TokenType.Keyword) return null;
 
+        var position = locations[begin].getPosition();
+
         return switch (token.getLexeme()) {
-            case "integer" -> new PrimitiveTypeNode(PrimitiveType.INTEGER);
-            case "real" -> new PrimitiveTypeNode(PrimitiveType.REAL);
-            case "boolean" -> new PrimitiveTypeNode(PrimitiveType.BOOLEAN);
+            case "integer" -> new PrimitiveTypeNode(PrimitiveType.INTEGER, position);
+            case "real" -> new PrimitiveTypeNode(PrimitiveType.REAL, position);
+            case "boolean" -> new PrimitiveTypeNode(PrimitiveType.BOOLEAN, position);
             default -> null;
         };
     }
@@ -526,7 +528,7 @@ public class Parser {
         if (!tokens[begin].equals(TokenType.Keyword, "record")) return null;
         if (!tokens[endExclusive - 1].equals(TokenType.Keyword, "end")) return null;
 
-        var record = new RecordTypeNode();
+        var record = new RecordTypeNode(locations[begin].getPosition());
         begin += 1;
         endExclusive -= 1;
         var left = begin;
@@ -642,7 +644,8 @@ public class Parser {
     }
 
     public ParametersNode tryParseParameters(int begin, int endExclusive) {
-        var parameters = new ParametersNode(locations[begin].getPosition());
+        var startPosition = 0 <= begin && begin < tokens.length ? locations[begin].getPosition() : null;
+        var parameters = new ParametersNode(startPosition);
         if (begin >= endExclusive) return parameters;
 
         var left = begin;

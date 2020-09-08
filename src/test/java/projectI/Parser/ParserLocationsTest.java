@@ -214,8 +214,7 @@ public class ParserLocationsTest extends TestCase {
     public void testParameters_Empty() throws InvalidLexemeException {
         var position = createParser("  ").tryParseParameters(0, 0).startPosition;
 
-        assertNotNull(position);
-        assertEquals(new CodePosition(0, 2), position);
+        assertNull(position);
     }
 
     public void testParameters() throws InvalidLexemeException {
@@ -231,5 +230,26 @@ public class ParserLocationsTest extends TestCase {
         assertEquals(new CodePosition(0, 1), positionOfA);
         assertNotNull(positionOfB);
         assertEquals(new CodePosition(0, 12), positionOfB);
+    }
+
+    public void testPrimitiveType() throws InvalidLexemeException {
+        var position = createParser(" integer").tryParsePrimitiveType(0, 1).position;
+
+        assertNotNull(position);
+        assertEquals(new CodePosition(0, 1), position);
+    }
+
+    public void testRecordType() throws InvalidLexemeException {
+        var record = createParser("record\n    var a is 1\n    var b is 2\nend").tryParseRecordType(0, 13);
+
+        var firstVarPosition = record.variables.get(0).startPosition;
+        var secondVarPosition = record.variables.get(1).startPosition;
+
+        assertNotNull(record.startPosition);
+        assertEquals(new CodePosition(0, 0), record.startPosition);
+        assertNotNull(firstVarPosition);
+        assertEquals(new CodePosition(1, 4), firstVarPosition);
+        assertNotNull(secondVarPosition);
+        assertEquals(new CodePosition(2, 4), secondVarPosition);
     }
 }
