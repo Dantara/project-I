@@ -1,5 +1,7 @@
 package projectI.AST.Declarations;
 
+import projectI.CodePosition;
+
 import java.util.Objects;
 
 public class RoutineDeclarationNode extends DeclarationNode {
@@ -7,12 +9,14 @@ public class RoutineDeclarationNode extends DeclarationNode {
     public final ParametersNode parameters;
     public final TypeNode returnType;
     public final BodyNode body;
+    public final CodePosition startPosition;
 
     public RoutineDeclarationNode(IdentifierNode name, ParametersNode parameters, TypeNode returnType, BodyNode body) {
         this.name = name;
         this.parameters = parameters;
         this.returnType = returnType;
         this.body = body;
+        this.startPosition = null;
     }
 
     public RoutineDeclarationNode(IdentifierNode name, ParametersNode parameters, BodyNode body) {
@@ -20,6 +24,23 @@ public class RoutineDeclarationNode extends DeclarationNode {
         this.parameters = parameters;
         this.body = body;
         this.returnType = null;
+        this.startPosition = null;
+    }
+
+    public RoutineDeclarationNode(IdentifierNode name, ParametersNode parameters, TypeNode returnType, BodyNode body, CodePosition startPosition) {
+        this.name = name;
+        this.parameters = parameters;
+        this.returnType = returnType;
+        this.body = body;
+        this.startPosition = startPosition;
+    }
+
+    public RoutineDeclarationNode(IdentifierNode name, ParametersNode parameters, BodyNode body, CodePosition startPosition) {
+        this.name = name;
+        this.parameters = parameters;
+        this.body = body;
+        this.returnType = null;
+        this.startPosition = startPosition;
     }
 
     @Override
@@ -67,5 +88,19 @@ public class RoutineDeclarationNode extends DeclarationNode {
         builder.append("}");
 
         return builder.toString();
+    }
+
+    @Override
+    public CodePosition getStartPosition() {
+        return startPosition;
+    }
+
+    @Override
+    public boolean validate() {
+        return name != null && name.validate() &&
+                parameters != null && parameters.validate() &&
+                (returnType == null || returnType.validate()) &&
+                body != null && body.validate() &&
+                startPosition != null;
     }
 }

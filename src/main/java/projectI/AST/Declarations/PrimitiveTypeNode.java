@@ -1,13 +1,22 @@
 package projectI.AST.Declarations;
 
+import projectI.CodePosition;
+
 import java.util.Objects;
 
 public class PrimitiveTypeNode implements TypeNode {
+    public final CodePosition position;
+    public final PrimitiveType type;
+
     public PrimitiveTypeNode(PrimitiveType type) {
         this.type = type;
+        this.position = null;
     }
 
-    public final PrimitiveType type;
+    public PrimitiveTypeNode(PrimitiveType type, CodePosition position) {
+        this.type = type;
+        this.position = position;
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -25,5 +34,10 @@ public class PrimitiveTypeNode implements TypeNode {
     @Override
     public String toString() {
         return type.toString();
+    }
+
+    @Override
+    public boolean validate() {
+        return type != null && position != null;
     }
 }

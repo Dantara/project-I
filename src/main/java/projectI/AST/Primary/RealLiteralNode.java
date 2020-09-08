@@ -1,19 +1,36 @@
 package projectI.AST.Primary;
 
+import projectI.CodePosition;
+
 import java.util.Objects;
 
 public class RealLiteralNode implements PrimaryNode {
     public final double value;
     public final Sign sign;
+    public final CodePosition valuePosition;
+
+    public RealLiteralNode(double value, CodePosition valuePosition) {
+        this.value = value;
+        this.valuePosition = valuePosition;
+        this.sign = null;
+    }
+
+    public RealLiteralNode(double value, Sign sign, CodePosition valuePosition) {
+        this.value = value;
+        this.sign = sign;
+        this.valuePosition = valuePosition;
+    }
 
     public RealLiteralNode(double value) {
         this.value = value;
-        sign = null;
+        this.valuePosition = null;
+        this.sign = null;
     }
 
     public RealLiteralNode(double value, Sign sign) {
         this.value = value;
         this.sign = sign;
+        this.valuePosition = null;
     }
 
     public static RealLiteralNode plus(double value) {
@@ -35,6 +52,16 @@ public class RealLiteralNode implements PrimaryNode {
     @Override
     public int hashCode() {
         return Objects.hash(value, sign);
+    }
+
+    @Override
+    public CodePosition getPosition() {
+        return valuePosition;
+    }
+
+    @Override
+    public boolean validate() {
+        return valuePosition != null;
     }
 
     public enum Sign {

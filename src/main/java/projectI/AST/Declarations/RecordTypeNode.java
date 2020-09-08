@@ -1,11 +1,22 @@
 package projectI.AST.Declarations;
 
+import projectI.CodePosition;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 public class RecordTypeNode extends UserTypeNode {
+    public final CodePosition startPosition;
     public final List<VariableDeclarationNode> variables = new ArrayList<>();
+
+    public RecordTypeNode(CodePosition startPosition) {
+        this.startPosition = startPosition;
+    }
+
+    public RecordTypeNode() {
+        this.startPosition = null;
+    }
 
     public RecordTypeNode addVariable(VariableDeclarationNode variable) {
         variables.add(variable);
@@ -44,5 +55,17 @@ public class RecordTypeNode extends UserTypeNode {
 
         builder.append("}");
         return builder.toString();
+    }
+
+    @Override
+    public boolean validate() {
+        if (startPosition == null) return false;
+
+        for (var variable : variables) {
+            if (variable == null || !variable.validate())
+                return false;
+        }
+
+        return true;
     }
 }

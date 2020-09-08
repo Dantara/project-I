@@ -1,6 +1,6 @@
 package projectI.AST.Expressions;
 
-import org.javatuples.Pair;
+import projectI.CodePosition;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,14 +8,23 @@ import java.util.Objects;
 
 public class ExpressionNode implements FactorNode {
     public final RelationNode relation;
-    public final List<Pair<LogicalOperator, RelationNode>> otherRelations = new ArrayList<>();
+    public final List<OperatorWithNode<LogicalOperator, RelationNode>> otherRelations = new ArrayList<>();
+
+    public CodePosition getPosition() {
+        return relation.getPosition();
+    }
 
     public ExpressionNode(RelationNode relation) {
         this.relation = relation;
     }
 
     public ExpressionNode addRelation(LogicalOperator operator, RelationNode relation) {
-        otherRelations.add(new Pair<>(operator, relation));
+        otherRelations.add(new OperatorWithNode<>(operator, relation));
+        return this;
+    }
+
+    public ExpressionNode addRelation(LogicalOperator operator, RelationNode relation, CodePosition position) {
+        otherRelations.add(new OperatorWithNode<>(operator, relation, position));
         return this;
     }
 
@@ -47,12 +56,29 @@ public class ExpressionNode implements FactorNode {
         builder.append(" ");
 
         for (var other : otherRelations) {
-            builder.append(other.getValue0());
+            builder.append(other.operator);
             builder.append(" ");
-            builder.append(other.getValue1());
+            builder.append(other.node);
             builder.append(" ");
         }
 
         return builder.toString();
+    }
+
+    @Override
+    public boolean validate() {
+        if (relation == null || !relation.validate())
+            return false;
+
+        for (var relation : otherRelations) {
+            if (relation == null)
+                return false;
+
+            if (relation.operator == null || relation.node == null
+                    || !relation.node.validate() || relation.operatorPosition == null)
+                return false;
+        }
+
+        return true;
     }
 }

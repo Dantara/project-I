@@ -1,19 +1,36 @@
 package projectI.AST.Primary;
 
+import projectI.CodePosition;
+
 import java.util.Objects;
 
 public class IntegralLiteralNode implements PrimaryNode {
     public final int value;
     public final Sign sign;
+    public final CodePosition valuePosition;
+
+    public IntegralLiteralNode(int value, CodePosition valuePosition) {
+        this.value = value;
+        this.valuePosition = valuePosition;
+        this.sign = null;
+    }
+
+    public IntegralLiteralNode(int value, Sign sign, CodePosition valuePosition) {
+        this.value = value;
+        this.sign = sign;
+        this.valuePosition = valuePosition;
+    }
 
     public IntegralLiteralNode(int value) {
         this.value = value;
         this.sign = null;
+        this.valuePosition = null;
     }
 
     public IntegralLiteralNode(int value, Sign sign) {
         this.value = value;
         this.sign = sign;
+        this.valuePosition = null;
     }
 
     @Override
@@ -27,6 +44,16 @@ public class IntegralLiteralNode implements PrimaryNode {
     @Override
     public int hashCode() {
         return Objects.hash(value, sign);
+    }
+
+    @Override
+    public CodePosition getPosition() {
+        return valuePosition;
+    }
+
+    @Override
+    public boolean validate() {
+        return valuePosition != null;
     }
 
     public enum Sign {

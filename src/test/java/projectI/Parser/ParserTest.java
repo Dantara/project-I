@@ -3,7 +3,6 @@ package projectI.Parser;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import org.javatuples.Pair;
 import projectI.AST.Declarations.*;
 import projectI.AST.Expressions.*;
 import projectI.AST.Flow.ForLoopNode;
@@ -37,13 +36,16 @@ public class ParserTest extends TestCase {
     }
 
     private static Parser createParser(String programText) throws InvalidLexemeException {
-        return new Parser(new Lexer().scan(programText));
+        var lexer = new Lexer();
+        var tokens = lexer.scan(programText);
+        return new Parser(tokens, lexer.getLexemesWithLocations());
     }
 
     public void testEmptyProgram() throws InvalidLexemeException {
         var program = parse("");
 
         assertNotNull(program);
+        assertTrue(program.validate());
         assertEquals(0, program.declarations.size());
     }
 
@@ -51,6 +53,7 @@ public class ParserTest extends TestCase {
         var identifier = createParser("name").tryParseIdentifier(0, 1);
 
         assertNotNull(identifier);
+        assertTrue(identifier.validate());
         assertEquals(new IdentifierNode("name"), identifier);
     }
 
@@ -58,6 +61,7 @@ public class ParserTest extends TestCase {
         var primitiveType = createParser("integer").tryParsePrimitiveType(0, 1);
 
         assertNotNull(primitiveType);
+        assertTrue(primitiveType.validate());
         assertEquals(new PrimitiveTypeNode(PrimitiveType.INTEGER), primitiveType);
     }
 
@@ -65,6 +69,7 @@ public class ParserTest extends TestCase {
         var primitiveType = createParser("integer").tryParseType(0, 1);
 
         assertNotNull(primitiveType);
+        assertTrue(primitiveType.validate());
         assertEquals(new PrimitiveTypeNode(PrimitiveType.INTEGER), primitiveType);
     }
 
@@ -72,6 +77,7 @@ public class ParserTest extends TestCase {
         var expression = createParser("1").tryParseExpression(0, 1);
 
         assertNotNull(expression);
+        assertTrue(expression.validate());
         assertEquals(integerExpression(1), expression);
     }
 
@@ -79,6 +85,7 @@ public class ParserTest extends TestCase {
         var literal = createParser("1").tryParseIntegralLiteral(0, 1);
 
         assertNotNull(literal);
+        assertTrue(literal.validate());
         assertEquals(new IntegralLiteralNode(1), literal);
     }
 
@@ -86,6 +93,7 @@ public class ParserTest extends TestCase {
         var literal = createParser("1").tryParsePrimary(0, 1);
 
         assertNotNull(literal);
+        assertTrue(literal.validate());
         assertEquals(new IntegralLiteralNode(1), literal);
     }
 
@@ -93,6 +101,7 @@ public class ParserTest extends TestCase {
         var literal = createParser("1").tryParseFactor(0, 1);
 
         assertNotNull(literal);
+        assertTrue(literal.validate());
         assertEquals(new IntegralLiteralNode(1), literal);
     }
 
@@ -100,6 +109,7 @@ public class ParserTest extends TestCase {
         var literal = createParser("1").tryParseSummand(0, 1);
 
         assertNotNull(literal);
+        assertTrue(literal.validate());
         assertEquals(new SummandNode(new IntegralLiteralNode(1)), literal);
     }
 
@@ -107,6 +117,7 @@ public class ParserTest extends TestCase {
         var literal = createParser("1").tryParseSimple(0, 1);
 
         assertNotNull(literal);
+        assertTrue(literal.validate());
         assertEquals(new SimpleNode(new SummandNode(new IntegralLiteralNode(1))), literal);
     }
 
@@ -114,6 +125,7 @@ public class ParserTest extends TestCase {
         var literal = createParser("1").tryParseRelation(0, 1);
 
         assertNotNull(literal);
+        assertTrue(literal.validate());
         assertEquals(new BinaryRelationNode(new SimpleNode(new SummandNode(new IntegralLiteralNode(1)))), literal);
     }
 
@@ -121,6 +133,7 @@ public class ParserTest extends TestCase {
         var modifiablePrimary  = createParser("a.a").tryParseModifiablePrimary(0, 3);
 
         assertNotNull(modifiablePrimary);
+        assertTrue(modifiablePrimary.validate());
         assertEquals(1, modifiablePrimary.accessors.size());
 
         var expectedNode = new ModifiablePrimaryNode(new IdentifierNode("a"))
@@ -133,6 +146,7 @@ public class ParserTest extends TestCase {
         var modifiablePrimary  = createParser("a.a.a").tryParseModifiablePrimary(0, 5);
 
         assertNotNull(modifiablePrimary);
+        assertTrue(modifiablePrimary.validate());
         assertEquals(2, modifiablePrimary.accessors.size());
 
         var expectedNode = new ModifiablePrimaryNode(new IdentifierNode("a"))
@@ -146,6 +160,7 @@ public class ParserTest extends TestCase {
         var modifiablePrimary  = createParser("a[0]").tryParseModifiablePrimary(0, 4);
 
         assertNotNull(modifiablePrimary);
+        assertTrue(modifiablePrimary.validate());
         assertEquals(1, modifiablePrimary.accessors.size());
 
         var expectedNode = new ModifiablePrimaryNode(new IdentifierNode("a"))
@@ -158,6 +173,7 @@ public class ParserTest extends TestCase {
         var modifiablePrimary  = createParser("a[0][0]").tryParseModifiablePrimary(0, 7);
 
         assertNotNull(modifiablePrimary);
+        assertTrue(modifiablePrimary.validate());
         assertEquals(2, modifiablePrimary.accessors.size());
 
         var expectedNode = new ModifiablePrimaryNode(new IdentifierNode("a"))
@@ -171,6 +187,7 @@ public class ParserTest extends TestCase {
         var modifiablePrimary  = createParser("a[0].a[0].a").tryParseModifiablePrimary(0, 11);
 
         assertNotNull(modifiablePrimary);
+        assertTrue(modifiablePrimary.validate());
         assertEquals(4, modifiablePrimary.accessors.size());
 
         var expectedNode = new ModifiablePrimaryNode(new IdentifierNode("a"))
@@ -186,6 +203,7 @@ public class ParserTest extends TestCase {
         var variable = createParser("var a : integer").tryParseVariableDeclaration(0, 4);
 
         assertNotNull(variable);
+        assertTrue(variable.validate());
         assertEquals(new VariableDeclarationNode(
                 new IdentifierNode("a"),
                 new PrimitiveTypeNode(PrimitiveType.INTEGER),
@@ -196,6 +214,7 @@ public class ParserTest extends TestCase {
         var variable = createParser("var a : integer is 1").tryParseVariableDeclaration(0, 6);
 
         assertNotNull(variable);
+        assertTrue(variable.validate());
         assertEquals(new VariableDeclarationNode(
                 new IdentifierNode("a"),
                 new PrimitiveTypeNode(PrimitiveType.INTEGER), integerExpression(1)), variable);
@@ -205,6 +224,7 @@ public class ParserTest extends TestCase {
         var variable = createParser("var a is 1").tryParseVariableDeclaration(0, 4);
 
         assertNotNull(variable);
+        assertTrue(variable.validate());
         assertEquals(new VariableDeclarationNode(new IdentifierNode("a"), null, integerExpression(1)),
                 variable);
     }
@@ -213,6 +233,7 @@ public class ParserTest extends TestCase {
         var expression = createParser("1.0").tryParseExpression(0, 1);
 
         assertNotNull(expression);
+        assertTrue(expression.validate());
         assertEquals(realExpression(1.0), expression);
     }
 
@@ -220,11 +241,13 @@ public class ParserTest extends TestCase {
         var expression = createParser("false").tryParseExpression(0, 1);
 
         assertNotNull(expression);
+        assertTrue(expression.validate());
         assertEquals(booleanExpression(false), expression);
 
         expression = createParser("true").tryParseExpression(0, 1);
 
         assertNotNull(expression);
+        assertTrue(expression.validate());
         assertEquals(booleanExpression(true), expression);
     }
 
@@ -239,6 +262,7 @@ public class ParserTest extends TestCase {
         expectedSummand.addFactor(MultiplicationOperator.MULTIPLY, toExpression(innerSimple));
 
         assertNotNull(summand);
+        assertTrue(summand.validate());
         assertEquals(expectedSummand, summand);
     }
 
@@ -250,6 +274,7 @@ public class ParserTest extends TestCase {
         expectedSimple.addSummand(AdditionOperator.PLUS, new SummandNode(parentheses));
 
         assertNotNull(simple);
+        assertTrue(simple.validate());
         assertEquals(expectedSimple, simple);
     }
 
@@ -267,6 +292,7 @@ public class ParserTest extends TestCase {
         expectedSimple.addSummand(AdditionOperator.PLUS, multiplication);
 
         assertNotNull(simple);
+        assertTrue(simple.validate());
         assertEquals(expectedSimple, expectedSimple);
     }
 
@@ -278,6 +304,7 @@ public class ParserTest extends TestCase {
                 createParser("1+2*(3-4)").tryParseSimple(0, 9));
 
         assertNotNull(relation);
+        assertTrue(relation.validate());
         assertEquals(expectedRelation, relation);
     }
 
@@ -290,6 +317,7 @@ public class ParserTest extends TestCase {
                 .addRelation(LogicalOperator.AND, rightSide);
 
         assertNotNull(expression);
+        assertTrue(expression.validate());
         assertEquals(expectedExpression, expression);
     }
 
@@ -300,6 +328,7 @@ public class ParserTest extends TestCase {
         var expectedExpression = toExpression(innerExpression);
 
         assertNotNull(expression);
+        assertTrue(expression.validate());
         assertEquals(expectedExpression, expression);
     }
 
@@ -310,6 +339,7 @@ public class ParserTest extends TestCase {
         var expectedExpression = new ExpressionNode(new NegatedRelationNode(innerRelation));
 
         assertNotNull(expression);
+        assertTrue(expression.validate());
         assertEquals(expectedExpression, expression);
     }
 
@@ -322,6 +352,7 @@ public class ParserTest extends TestCase {
                 .addRelation(LogicalOperator.AND, rightRelation);
 
         assertNotNull(expression);
+        assertTrue(expression.validate());
         assertEquals(expectedExpression, expression);
     }
 
@@ -333,6 +364,7 @@ public class ParserTest extends TestCase {
                 .addDeclaration(createParser("var b is 2").tryParseVariableDeclaration(0, 4));
 
         assertNotNull(program);
+        assertTrue(program.validate());
         assertEquals(expectedProgram, program);
     }
 
@@ -343,6 +375,7 @@ public class ParserTest extends TestCase {
         var expectedRecord = new RecordTypeNode().addVariable(variable);
 
         assertNotNull(record);
+        assertTrue(record.validate());
         assertEquals(expectedRecord, record);
     }
 
@@ -354,6 +387,7 @@ public class ParserTest extends TestCase {
         var expectedRecord = new RecordTypeNode().addVariable(variable1).addVariable(variable2);
 
         assertNotNull(record);
+        assertTrue(record.validate());
         assertEquals(expectedRecord, record);
     }
 
@@ -361,6 +395,7 @@ public class ParserTest extends TestCase {
         var record = createParser("record end").tryParseRecordType(0, 2);
 
         assertNotNull(record);
+        assertTrue(record.validate());
         assertEquals(new RecordTypeNode(), record);
     }
 
@@ -375,6 +410,7 @@ public class ParserTest extends TestCase {
 
         var expectedArray = new ArrayTypeNode(integerExpression(10), new PrimitiveTypeNode(PrimitiveType.INTEGER));
         assertNotNull(array);
+        assertTrue(array.validate());
         assertEquals(expectedArray, array);
     }
 
@@ -382,6 +418,7 @@ public class ParserTest extends TestCase {
         var primary = createParser("- 1").tryParsePrimary(0, 2);
 
         assertNotNull(primary);
+        assertTrue(primary.validate());
         assertEquals(IntegralLiteralNode.minus(1), primary);
     }
 
@@ -389,6 +426,7 @@ public class ParserTest extends TestCase {
         var primary = createParser("+ 1").tryParsePrimary(0, 2);
 
         assertNotNull(primary);
+        assertTrue(primary.validate());
         assertEquals(IntegralLiteralNode.plus(1), primary);
     }
 
@@ -396,6 +434,7 @@ public class ParserTest extends TestCase {
         var primary = createParser("not 1").tryParsePrimary(0, 2);
 
         assertNotNull(primary);
+        assertTrue(primary.validate());
         assertEquals(IntegralLiteralNode.not(1), primary);
     }
 
@@ -403,6 +442,7 @@ public class ParserTest extends TestCase {
         var primary = createParser("- 1.0").tryParsePrimary(0, 2);
 
         assertNotNull(primary);
+        assertTrue(primary.validate());
         assertEquals(RealLiteralNode.minus(1.0), primary);
     }
 
@@ -410,6 +450,7 @@ public class ParserTest extends TestCase {
         var primary = createParser("+ 1.0").tryParsePrimary(0, 2);
 
         assertNotNull(primary);
+        assertTrue(primary.validate());
         assertEquals(RealLiteralNode.plus(1.0), primary);
     }
 
@@ -419,6 +460,7 @@ public class ParserTest extends TestCase {
         var expectedArray = new ArrayTypeNode(integerExpression(10),
                 new ArrayTypeNode(integerExpression(10), new PrimitiveTypeNode(PrimitiveType.INTEGER)));
         assertNotNull(array);
+        assertTrue(array.validate());
         assertEquals(expectedArray, array);
     }
 
@@ -427,6 +469,7 @@ public class ParserTest extends TestCase {
 
         var expectedType = new TypeDeclarationNode(new IdentifierNode("i"), new PrimitiveTypeNode(PrimitiveType.INTEGER));
         assertNotNull(type);
+        assertTrue(type.validate());
         assertEquals(expectedType, type);
     }
 
@@ -436,6 +479,7 @@ public class ParserTest extends TestCase {
         var expectedType = new TypeDeclarationNode(new IdentifierNode("i"),
                 new ArrayTypeNode(integerExpression(10), new PrimitiveTypeNode(PrimitiveType.INTEGER)));
         assertNotNull(type);
+        assertTrue(type.validate());
         assertEquals(expectedType, type);
     }
 
@@ -444,6 +488,7 @@ public class ParserTest extends TestCase {
 
         var expectedType = new TypeDeclarationNode(new IdentifierNode("i"), new RecordTypeNode());
         assertNotNull(type);
+        assertTrue(type.validate());
         assertEquals(expectedType, type);
     }
 
@@ -454,6 +499,7 @@ public class ParserTest extends TestCase {
         record.variables.add(createParser("var a is 1").tryParseVariableDeclaration(0, 4));
         var expectedType = new TypeDeclarationNode(new IdentifierNode("i"), record);
         assertNotNull(type);
+        assertTrue(type.validate());
         assertEquals(expectedType, type);
     }
 
@@ -462,6 +508,7 @@ public class ParserTest extends TestCase {
 
         var expectedRoutine = new RoutineDeclarationNode(new IdentifierNode("main"), new ParametersNode(), new BodyNode());
         assertNotNull(routine);
+        assertTrue(routine.validate());
         assertEquals(expectedRoutine, routine);
     }
 
@@ -471,6 +518,7 @@ public class ParserTest extends TestCase {
         var expectedRoutine = new RoutineDeclarationNode(new IdentifierNode("main"), new ParametersNode(),
                 new PrimitiveTypeNode(PrimitiveType.INTEGER), new BodyNode());
         assertNotNull(routine);
+        assertTrue(routine.validate());
         assertEquals(expectedRoutine, routine);
     }
 
@@ -484,6 +532,7 @@ public class ParserTest extends TestCase {
         var expectedRoutine = new RoutineDeclarationNode(new IdentifierNode("main"), parameters,
                 new PrimitiveTypeNode(PrimitiveType.INTEGER), new BodyNode());
         assertNotNull(routine);
+        assertTrue(routine.validate());
         assertEquals(expectedRoutine, routine);
     }
 
@@ -491,6 +540,7 @@ public class ParserTest extends TestCase {
         var body = createParser("").tryParseBody(0, 0);
 
         assertNotNull(body);
+        assertTrue(body.validate());
         assertEquals(new BodyNode(), body);
     }
 
@@ -498,6 +548,7 @@ public class ParserTest extends TestCase {
         var parameters = createParser("").tryParseParameters(0, 0);
 
         assertNotNull(parameters);
+        assertTrue(parameters.validate());
         assertEquals(new ParametersNode(), parameters);
     }
 
@@ -508,6 +559,7 @@ public class ParserTest extends TestCase {
                 .addParameter(new IdentifierNode("a"), new PrimitiveTypeNode(PrimitiveType.INTEGER));
 
         assertNotNull(parameters);
+        assertTrue(parameters.validate());
         assertEquals(expectedParameters, parameters);
     }
 
@@ -519,6 +571,7 @@ public class ParserTest extends TestCase {
                 .addParameter(new IdentifierNode("b"), new PrimitiveTypeNode(PrimitiveType.REAL))
                 .addParameter(new IdentifierNode("c"), new PrimitiveTypeNode(PrimitiveType.BOOLEAN));
         assertNotNull(parameters);
+        assertTrue(parameters.validate());
         assertEquals(expectedParameters, parameters);
     }
 
@@ -531,6 +584,7 @@ public class ParserTest extends TestCase {
         var assignment = createParser("a := 1").tryParseAssignment(0, 3);
 
         assertNotNull(assignment);
+        assertTrue(assignment.validate());
         assertEquals(new AssignmentNode(new ModifiablePrimaryNode(new IdentifierNode("a")), integerExpression(1)), assignment);
     }
 
@@ -541,6 +595,7 @@ public class ParserTest extends TestCase {
         expectedCall.arguments.add(integerExpression(1));
 
         assertNotNull(call);
+        assertTrue(call.validate());
         assertEquals(expectedCall, call);
     }
 
@@ -553,6 +608,7 @@ public class ParserTest extends TestCase {
                 .addArgument(integerExpression(3));
 
         assertNotNull(call);
+        assertTrue(call.validate());
         assertEquals(expectedCall, call);
     }
 
@@ -566,12 +622,14 @@ public class ParserTest extends TestCase {
         var call = createParser("main()").tryParseRoutineCall(0, 3);
 
         assertNotNull(call);
+        assertTrue(call.validate());
     }
 
     public void testEmptyWhileLoop() throws InvalidLexemeException {
         var loop = createParser("while 1 loop end").tryParseWhileLoop(0, 4);
 
         assertNotNull(loop);
+        assertTrue(loop.validate());
         assertEquals(new WhileLoopNode(integerExpression(1), new BodyNode()), loop);
     }
 
@@ -594,6 +652,7 @@ public class ParserTest extends TestCase {
         body.statements.add(new AssignmentNode(new ModifiablePrimaryNode(new IdentifierNode("i")), integerExpression(1)));
         var expectedLoop = new WhileLoopNode(integerExpression(1), body);
         assertNotNull(loop);
+        assertTrue(loop.validate());
         assertEquals(expectedLoop, loop);
     }
 
@@ -601,6 +660,7 @@ public class ParserTest extends TestCase {
         var range = createParser("in 1..1").tryParseRange(0, 4);
 
         assertNotNull(range);
+        assertTrue(range.validate());
         assertEquals(new RangeNode(integerExpression(1), integerExpression(1), false), range);
     }
 
@@ -608,6 +668,7 @@ public class ParserTest extends TestCase {
         var range = createParser("in reverse 1..1").tryParseRange(0, 5);
 
         assertNotNull(range);
+        assertTrue(range.validate());
         assertEquals(new RangeNode(integerExpression(1), integerExpression(1), true), range);
     }
 
@@ -618,6 +679,7 @@ public class ParserTest extends TestCase {
                 new RangeNode(integerExpression(1), integerExpression(1), false),
                 new BodyNode());
         assertNotNull(loop);
+        assertTrue(loop.validate());
         assertEquals(expectedLoop, loop);
     }
 
@@ -630,6 +692,7 @@ public class ParserTest extends TestCase {
                 new RangeNode(integerExpression(1), integerExpression(1), false),
                 body);
         assertNotNull(loop);
+        assertTrue(loop.validate());
         assertEquals(expectedLoop, loop);
     }
 
@@ -655,6 +718,7 @@ public class ParserTest extends TestCase {
         var ifStatement = createParser("if 1 then end").tryParseIfStatement(0, 4);
 
         assertNotNull(ifStatement);
+        assertTrue(ifStatement.validate());
         assertEquals(new IfStatementNode(integerExpression(1), new BodyNode()), ifStatement);
     }
 
@@ -662,6 +726,7 @@ public class ParserTest extends TestCase {
         var ifStatement = createParser("if 1 then else end").tryParseIfStatement(0, 5);
 
         assertNotNull(ifStatement);
+        assertTrue(ifStatement.validate());
         assertEquals(new IfStatementNode(integerExpression(1), new BodyNode(), new BodyNode()), ifStatement);
     }
 
@@ -678,6 +743,7 @@ public class ParserTest extends TestCase {
                 .add(new RoutineCallNode(new IdentifierNode("main"))
                         .addArgument(integerExpression(1)));
         assertNotNull(ifStatement);
+        assertTrue(ifStatement.validate());
         assertEquals(new IfStatementNode(integerExpression(1), body, body), ifStatement);
     }
 
@@ -690,6 +756,7 @@ public class ParserTest extends TestCase {
                 .add(new VariableDeclarationNode(new IdentifierNode("b"), null, integerExpression(2)));
         var expectedRoutine = new RoutineDeclarationNode(new IdentifierNode("main"), new ParametersNode(), expectedBody);
         assertNotNull(routine);
+        assertTrue(routine.validate());
         assertEquals(expectedRoutine, routine);
     }
 
@@ -701,6 +768,7 @@ public class ParserTest extends TestCase {
                 .add(new VariableDeclarationNode(new IdentifierNode("a"), null, integerExpression(1)))
                 .add(new VariableDeclarationNode(new IdentifierNode("b"), null, integerExpression(1)));
         assertNotNull(body);
+        assertTrue(body.validate());
         assertEquals(expectedBody, body);
     }
 
@@ -709,6 +777,7 @@ public class ParserTest extends TestCase {
                 .tryParseTypeDeclaration(0, 8);
 
         assertNotNull(type);
+        assertTrue(type.validate());
         assertEquals(new TypeDeclarationNode(new IdentifierNode("arr8"),
                 new ArrayTypeNode(integerExpression(8), new PrimitiveTypeNode(PrimitiveType.INTEGER))),
                 type);
@@ -719,6 +788,7 @@ public class ParserTest extends TestCase {
                 .tryParseTypeDeclaration(0, 10);
 
         assertNotNull(type);
+        assertTrue(type.validate());
     }
 
     public void testArraySize() throws InvalidLexemeException {
@@ -726,6 +796,7 @@ public class ParserTest extends TestCase {
                 .tryParseModifiablePrimary(0, 3);
 
         assertNotNull(modifiable);
+        assertTrue(modifiable.validate());
         assertEquals(new ModifiablePrimaryNode(new IdentifierNode("a"))
                 .addArraySize(), modifiable);
     }
@@ -735,6 +806,7 @@ public class ParserTest extends TestCase {
                 .tryParseExpression(0, 15);
 
         assertNotNull(expression);
+        assertTrue(expression.validate());
     }
 
     public void testManyBrackets2() throws InvalidLexemeException {
@@ -742,12 +814,14 @@ public class ParserTest extends TestCase {
                 .tryParseExpression(0, 15);
 
         assertNotNull(expression);
+        assertTrue(expression.validate());
     }
 
     public void testReturnStatement() throws InvalidLexemeException {
         var returnStatement = createParser("return 0").tryParseReturn(0, 2);
 
         assertNotNull(returnStatement);
+        assertTrue(returnStatement.validate());
         assertEquals(new ReturnStatementNode(integerExpression(0)), returnStatement);
     }
 
@@ -755,6 +829,7 @@ public class ParserTest extends TestCase {
         var body = createParser("return 0").tryParseBody(0, 2);
 
         assertNotNull(body);
+        assertTrue(body.validate());
         assertEquals(new BodyNode().add(new ReturnStatementNode(integerExpression(0))), body);
     }
 
@@ -762,6 +837,7 @@ public class ParserTest extends TestCase {
         var returnStatement = createParser("return").tryParseReturn(0, 1);
 
         assertNotNull(returnStatement);
+        assertTrue(returnStatement.validate());
         assertEquals(new ReturnStatementNode(), returnStatement);
     }
 
@@ -778,6 +854,7 @@ public class ParserTest extends TestCase {
                 body);
 
         assertNotNull(routine);
+        assertTrue(routine.validate());
         assertEquals(expectedRoutine, routine);
     }
 
@@ -797,6 +874,7 @@ public class ParserTest extends TestCase {
         var body = parser.tryParseBody(0, parser.getTokensCount());
 
         assertNotNull(body);
+        assertTrue(body.validate());
     }
 
     public void testBigBody2() throws InvalidLexemeException {
@@ -811,6 +889,7 @@ public class ParserTest extends TestCase {
         var body = parser.tryParseBody(0, parser.getTokensCount());
 
         assertNotNull(body);
+        assertTrue(body.validate());
     }
 
     public void testBigBody3() throws InvalidLexemeException {
@@ -827,6 +906,7 @@ public class ParserTest extends TestCase {
         var body = parser.tryParseBody(0, parser.getTokensCount());
 
         assertNotNull(body);
+        assertTrue(body.validate());
     }
 
     public void testBigRoutine1() throws InvalidLexemeException {
@@ -843,6 +923,7 @@ public class ParserTest extends TestCase {
         var routine = parser.tryParseRoutineDeclaration(0, parser.getTokensCount());
 
         assertNotNull(routine);
+        assertTrue(routine.validate());
     }
 
     public void testBigRoutine2() throws InvalidLexemeException {
@@ -861,6 +942,7 @@ public class ParserTest extends TestCase {
         var routine = parser.tryParseRoutineDeclaration(0, parser.getTokensCount());
 
         assertNotNull(routine);
+        assertTrue(routine.validate());
     }
 
     public void testComplexLoop() throws InvalidLexemeException {
@@ -871,13 +953,15 @@ public class ParserTest extends TestCase {
         var body = parser.tryParseForLoop(0, parser.getTokensCount());
 
         assertNotNull(body);
+        assertTrue(body.validate());
     }
 
     public void testArrayWithoutSize() throws InvalidLexemeException {
-        var parser = createParser("array[] integer").tryParseArrayType(0, 4);
+        var array = createParser("array[] integer").tryParseArrayType(0, 4);
 
-        assertNotNull(parser);
-        assertEquals(new ArrayTypeNode(null, new PrimitiveTypeNode(PrimitiveType.INTEGER)), parser);
+        assertNotNull(array);
+        assertTrue(array.validate());
+        assertEquals(new ArrayTypeNode(null, new PrimitiveTypeNode(PrimitiveType.INTEGER)), array);
     }
 
     public void testReverseForLoop() throws InvalidLexemeException {
@@ -888,6 +972,8 @@ public class ParserTest extends TestCase {
         var loop = parser.tryParseForLoop(0, parser.getTokensCount());
 
         assertNotNull(loop);
+        assertTrue(loop.validate());
+        assertTrue(loop.validate());
     }
 
     public void testArrayVariableDeclaration() throws InvalidLexemeException {
@@ -896,6 +982,8 @@ public class ParserTest extends TestCase {
         var declaration = parser.tryParseVariableDeclaration(0, parser.getTokensCount());
 
         assertNotNull(declaration);
+        assertTrue(declaration.validate());
+        assertTrue(declaration.validate());
     }
 
     public void testProgramWithError_Invalid() throws InvalidLexemeException {
@@ -921,6 +1009,7 @@ public class ParserTest extends TestCase {
                 .addSummand(AdditionOperator.PLUS, new SummandNode(new IntegralLiteralNode(2)));
 
         assertNotNull(simple);
+        assertTrue(simple.validate());
         assertEquals(expectedSimple, simple);
     }
 
@@ -933,6 +1022,7 @@ public class ParserTest extends TestCase {
                 .addSummand(AdditionOperator.PLUS, product);
 
         assertNotNull(simple);
+        assertTrue(simple.validate());
         assertEquals(expectedSimple, simple);
     }
 
@@ -956,6 +1046,7 @@ public class ParserTest extends TestCase {
         expectedExpression.addRelation(LogicalOperator.OR, negatedRightRelation);
 
         assertNotNull(expression);
+        assertTrue(expression.validate());
         assertEquals(expectedExpression, expression);
     }
 
@@ -963,11 +1054,11 @@ public class ParserTest extends TestCase {
         var relation = createParser("not 1 < 1*(3-2)").tryParseRelation(0, 10);
 
         var parenthesesSimple = toSimple(new IntegralLiteralNode(3));
-        parenthesesSimple.otherSummands.add(new Pair<>(AdditionOperator.MINUS, new SummandNode(new IntegralLiteralNode(2))));
+        parenthesesSimple.addSummand(AdditionOperator.MINUS, new SummandNode(new IntegralLiteralNode(2)));
         var parenthesisExpression = toExpression(parenthesesSimple);
 
         var product = new SummandNode(new IntegralLiteralNode(1));
-        product.otherFactors.add(new Pair<>(MultiplicationOperator.MULTIPLY, parenthesisExpression));
+        product.addFactor(MultiplicationOperator.MULTIPLY, parenthesisExpression);
 
         var rightRelation = new BinaryRelationNode(toSimple(new IntegralLiteralNode(1)),
                 BinaryRelationNode.Comparison.LESS,
@@ -975,6 +1066,15 @@ public class ParserTest extends TestCase {
         var expectedRelation = new NegatedRelationNode(rightRelation);
 
         assertNotNull(relation);
+        assertTrue(relation.validate());
         assertEquals(expectedRelation, relation);
+    }
+
+    public void testBoolean() throws InvalidLexemeException {
+        var booleanLiteral = createParser("true").tryParseBooleanLiteral(0, 1);
+
+        assertNotNull(booleanLiteral);
+        assertTrue(booleanLiteral.validate());
+        assertEquals(trueLiteral, booleanLiteral);
     }
  }

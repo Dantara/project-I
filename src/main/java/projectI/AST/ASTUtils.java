@@ -27,7 +27,7 @@ public final class ASTUtils {
     }
 
     public static ExpressionNode realExpression(double value) {
-        return toSummand(new RealLiteralNode(value));
+        return toSummand(new RealLiteralNode(value, null, null));
     }
 
     public static ExpressionNode booleanExpression(boolean value) {

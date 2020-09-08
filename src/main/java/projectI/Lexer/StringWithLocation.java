@@ -1,5 +1,7 @@
 package projectI.Lexer;
 
+import projectI.CodePosition;
+
 import java.util.Objects;
 
 /**
@@ -19,7 +21,7 @@ public class StringWithLocation {
      * @return line index
      */
     public int getLineIndex() {
-        return lineIndex;
+        return position.lineIndex;
     }
 
     /**
@@ -27,7 +29,15 @@ public class StringWithLocation {
      * @return beginning index
      */
     public int getBeginningIndex() {
-        return beginningIndex;
+        return position.beginningIndex;
+    }
+
+    /**
+     * Get the position of the string in source code.
+     * @return position
+     */
+    public CodePosition getPosition() {
+        return position;
     }
 
     /**
@@ -38,8 +48,7 @@ public class StringWithLocation {
      */
     public StringWithLocation(String string, int lineIndex, int beginningIndex) {
         this.string = string;
-        this.lineIndex = lineIndex;
-        this.beginningIndex = beginningIndex;
+        this.position = new CodePosition(lineIndex, beginningIndex);
     }
 
     /**
@@ -52,8 +61,7 @@ public class StringWithLocation {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         StringWithLocation that = (StringWithLocation) o;
-        return lineIndex == that.lineIndex &&
-                beginningIndex == that.beginningIndex &&
+        return Objects.equals(position, that.position) &&
                 Objects.equals(string, that.string);
     }
 
@@ -63,7 +71,7 @@ public class StringWithLocation {
      */
     @Override
     public int hashCode() {
-        return Objects.hash(string, lineIndex, beginningIndex);
+        return Objects.hash(string, position);
     }
 
     /**
@@ -74,12 +82,11 @@ public class StringWithLocation {
     public String toString() {
         return "StringWithLocation{" +
                 "string='" + string + '\'' +
-                ", lineIndex=" + lineIndex +
-                ", beginningIndex=" + beginningIndex +
+                ", lineIndex=" + position.lineIndex +
+                ", beginningIndex=" + position.beginningIndex +
                 '}';
     }
 
     private final String string;
-    private final int lineIndex;
-    private final int beginningIndex;
+    private final CodePosition position;
 }

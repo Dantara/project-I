@@ -1,16 +1,25 @@
 package projectI.AST.Declarations;
 
 import projectI.AST.Expressions.ExpressionNode;
+import projectI.CodePosition;
 
 import java.util.Objects;
 
 public class ArrayTypeNode extends UserTypeNode {
     public final ExpressionNode size;
     public final TypeNode elementType;
+    public final CodePosition startPosition;
 
     public ArrayTypeNode(ExpressionNode size, TypeNode elementType) {
         this.size = size;
         this.elementType = elementType;
+        this.startPosition = null;
+    }
+
+    public ArrayTypeNode(ExpressionNode size, TypeNode elementType, CodePosition startPosition) {
+        this.size = size;
+        this.elementType = elementType;
+        this.startPosition = startPosition;
     }
 
     @Override
@@ -33,5 +42,12 @@ public class ArrayTypeNode extends UserTypeNode {
             return "array [] " + elementType;
 
         return "array [" + size + "] " + elementType;
+    }
+
+    @Override
+    public boolean validate() {
+        return elementType != null && elementType.validate() &&
+                (size == null || size.validate()) &&
+                startPosition != null;
     }
 }

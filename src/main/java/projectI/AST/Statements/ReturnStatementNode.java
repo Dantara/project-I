@@ -1,18 +1,32 @@
 package projectI.AST.Statements;
 
 import projectI.AST.Expressions.ExpressionNode;
+import projectI.CodePosition;
 
 import java.util.Objects;
 
 public class ReturnStatementNode implements StatementNode {
     public final ExpressionNode expression;
+    public final CodePosition startPosition;
+
+    public ReturnStatementNode(ExpressionNode expression, CodePosition startPosition) {
+        this.expression = expression;
+        this.startPosition = startPosition;
+    }
 
     public ReturnStatementNode(ExpressionNode expression) {
         this.expression = expression;
+        this.startPosition = null;
+    }
+
+    public ReturnStatementNode(CodePosition startPosition) {
+        this.expression = null;
+        this.startPosition = startPosition;
     }
 
     public ReturnStatementNode() {
         this.expression = null;
+        this.startPosition = null;
     }
 
     @Override
@@ -33,5 +47,16 @@ public class ReturnStatementNode implements StatementNode {
         if (expression == null) return "return";
 
         return "return{" + expression + "}";
+    }
+
+    @Override
+    public CodePosition getStartPosition() {
+        return startPosition;
+    }
+
+    @Override
+    public boolean validate() {
+        return (expression == null || expression.validate()) &&
+                startPosition != null;
     }
 }

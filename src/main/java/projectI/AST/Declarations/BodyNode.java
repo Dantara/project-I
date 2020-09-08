@@ -34,4 +34,14 @@ public class BodyNode implements ASTNode {
     public int hashCode() {
         return Objects.hash(statements);
     }
+
+    @Override
+    public boolean validate() {
+        for (var statement : statements) {
+            if (statement == null || !statement.validate())
+                return false;
+        }
+
+        return true;
+    }
 }

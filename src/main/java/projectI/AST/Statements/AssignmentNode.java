@@ -2,6 +2,7 @@ package projectI.AST.Statements;
 
 import projectI.AST.Expressions.ExpressionNode;
 import projectI.AST.Primary.ModifiablePrimaryNode;
+import projectI.CodePosition;
 
 import java.util.Objects;
 
@@ -12,6 +13,10 @@ public class AssignmentNode implements StatementNode {
     public AssignmentNode(ModifiablePrimaryNode modifiable, ExpressionNode assignedValue) {
         this.modifiable = modifiable;
         this.assignedValue = assignedValue;
+    }
+
+    public CodePosition getStartPosition() {
+        return modifiable.startPosition;
     }
 
     @Override
@@ -31,5 +36,11 @@ public class AssignmentNode implements StatementNode {
     @Override
     public String toString() {
         return modifiable + " := " + assignedValue;
+    }
+
+    @Override
+    public boolean validate() {
+        return modifiable != null && modifiable.validate() &&
+                assignedValue != null && assignedValue.validate();
     }
 }

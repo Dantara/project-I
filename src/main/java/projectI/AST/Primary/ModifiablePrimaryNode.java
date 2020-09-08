@@ -2,6 +2,7 @@ package projectI.AST.Primary;
 
 import projectI.AST.Expressions.ExpressionNode;
 import projectI.AST.Declarations.IdentifierNode;
+import projectI.CodePosition;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,9 +11,16 @@ import java.util.Objects;
 public class ModifiablePrimaryNode implements PrimaryNode {
     public final IdentifierNode identifier;
     public final List<Accessor> accessors = new ArrayList<>();
+    public final CodePosition startPosition;
 
     public ModifiablePrimaryNode(IdentifierNode identifier) {
         this.identifier = identifier;
+        this.startPosition = null;
+    }
+
+    public ModifiablePrimaryNode(IdentifierNode identifier, CodePosition startPosition) {
+        this.identifier = identifier;
+        this.startPosition = startPosition;
     }
 
     public ModifiablePrimaryNode addMember(IdentifierNode identifier) {
@@ -51,8 +59,29 @@ public class ModifiablePrimaryNode implements PrimaryNode {
         return Objects.hash(identifier, accessors);
     }
 
-    public abstract static class Accessor {
+    @Override
+    public CodePosition getPosition() {
+        return startPosition;
+    }
 
+    @Override
+    public boolean validate() {
+        if (identifier == null || !identifier.validate() || startPosition == null)
+            return false;
+
+        for (var accessor : accessors) {
+            if (accessor == null)
+                return false;
+
+            if (!accessor.validate())
+                return false;
+        }
+
+        return true;
+    }
+
+    public abstract static class Accessor {
+        public abstract boolean validate();
     }
 
     public static final class Member extends Accessor {
@@ -78,6 +107,11 @@ public class ModifiablePrimaryNode implements PrimaryNode {
         @Override
         public String toString() {
             return "." + name;
+        }
+
+        @Override
+        public boolean validate() {
+            return name != null && name.validate();
         }
     }
 
@@ -105,6 +139,11 @@ public class ModifiablePrimaryNode implements PrimaryNode {
         public String toString() {
             return "[" + value + "]";
         }
+
+        @Override
+        public boolean validate() {
+            return value != null && value.validate();
+        }
     }
 
     public static final class ArraySize extends Accessor {
@@ -120,6 +159,11 @@ public class ModifiablePrimaryNode implements PrimaryNode {
         @Override
         public String toString() {
             return ".size";
+        }
+
+        @Override
+        public boolean validate() {
+            return true;
         }
     }
 
