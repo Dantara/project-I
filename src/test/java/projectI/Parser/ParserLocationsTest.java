@@ -3,6 +3,8 @@ package projectI.Parser;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+import projectI.AST.Expressions.BinaryRelationNode;
+import projectI.AST.Expressions.NegatedRelationNode;
 import projectI.CodePosition;
 import projectI.Lexer.InvalidLexemeException;
 import projectI.Lexer.Lexer;
@@ -111,5 +113,61 @@ public class ParserLocationsTest extends TestCase {
 
         assertNotNull(position);
         assertEquals(new CodePosition(0, 2), position);
+    }
+
+    public void testExpression() throws InvalidLexemeException {
+        var expression = createParser("1 and 2").tryParseExpression(0, 3);
+
+        var positionOf1 = expression.getPosition();
+        var positionOfAnd = expression.otherRelations.get(0).operatorPosition;
+
+        assertNotNull(positionOf1);
+        assertEquals(new CodePosition(0, 0), positionOf1);
+        assertNotNull(positionOfAnd);
+        assertEquals(new CodePosition(0, 2), positionOfAnd);
+    }
+
+    public void testBinaryRelation() throws InvalidLexemeException {
+        var relation = (BinaryRelationNode) createParser("  1 < 2").tryParseRelation(0, 3);
+
+        var positionOf1 = relation.getPosition();
+        var positionOfLess = relation.comparisonPosition;
+
+        assertNotNull(positionOf1);
+        assertEquals(new CodePosition(0, 2), positionOf1);
+        assertNotNull(positionOfLess);
+        assertEquals(new CodePosition(0, 4), positionOfLess);
+    }
+
+    public void testNegatedRelation() throws InvalidLexemeException {
+        var relation = (NegatedRelationNode) createParser("   not true").tryParseRelation(0, 2);
+        var positionOfNot = relation.startPosition;
+
+        assertNotNull(positionOfNot);
+        assertEquals(new CodePosition(0, 3), positionOfNot);
+    }
+
+    public void testSimpleNode() throws InvalidLexemeException {
+        var simple = createParser("  1+2").tryParseSimple(0, 3);
+
+        var positionOfOne = simple.getPosition();
+        var positionOfPlus = simple.otherSummands.get(0).operatorPosition;
+
+        assertNotNull(positionOfOne);
+        assertEquals(new CodePosition(0, 2), positionOfOne);
+        assertNotNull(positionOfPlus);
+        assertEquals(new CodePosition(0, 3), positionOfPlus);
+    }
+
+    public void testSummandNode() throws InvalidLexemeException {
+        var summand = createParser("   1 * 3").tryParseSummand(0, 3);
+
+        var positionOfOne = summand.getPosition();
+        var positionOfProduct = summand.otherFactors.get(0).operatorPosition;
+
+        assertNotNull(positionOfOne);
+        assertEquals(new CodePosition(0, 3), positionOfOne);
+        assertNotNull(positionOfProduct);
+        assertEquals(new CodePosition(0, 5), positionOfProduct);
     }
 }

@@ -137,6 +137,7 @@ public class Parser {
             var operator = tryParseLogicalOperator(tokens[left]);
             if (operator == null) return null;
 
+            var operatorIndex = left;
             left++;
 
             for (int rightExclusive = endExclusive; rightExclusive > left; rightExclusive--) {
@@ -150,7 +151,7 @@ public class Parser {
 
             if (relation == null) return null;
 
-            expression.otherRelations.add(new Pair<>(operator, relation));
+            expression.addRelation(operator, relation, locations[operatorIndex].getPosition());
         }
 
         return expression;
@@ -173,7 +174,7 @@ public class Parser {
             var innerRelation = tryParseRelation(begin + 1, endExclusive);
             if (innerRelation == null) return null;
 
-            return new NegatedRelationNode(innerRelation);
+            return new NegatedRelationNode(innerRelation, locations[begin].getPosition());
         }
 
         int left = begin;
@@ -199,7 +200,7 @@ public class Parser {
         var otherSimple = tryParseSimple(left + 1, endExclusive);
         if (otherSimple == null) return null;
 
-        return new BinaryRelationNode(simple, comparison, otherSimple);
+        return new BinaryRelationNode(simple, comparison, otherSimple, locations[left].getPosition());
     }
 
     public SimpleNode tryParseSimple(int begin, int endExclusive) {
@@ -223,6 +224,7 @@ public class Parser {
             var operator = tryParseSimpleNodeOperator(tokens[left]);
             if (operator == null) return null;
 
+            var operatorIndex = left;
             left++;
 
             for (int rightExclusive = endExclusive; rightExclusive > left; rightExclusive--) {
@@ -236,7 +238,7 @@ public class Parser {
 
             if (factor == null) return null;
 
-            simple.otherSummands.add(new Pair<>(operator, factor));
+            simple.addSummand(operator, factor, locations[operatorIndex].getPosition());
         }
 
         return simple;
@@ -263,6 +265,7 @@ public class Parser {
             var operator = tryParseFactorOperator(tokens[left]);
             if (operator == null) return null;
 
+            var operatorIndex = left;
             left++;
 
             for (int rightExclusive = endExclusive; rightExclusive > left; rightExclusive--) {
@@ -276,7 +279,7 @@ public class Parser {
 
             if (factor == null) return null;
 
-            summand.otherFactors.add(new Pair<>(operator, factor));
+            summand.addFactor(operator, factor, locations[operatorIndex].getPosition());
         }
 
         return summand;

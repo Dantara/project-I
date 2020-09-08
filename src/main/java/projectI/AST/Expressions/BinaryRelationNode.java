@@ -1,22 +1,39 @@
 package projectI.AST.Expressions;
 
+import projectI.CodePosition;
+
 import java.util.Objects;
 
 public class BinaryRelationNode implements RelationNode {
     public final SimpleNode simple;
     public final Comparison comparison;
     public final SimpleNode otherSimple;
+    public final CodePosition comparisonPosition;
 
     public BinaryRelationNode(SimpleNode simple) {
         this.simple = simple;
         this.comparison = null;
         this.otherSimple = null;
+        this.comparisonPosition = null;
     }
 
     public BinaryRelationNode(SimpleNode simple, Comparison comparison, SimpleNode otherSimple) {
         this.simple = simple;
         this.comparison = comparison;
         this.otherSimple = otherSimple;
+        this.comparisonPosition = null;
+    }
+
+    public BinaryRelationNode(SimpleNode simple, Comparison comparison, SimpleNode otherSimple, CodePosition comparisonPosition) {
+        this.simple = simple;
+        this.comparison = comparison;
+        this.otherSimple = otherSimple;
+        this.comparisonPosition = comparisonPosition;
+    }
+
+    @Override
+    public CodePosition getPosition() {
+        return simple.getPosition();
     }
 
     public enum Comparison {

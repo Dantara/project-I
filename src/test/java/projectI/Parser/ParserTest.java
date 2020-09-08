@@ -966,11 +966,11 @@ public class ParserTest extends TestCase {
         var relation = createParser("not 1 < 1*(3-2)").tryParseRelation(0, 10);
 
         var parenthesesSimple = toSimple(new IntegralLiteralNode(3));
-        parenthesesSimple.otherSummands.add(new Pair<>(AdditionOperator.MINUS, new SummandNode(new IntegralLiteralNode(2))));
+        parenthesesSimple.addSummand(AdditionOperator.MINUS, new SummandNode(new IntegralLiteralNode(2)));
         var parenthesisExpression = toExpression(parenthesesSimple);
 
         var product = new SummandNode(new IntegralLiteralNode(1));
-        product.otherFactors.add(new Pair<>(MultiplicationOperator.MULTIPLY, parenthesisExpression));
+        product.addFactor(MultiplicationOperator.MULTIPLY, parenthesisExpression);
 
         var rightRelation = new BinaryRelationNode(toSimple(new IntegralLiteralNode(1)),
                 BinaryRelationNode.Comparison.LESS,

@@ -48,4 +48,9 @@ public class RoutineCallNode implements StatementNode, PrimaryNode {
     public int hashCode() {
         return Objects.hash(name, arguments);
     }
+
+    @Override
+    public CodePosition getPosition() {
+        return startPosition;
+    }
 }

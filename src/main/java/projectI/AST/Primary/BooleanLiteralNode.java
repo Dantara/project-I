@@ -36,4 +36,9 @@ public class BooleanLiteralNode implements PrimaryNode {
 
     public static final BooleanLiteralNode trueLiteral = new BooleanLiteralNode(true, null);
     public static final BooleanLiteralNode falseLiteral = new BooleanLiteralNode(false, null);
+
+    @Override
+    public CodePosition getPosition() {
+        return position;
+    }
 }

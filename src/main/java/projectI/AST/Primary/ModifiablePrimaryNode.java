@@ -59,6 +59,11 @@ public class ModifiablePrimaryNode implements PrimaryNode {
         return Objects.hash(identifier, accessors);
     }
 
+    @Override
+    public CodePosition getPosition() {
+        return startPosition;
+    }
+
     public abstract static class Accessor {
 
     }

@@ -54,6 +54,11 @@ public class RealLiteralNode implements PrimaryNode {
         return Objects.hash(value, sign);
     }
 
+    @Override
+    public CodePosition getPosition() {
+        return valuePosition;
+    }
+
     public enum Sign {
         PLUS, MINUS
     }

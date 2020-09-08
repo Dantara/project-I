@@ -1,7 +1,7 @@
 package projectI.AST.Expressions;
 
-import org.javatuples.Pair;
 import projectI.AST.ASTNode;
+import projectI.CodePosition;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,14 +9,19 @@ import java.util.Objects;
 
 public class SimpleNode implements ASTNode {
     public final SummandNode summand;
-    public final List<Pair<AdditionOperator, SummandNode>> otherSummands = new ArrayList<>();
+    public final List<OperatorWithNode<AdditionOperator, SummandNode>> otherSummands = new ArrayList<>();
 
     public SimpleNode(SummandNode summand) {
         this.summand = summand;
     }
 
     public SimpleNode addSummand(AdditionOperator operator, SummandNode summand) {
-        otherSummands.add(new Pair<>(operator, summand));
+        otherSummands.add(new OperatorWithNode<>(operator, summand));
+        return this;
+    }
+
+    public SimpleNode addSummand(AdditionOperator operator, SummandNode summand, CodePosition operatorPosition) {
+        otherSummands.add(new OperatorWithNode<>(operator, summand, operatorPosition));
         return this;
     }
 
@@ -48,12 +53,16 @@ public class SimpleNode implements ASTNode {
         builder.append(" ");
 
         for (var other : otherSummands) {
-            builder.append(other.getValue0());
+            builder.append(other.operator);
             builder.append(" ");
-            builder.append(other.getValue1());
+            builder.append(other.node);
             builder.append(" ");
         }
 
         return builder.toString();
+    }
+
+    public CodePosition getPosition() {
+        return summand.getPosition();
     }
 }

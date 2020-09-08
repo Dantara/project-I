@@ -2,6 +2,7 @@ package projectI.AST.Expressions;
 
 import org.javatuples.Pair;
 import projectI.AST.ASTNode;
+import projectI.CodePosition;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,14 +10,19 @@ import java.util.Objects;
 
 public class SummandNode implements ASTNode {
     public final FactorNode factor;
-    public final List<Pair<MultiplicationOperator, FactorNode>> otherFactors = new ArrayList<>();
+    public final List<OperatorWithNode<MultiplicationOperator, FactorNode>> otherFactors = new ArrayList<>();
 
     public SummandNode(FactorNode factor) {
         this.factor = factor;
     }
 
     public SummandNode addFactor(MultiplicationOperator operator, FactorNode factor) {
-        otherFactors.add(new Pair<>(operator, factor));
+        otherFactors.add(new OperatorWithNode<>(operator, factor));
+        return this;
+    }
+
+    public SummandNode addFactor(MultiplicationOperator operator, FactorNode factor, CodePosition operatorPosition) {
+        otherFactors.add(new OperatorWithNode<>(operator, factor, operatorPosition));
         return this;
     }
 
@@ -48,12 +54,16 @@ public class SummandNode implements ASTNode {
         builder.append(" ");
 
         for (var other : otherFactors) {
-            builder.append(other.getValue0());
+            builder.append(other.operator);
             builder.append(" ");
-            builder.append(other.getValue1());
+            builder.append(other.node);
             builder.append(" ");
         }
 
         return builder.toString();
+    }
+
+    public CodePosition getPosition() {
+        return factor.getPosition();
     }
 }
