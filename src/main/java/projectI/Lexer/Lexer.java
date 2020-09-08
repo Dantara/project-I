@@ -1,4 +1,4 @@
-package projectI;
+package projectI.Lexer;
 
 import org.javatuples.Pair;
 

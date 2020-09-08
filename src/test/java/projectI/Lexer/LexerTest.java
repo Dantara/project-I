@@ -1,4 +1,4 @@
-package projectI;
+package projectI.Lexer;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -27,12 +27,32 @@ public class LexerTest extends TestCase {
         lexer = new Lexer();
     }
 
+    public void testAssignment() throws InvalidLexemeException {
+        var tokens = lexer.scan("a := 1");
+
+        assertArrayEquals(new Token[] {
+                identifier("a"),
+                operator(":="),
+                literal("1")
+        }, tokens);
+    }
+
+    public void testAssignmentWithoutSpaces() throws InvalidLexemeException {
+        var tokens = lexer.scan("a:=1");
+
+        assertArrayEquals(new Token[] {
+                identifier("a"),
+                operator(":="),
+                literal("1")
+        }, tokens);
+    }
+
     public void testArraysAndFor() throws InvalidLexemeException, IOException {
         var tokens = scanFile("code_examples/arrays_and_for.txt");
-        assertArrayEquals(new Token[] {
+        Assert.assertArrayEquals(new Token[] {
                 keyword("var"),
                 identifier("a"),
-                keyword("is"),
+                operator(":"),
                 keyword("array"),
                 operator("["),
                 literal("10"),
@@ -596,6 +616,8 @@ public class LexerTest extends TestCase {
                 newLine(),
 
                 identifier("increment_g"),
+                operator("("),
+                operator(")"),
                 newLine(),
 
                 keyword("var"),

@@ -1,4 +1,4 @@
-package projectI;
+package projectI.Lexer;
 
 /**
  * Exception that is thrown when the lexer cannot recognize a lexeme.

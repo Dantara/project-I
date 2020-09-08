@@ -1,4 +1,4 @@
-package projectI;
+package projectI.Lexer;
 
 import java.util.Objects;
 
@@ -65,6 +65,10 @@ public class Token {
                 "type=" + type +
                 ", lexeme='" + lexeme + '\'' +
                 '}';
+    }
+
+    public boolean equals(TokenType type, String lexeme) {
+        return this.type == type && this.lexeme.equals(lexeme);
     }
 
     private final TokenType type;
