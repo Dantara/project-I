@@ -642,7 +642,7 @@ public class Parser {
     }
 
     public ParametersNode tryParseParameters(int begin, int endExclusive) {
-        var parameters = new ParametersNode();
+        var parameters = new ParametersNode(locations[begin].getPosition());
         if (begin >= endExclusive) return parameters;
 
         var left = begin;

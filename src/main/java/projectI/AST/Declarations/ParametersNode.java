@@ -2,13 +2,24 @@ package projectI.AST.Declarations;
 
 import org.javatuples.Pair;
 import projectI.AST.ASTNode;
+import projectI.CodePosition;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 public class ParametersNode implements ASTNode {
+    public final CodePosition startPosition;
     public final List<Pair<IdentifierNode, TypeNode>> parameters = new ArrayList<>();
+
+    public ParametersNode() {
+        this.startPosition = null;
+    }
+
+    public ParametersNode(CodePosition startPosition) {
+        this.startPosition = startPosition;
+    }
+
 
     public ParametersNode addParameter(IdentifierNode identifier, TypeNode type) {
         parameters.add(new Pair<>(identifier, type));
