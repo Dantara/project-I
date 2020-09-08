@@ -1,12 +1,21 @@
 package projectI.AST.Declarations;
 
+import projectI.CodePosition;
+
 import java.util.Objects;
 
 public class IdentifierNode implements TypeNode {
     public final String name;
+    public final CodePosition position;
 
     public IdentifierNode(String name) {
         this.name = name;
+        this.position = null;
+    }
+
+    public IdentifierNode(String name, CodePosition position) {
+        this.name = name;
+        this.position = position;
     }
 
     @Override

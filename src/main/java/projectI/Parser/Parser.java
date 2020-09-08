@@ -562,7 +562,7 @@ public class Parser {
         var token = tokens[begin];
         if (token.getType() != TokenType.Identifier) return null;
 
-        return new IdentifierNode(token.getLexeme());
+        return new IdentifierNode(token.getLexeme(), locations[begin].getPosition());
     }
 
     private int getIndexOfFirstStandaloneClosingBracket(int begin, int endExclusive, char opening, char closing) {
