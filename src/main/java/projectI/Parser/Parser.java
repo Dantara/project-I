@@ -78,7 +78,8 @@ public class Parser {
         if (begin + 1 >= endExclusive) return null;
         if (tokens[begin + 1].getType() != TokenType.Identifier) return null;
 
-        var identifier = new IdentifierNode(tokens[begin + 1].getLexeme());
+        var identifier = tryParseIdentifier(begin + 1, begin + 2);
+        if (identifier == null) return null;
 
         if (begin + 2 >= endExclusive) return null;
 

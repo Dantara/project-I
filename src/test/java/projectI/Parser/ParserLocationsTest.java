@@ -3,8 +3,12 @@ package projectI.Parser;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+import projectI.AST.Declarations.RoutineDeclarationNode;
+import projectI.AST.Declarations.VariableDeclarationNode;
 import projectI.AST.Expressions.BinaryRelationNode;
 import projectI.AST.Expressions.NegatedRelationNode;
+import projectI.AST.Statements.AssignmentNode;
+import projectI.AST.Statements.RoutineCallNode;
 import projectI.CodePosition;
 import projectI.Lexer.InvalidLexemeException;
 import projectI.Lexer.Lexer;
@@ -179,10 +183,12 @@ public class ParserLocationsTest extends TestCase {
     }
 
     public void testVariableDeclaration() throws InvalidLexemeException {
-        var position = createParser("\n var a is 1").tryParseVariableDeclaration(1, 5).startPosition;
+        var variable = createParser("\n var a is 1").tryParseVariableDeclaration(1, 5);
+        var position = variable.startPosition;
 
         assertNotNull(position);
         assertEquals(new CodePosition(1, 1), position);
+        assertEquals(new CodePosition(1, 5), variable.identifier.position);
     }
 
     public void testTypeDeclaration() throws InvalidLexemeException {
@@ -258,5 +264,28 @@ public class ParserLocationsTest extends TestCase {
 
         assertNotNull(position);
         assertEquals(new CodePosition(0, 1), position);
+    }
+
+    public void testProgram() throws InvalidLexemeException {
+        var program = createParser("var a is 1\nroutine main() is\n    a := a + 1\n    print(a)\nend").tryParseProgram();
+
+        var variable = (VariableDeclarationNode) program.declarations.get(0);
+        assertEquals(new CodePosition(0, 0), variable.startPosition);
+        assertEquals(new CodePosition(0, 4), variable.identifier.position);
+        assertEquals(new CodePosition(0, 9), variable.expression.getPosition());
+
+        var routine = (RoutineDeclarationNode) program.declarations.get(1);
+        assertEquals(new CodePosition(1, 0), routine.startPosition);
+        assertEquals(new CodePosition(1, 13), routine.parameters.startPosition);
+
+        var assignment = (AssignmentNode) routine.body.statements.get(0);
+        assertEquals(new CodePosition(2, 4), assignment.getStartPosition());
+        assertEquals(new CodePosition(2, 4), assignment.modifiable.startPosition);
+        assertEquals(new CodePosition(2, 9), assignment.assignedValue.getPosition());
+
+        var routineCall = (RoutineCallNode) routine.body.statements.get(1);
+        assertEquals(new CodePosition(3, 4), routineCall.getStartPosition());
+        assertEquals(new CodePosition(3, 4), routineCall.name.position);
+        assertEquals(new CodePosition(3, 10), routineCall.arguments.get(0).getPosition());
     }
 }

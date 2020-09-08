@@ -89,4 +89,9 @@ public class RoutineDeclarationNode extends DeclarationNode {
 
         return builder.toString();
     }
+
+    @Override
+    public CodePosition getStartPosition() {
+        return startPosition;
+    }
 }
