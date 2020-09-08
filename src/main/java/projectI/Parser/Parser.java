@@ -516,7 +516,7 @@ public class Parser {
         var type = tryParseType(closingBracketIndex + 1, endExclusive);
         if (type == null) return null;
 
-        return new ArrayTypeNode(size, type);
+        return new ArrayTypeNode(size, type, locations[begin].getPosition());
     }
 
     public RecordTypeNode tryParseRecordType(int begin, int endExclusive) {

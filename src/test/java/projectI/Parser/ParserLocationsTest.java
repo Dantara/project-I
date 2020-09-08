@@ -170,4 +170,11 @@ public class ParserLocationsTest extends TestCase {
         assertNotNull(positionOfProduct);
         assertEquals(new CodePosition(0, 5), positionOfProduct);
     }
+
+    public void testArrayType() throws InvalidLexemeException {
+        var position = createParser("\n  array[1] integer").tryParseArrayType(1, 6).startPosition;
+
+        assertNotNull(position);
+        assertEquals(new CodePosition(1, 2), position);
+    }
 }
