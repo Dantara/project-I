@@ -1,4 +1,4 @@
 package projectI.AST.Declarations;
 
-public class UserTypeNode implements TypeNode {
+public abstract class UserTypeNode implements TypeNode {
 }

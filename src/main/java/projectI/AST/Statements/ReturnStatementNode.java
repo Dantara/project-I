@@ -48,4 +48,9 @@ public class ReturnStatementNode implements StatementNode {
 
         return "return{" + expression + "}";
     }
+
+    @Override
+    public CodePosition getStartPosition() {
+        return startPosition;
+    }
 }

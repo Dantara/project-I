@@ -48,4 +48,9 @@ public class IfStatementNode implements StatementNode {
     public int hashCode() {
         return Objects.hash(condition, body, elseBody);
     }
+
+    @Override
+    public CodePosition getStartPosition() {
+        return startPosition;
+    }
 }

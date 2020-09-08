@@ -73,6 +73,8 @@ public class Parser {
         if (begin >= endExclusive) return null;
         if (!tokens[begin].equals(TokenType.Keyword, "var")) return null;
 
+        var position = locations[begin].getPosition();
+
         if (begin + 1 >= endExclusive) return null;
         if (tokens[begin + 1].getType() != TokenType.Identifier) return null;
 
@@ -87,21 +89,21 @@ public class Parser {
                 var type = tryParseType(begin + 3, endExclusive);
                 if (type == null) return null;
 
-                return new VariableDeclarationNode(identifier, type, null);
+                return new VariableDeclarationNode(identifier, type, null, position);
             } else {
                 var type = tryParseType(begin + 3, isIndex);
                 if (type == null) return null;
                 var expression = tryParseExpression(isIndex + 1, endExclusive);
                 if (expression == null) return null;
 
-                return new VariableDeclarationNode(identifier, type, expression);
+                return new VariableDeclarationNode(identifier, type, expression, position);
             }
 
         } else if (tokens[begin + 2].equals(TokenType.Keyword, "is")) {
             var expression = tryParseExpression(begin + 3, endExclusive);
             if (expression == null) return null;
 
-            return new VariableDeclarationNode(identifier, null, expression);
+            return new VariableDeclarationNode(identifier, null, expression, position);
         }
 
         return null;
@@ -592,7 +594,7 @@ public class Parser {
         var type = tryParseType(begin + 3, endExclusive);
         if (type == null) return null;
 
-        return new TypeDeclarationNode(identifier, type);
+        return new TypeDeclarationNode(identifier, type, locations[begin].getPosition());
     }
 
     public RoutineDeclarationNode tryParseRoutineDeclaration(int begin, int endExclusive) {

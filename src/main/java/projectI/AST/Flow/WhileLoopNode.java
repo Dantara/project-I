@@ -37,4 +37,9 @@ public class WhileLoopNode implements StatementNode {
     public int hashCode() {
         return Objects.hash(condition, body);
     }
+
+    @Override
+    public CodePosition getStartPosition() {
+        return startPosition;
+    }
 }

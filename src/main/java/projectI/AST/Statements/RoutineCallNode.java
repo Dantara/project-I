@@ -53,4 +53,9 @@ public class RoutineCallNode implements StatementNode, PrimaryNode {
     public CodePosition getPosition() {
         return startPosition;
     }
+
+    @Override
+    public CodePosition getStartPosition() {
+        return startPosition;
+    }
 }

@@ -41,4 +41,9 @@ public class ForLoopNode implements StatementNode {
     public int hashCode() {
         return Objects.hash(variable, range, body);
     }
+
+    @Override
+    public CodePosition getStartPosition() {
+        return startPosition;
+    }
 }
