@@ -25,7 +25,7 @@ folder (`target`) in the root of the project.
 
 ## Run
 
-To run this project, you have to ways.
+To run this project, you have two ways.
 
 Either you can create `.jar` file and execute it
 
