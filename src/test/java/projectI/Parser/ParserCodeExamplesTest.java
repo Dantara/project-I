@@ -185,4 +185,10 @@ public class ParserCodeExamplesTest extends TestCase {
 
         assertNull(program);
     }
+
+    public void testRecords_Invalid() throws IOException, InvalidLexemeException {
+        var program = tryParseProgram("code_examples/records_invalid.txt");
+
+        assertNull(program);
+    }
 }
