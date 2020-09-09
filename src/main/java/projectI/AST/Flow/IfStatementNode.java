@@ -45,6 +45,25 @@ public class IfStatementNode implements StatementNode {
     }
 
     @Override
+    public String toString() {
+        var builder = new StringBuilder();
+
+        builder.append("if (");
+        builder.append(condition);
+        builder.append(") {\n\t");
+        builder.append(body);
+        builder.append("}");
+
+        if (elseBody != null) {
+            builder.append("else {\n\t");
+            builder.append(elseBody);
+            builder.append("}");
+        }
+
+        return builder.toString();
+    }
+
+    @Override
     public int hashCode() {
         return Objects.hash(condition, body, elseBody);
     }

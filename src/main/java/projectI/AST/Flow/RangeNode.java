@@ -37,6 +37,17 @@ public class RangeNode implements ASTNode {
     }
 
     @Override
+    public String toString() {
+        var builder = new StringBuilder();
+
+        builder.append(from);
+        builder.append("..");
+        builder.append(to);
+
+        return builder.toString();
+    }
+
+    @Override
     public int hashCode() {
         return Objects.hash(from, to, reverse);
     }

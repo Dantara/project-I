@@ -31,6 +31,18 @@ public class BodyNode implements ASTNode {
     }
 
     @Override
+    public String toString() {
+        var builder = new StringBuilder();
+
+        for (StatementNode statement: statements) {
+            builder.append(statement);
+            builder.append("\n");
+        }
+        
+        return builder.toString();
+    }
+
+    @Override
     public int hashCode() {
         return Objects.hash(statements);
     }
