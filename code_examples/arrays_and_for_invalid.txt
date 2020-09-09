@@ -1,0 +1,23 @@
+var a: array[10] integer
+
+routine get_sum(arr: array[] integer): integer is
+    var result is 0
+
+    for i in 1 .. arr.size loop
+        result := result + arr[i]
+    end
+
+    return result
+end
+
+routine main() is
+    var sum is 0
+
+    for i in 1 .. 10 loop
+        sum := sum + i
+    end
+
+    for i in reverse 1 .. a.size
+        sum := sum + i
+    end
+end

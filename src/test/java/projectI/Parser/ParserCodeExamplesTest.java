@@ -155,4 +155,34 @@ public class ParserCodeExamplesTest extends TestCase {
         assertNotNull(program);
         assertTrue(program.validate());
     }
+
+    public void testConditional_Invalid() throws IOException, InvalidLexemeException {
+        var program = tryParseProgram("code_examples/conditional_invalid.txt");
+
+        assertNull(program);
+    }
+
+    public void testArrayOfRecords_Invalid() throws IOException, InvalidLexemeException {
+        var program = tryParseProgram("code_examples/array_of_records_invalid.txt");
+
+        assertNull(program);
+    }
+
+    public void testDenseCode_Invalid() throws IOException, InvalidLexemeException {
+        var program = tryParseProgram("code_examples/dense_code_invalid.txt");
+
+        assertNull(program);
+    }
+
+    public void testManyBrackets_Invalid() throws IOException, InvalidLexemeException {
+        var program = tryParseProgram("code_examples/many_brackets_invalid.txt");
+
+        assertNull(program);
+    }
+
+    public void testArraysAndFor_Invalid() throws IOException, InvalidLexemeException {
+        var program = tryParseProgram("code_examples/arrays_and_for_invalid.txt");
+
+        assertNull(program);
+    }
 }
