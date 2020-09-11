@@ -23,8 +23,8 @@ import projectI.Lexer.TokenType;
 public class Parser {
 
     /**
-     * Parse the programm
-     * @return a programm node if it can be parsed otherwise null object
+     * Parse the program
+     * @return a program node if it can be parsed otherwise null object
      */
     public ProgramNode tryParseProgram() {
         return tryParseProgram(0, tokens.length);
