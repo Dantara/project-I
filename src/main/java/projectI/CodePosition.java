@@ -2,7 +2,7 @@ package projectI;
 
 import java.util.Objects;
 
-public class CodePosition {
+public class CodePosition implements Comparable<CodePosition> {
     public final int lineIndex;
     public final int beginningIndex;
 
@@ -27,9 +27,15 @@ public class CodePosition {
 
     @Override
     public String toString() {
-        return "CodePosition{" +
-                "lineIndex=" + lineIndex +
-                ", beginningIndex=" + beginningIndex +
-                '}';
+        return "(" + lineIndex + "; " + beginningIndex + ")";
+    }
+
+    @Override
+    public int compareTo(CodePosition o) {
+        var linesComparison = lineIndex - o.lineIndex;
+        if (linesComparison != 0)
+            return linesComparison;
+
+        return beginningIndex - o.beginningIndex;
     }
 }

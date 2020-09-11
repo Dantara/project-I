@@ -1,0 +1,16 @@
+type rec is record
+     var either : boolean
+     var num : integer
+end
+
+type recordArray16 is array[16] rec
+
+routine main() is
+    var arr : recordArray16
+    var myRec : rec
+
+    myRec.either :=
+    myRec.num := arr.size
+
+    arr[0] := myRec
+end
