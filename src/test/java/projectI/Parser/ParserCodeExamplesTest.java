@@ -61,9 +61,8 @@ public class ParserCodeExamplesTest extends TestCase {
         var expectedProgram = mainProgram(new StatementNode[] {
             implicitIntegerDeclaration("a", 1),
             forLoop("i", 1, 10, new StatementNode[] {
-                ifStatement(notEqual(mod("a", 2), 0), new StatementNode[] {
-                    integerAssignment("a", integerAddition("a", "i")),
-                }),
+                ifStatement(notEqual(mod("a", 2), 0),
+                        integerAssignment("a", integerAddition("a", "i"))),
             })
         });
 
@@ -255,7 +254,6 @@ public class ParserCodeExamplesTest extends TestCase {
     public void testRecords_Invalid() throws IOException, InvalidLexemeException {
         var program = tryParseProgram("code_examples/records_invalid.txt");
 
-        fail();
         assertNull(program);
     }
 }
