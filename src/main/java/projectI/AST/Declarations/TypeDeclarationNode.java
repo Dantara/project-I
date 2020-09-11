@@ -46,4 +46,13 @@ public class TypeDeclarationNode extends SimpleDeclarationNode {
                 type != null && type.validate() &&
                 startPosition != null;
     }
+
+    @Override
+    public String toString() {
+        return "TypeDeclarationNode{" +
+                "identifier=" + identifier +
+                ", type=" + type +
+                ", startPosition=" + startPosition +
+                '}';
+    }
 }

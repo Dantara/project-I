@@ -4,6 +4,13 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import projectI.AST.*;
+import projectI.AST.Declarations.DeclarationNode;
+import projectI.AST.Declarations.IdentifierNode;
+import projectI.AST.Declarations.RecordTypeNode;
+import projectI.AST.Declarations.VariableDeclarationNode;
+import projectI.AST.Primary.BooleanLiteralNode;
+import projectI.AST.Primary.ModifiablePrimaryNode;
+import projectI.AST.Statements.AssignmentNode;
 import projectI.AST.Statements.StatementNode;
 import projectI.Lexer.InvalidLexemeException;
 import projectI.Lexer.Lexer;
@@ -14,6 +21,7 @@ import java.nio.file.Path;
 
 import static projectI.AST.ASTUtils.toExpression;
 
+import static projectI.AST.Primary.BooleanLiteralNode.trueLiteral;
 import static projectI.Parser.ParserTestUtils.*;
 
 public class ParserCodeExamplesTest extends TestCase {
@@ -68,28 +76,33 @@ public class ParserCodeExamplesTest extends TestCase {
     public void testArrayOfRecords() throws IOException, InvalidLexemeException {
         var program = tryParseProgram("code_examples/array_of_records.txt");
 
-        // var expectedProgram = programDeclaration(new DeclarationNode[] {
+        var expectedProgram = programDeclaration(new DeclarationNode[] {
+                recordTypeDeclaration("rec", new VariableDeclarationNode[] {
+                        booleanDeclaration("either", null),
+                        integerDeclaration("num", null)
+                }),
 
-        //     recordTypeDeclaration("rec", new VariableDeclarationNode[] {
-        //         booleanDeclaration("either", null),
-        //         integerDeclaration("num", null)
-        //     }),
+                arrayTypeDeclaration("recordArray16", 16, new IdentifierNode("rec")),
 
-        //     arrayTypeDeclaration("recordArray16", 16, new RecordTypeNode()),
+                mainRoutine(new StatementNode[] {
+                        typedVariable("arr", "recordArray16"),
+                        typedVariable("myRec", "rec"),
+                        recordMemberAssignment("myRec", "either", toExpression(trueLiteral)),
+                        recordMemberAssignment("myRec", "num", toExpression(arraySize("arr"))),
+                        new AssignmentNode(arrayIndex("arr", 0), variableValue("myRec")),
+                })
+        });
 
-        //     mainRoutine(new StatementNode[] {
-                
-        //     })
-        // });
         assertNotNull(program);
         assertTrue(program.validate());
-        // assertEquals(expectedProgram, program);
+        assertEquals(expectedProgram, program);
     }
 
     public void testArrayWithBooleanSize() throws IOException, InvalidLexemeException {
         var program = tryParseProgram("code_examples/array_with_boolean_size.txt");
 
         assertNotNull(program);
+        assertTrue(program.validate());
         assertTrue(program.validate());
     }
 
