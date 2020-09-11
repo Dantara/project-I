@@ -172,8 +172,31 @@ public class ParserCodeExamplesTest extends TestCase {
     public void testTypeConversion() throws IOException, InvalidLexemeException {
         var program = tryParseProgram("code_examples/type_conversion.txt");
 
+        var expectedProgram = programDeclaration(
+                mainRoutine(
+                        integerDeclaration("a"),
+                        realDeclaration("b"),
+                        booleanDeclaration("c"),
+
+                        integerAssignment("a", 1),
+                        realAssignment("a", 0.0),
+                        booleanAssignment("a", true),
+
+                        integerAssignment("b", 1),
+                        realAssignment("b", 0.0),
+                        booleanAssignment("b", false),
+
+                        booleanAssignment("c", true),
+                        integerAssignment("c", 1),
+
+                        ifStatement(toExpression(new ModifiablePrimaryNode(new IdentifierNode("a"))),
+                                booleanAssignment("c", false))
+                )
+        );
+
         assertNotNull(program);
         assertTrue(program.validate());
+        assertEquals(expectedProgram, program);
     }
 
     public void testTypeSynonym() throws IOException, InvalidLexemeException {

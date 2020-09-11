@@ -3,6 +3,7 @@ package projectI.AST;
 import projectI.AST.Expressions.*;
 import projectI.AST.Primary.BooleanLiteralNode;
 import projectI.AST.Primary.IntegralLiteralNode;
+import projectI.AST.Primary.ModifiablePrimaryNode;
 import projectI.AST.Primary.RealLiteralNode;
 
 public final class ASTUtils {

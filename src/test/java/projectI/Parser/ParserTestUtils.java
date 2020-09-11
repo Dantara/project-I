@@ -16,15 +16,28 @@ import projectI.AST.Statements.StatementNode;
 import java.beans.Expression;
 import java.lang.reflect.Parameter;
 
-import static projectI.AST.ASTUtils.integerExpression;
-import static projectI.AST.ASTUtils.booleanExpression;
-import static projectI.AST.ASTUtils.toExpression;
-import static projectI.AST.ASTUtils.toSimple;
+import static projectI.AST.ASTUtils.*;
 
 
 public class ParserTestUtils {
     public static VariableDeclarationNode integerDeclaration(String identifier, Integer value) {
         return new VariableDeclarationNode(new IdentifierNode(identifier), new PrimitiveTypeNode(PrimitiveType.INTEGER), value == null ? null : integerExpression(value));
+    }
+
+    public static VariableDeclarationNode realDeclaration(String identifier, Double value) {
+        return new VariableDeclarationNode(new IdentifierNode(identifier), new PrimitiveTypeNode(PrimitiveType.REAL), value == null ? null : realExpression(value));
+    }
+
+    public static VariableDeclarationNode integerDeclaration(String identifier) {
+        return integerDeclaration(identifier, null);
+    }
+
+    public static VariableDeclarationNode realDeclaration(String identifier) {
+        return realDeclaration(identifier, null);
+    }
+
+    public static VariableDeclarationNode booleanDeclaration(String identifier) {
+        return booleanDeclaration(identifier, null);
     }
 
     public static VariableDeclarationNode implicitIntegerDeclaration(String identifier, int value) {
@@ -37,6 +50,14 @@ public class ParserTestUtils {
 
     public static AssignmentNode integerAssignment(String identifier, Integer value) {
         return new AssignmentNode(new ModifiablePrimaryNode(new IdentifierNode(identifier)), integerExpression(value));
+    }
+
+    public static AssignmentNode realAssignment(String identifier, Double value) {
+        return new AssignmentNode(new ModifiablePrimaryNode(new IdentifierNode(identifier)), realExpression(value));
+    }
+
+    public static AssignmentNode booleanAssignment(String identifier, Boolean value) {
+        return new AssignmentNode(new ModifiablePrimaryNode(new IdentifierNode(identifier)), booleanExpression(value));
     }
 
     public static AssignmentNode integerAssignment(String identifier, ExpressionNode expression) {
@@ -96,7 +117,7 @@ public class ParserTestUtils {
         return new ForLoopNode(new IdentifierNode(identifier), new RangeNode(integerExpression(from), integerExpression(to), false), body);
     }
 
-    public static IfStatementNode ifStatement(ExpressionNode condition, StatementNode[] statements) {
+    public static IfStatementNode ifStatement(ExpressionNode condition, StatementNode... statements) {
         var body = new BodyNode();
 
         for (StatementNode statement: statements) {
