@@ -31,7 +31,7 @@ public class SimpleNode implements ASTNode {
     }
 
     /**
-     * Add a summand to the list of summands with its operstor
+     * Add a summand to the list of summands with its operator
      * @param operator is a sign of the added summand
      * @param summand is an added term to the simple
      * @param operatorPosition is a position of the operator in the source code

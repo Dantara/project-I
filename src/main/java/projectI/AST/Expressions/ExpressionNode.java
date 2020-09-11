@@ -41,7 +41,7 @@ public class ExpressionNode implements FactorNode {
      * Add a relation to the list of relations of the expression
      * @param operator is a logical operator which combine added relation with other ones
      * @param relation is a relation to add
-     * @param position is a positioin in the source code
+     * @param position is a position in the source code
      * @return Expression Node itself
      */
     public ExpressionNode addRelation(LogicalOperator operator, RelationNode relation, CodePosition position) {

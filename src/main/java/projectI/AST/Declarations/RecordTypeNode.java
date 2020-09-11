@@ -34,7 +34,7 @@ public class RecordTypeNode extends UserTypeNode {
 
     /**
      * Add a variable to the list of variables
-     * @param variable is a variablee to add
+     * @param variable is a variable to add
      * @return RecordTypeNode itself
      */
     public RecordTypeNode addVariable(VariableDeclarationNode variable) {

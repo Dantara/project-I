@@ -238,7 +238,7 @@ public class ModifiablePrimaryNode implements PrimaryNode {
 
         /**
          * Check whether this object is equal to the passed one.
-         * @param o the object to check the equality with
+         * @param obj the object to check the equality with
          * @return true if this object is equal to the passed one, false otherwise.
          */
         @Override

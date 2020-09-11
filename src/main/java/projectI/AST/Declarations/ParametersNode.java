@@ -28,7 +28,7 @@ public class ParametersNode implements ASTNode {
     }
 
     /**
-     * A constructor for initializing objects of class PararmetersNode
+     * A constructor for initializing objects of class ParametersNode
      * @param startPosition is start position in the source code
      */
     public ParametersNode(CodePosition startPosition) {

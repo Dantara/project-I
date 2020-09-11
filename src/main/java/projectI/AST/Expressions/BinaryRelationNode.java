@@ -24,7 +24,7 @@ public class BinaryRelationNode implements RelationNode {
     /**
      * A constructor for initializing objects of class BinaryRelationNode
      * @param simple is an element of the relation
-     * @param comparison is an vomparison sign of the relation
+     * @param comparison is a comparison sign of the relation
      * @param otherSimple is another element of the relation
      */
     public BinaryRelationNode(SimpleNode simple, Comparison comparison, SimpleNode otherSimple) {
@@ -37,7 +37,7 @@ public class BinaryRelationNode implements RelationNode {
     /**
      * A constructor for initializing objects of class BinaryRelationNode
      * @param simple is an element of the relation
-     * @param comparison is an vomparison sign of the relation
+     * @param comparison is a comparison sign of the relation
      * @param otherSimple is another element of the relation
      * @param comparisonPosition is a position of the comparison sign
      */
