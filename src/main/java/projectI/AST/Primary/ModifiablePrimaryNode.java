@@ -13,31 +13,59 @@ public class ModifiablePrimaryNode implements PrimaryNode {
     public final List<Accessor> accessors = new ArrayList<>();
     public final CodePosition startPosition;
 
+    /**
+     * A constructor for initializing objects of class ModifiablePrimaryNode
+     * @param identifier is an identifier of the Modifiable Primary
+     */
     public ModifiablePrimaryNode(IdentifierNode identifier) {
         this.identifier = identifier;
         this.startPosition = null;
     }
 
+    /**
+     * A constructor for initializing objects of class ModifiablePrimaryNode
+     * @param identifier is an identifier of the Modifiable Primary
+     * @param startPosition is a start position in the source code
+     */
     public ModifiablePrimaryNode(IdentifierNode identifier, CodePosition startPosition) {
         this.identifier = identifier;
         this.startPosition = startPosition;
     }
 
+    /**
+     * Add an identifier to the Modifiable Primary
+     * @param identifier is a new member to add
+     * @return Modifiable Primary with added member
+     */
     public ModifiablePrimaryNode addMember(IdentifierNode identifier) {
         accessors.add(new Member(identifier));
         return this;
     }
 
+    /**
+     * Add an expression to the Modifiable Primary
+     * @param expression is an expression to add
+     * @return Modifiable Primary with added expression
+     */
     public ModifiablePrimaryNode addIndexer(ExpressionNode expression) {
         accessors.add(new Indexer(expression));
         return this;
     }
 
+    /**
+     * Add ArraySize instance to Modifiable Primary
+     * @return Modifiable Primary itself
+     */
     public ModifiablePrimaryNode addArraySize() {
         accessors.add(ArraySize.instance);
         return this;
     }
 
+    /**
+     * Check whether this object is equal to the passed one.
+     * @param o the object to check the equality with
+     * @return true if this object is equal to the passed one, false otherwise.
+     */
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -54,16 +82,28 @@ public class ModifiablePrimaryNode implements PrimaryNode {
         return true;
     }
 
+    /**
+     * Calculate the hashcode of the object.
+     * @return hashcode
+     */
     @Override
     public int hashCode() {
         return Objects.hash(identifier, accessors);
     }
 
+    /**
+     * Find a position in the source code
+     * @return the position
+     */
     @Override
     public CodePosition getPosition() {
         return startPosition;
     }
 
+    /**
+     * Check if node is valid
+     * @return true if this object is valid, false otherwise.
+     */
     @Override
     public boolean validate() {
         if (identifier == null || !identifier.validate() || startPosition == null)
@@ -80,6 +120,9 @@ public class ModifiablePrimaryNode implements PrimaryNode {
         return true;
     }
 
+    /**
+     * Class representing an identifier of the Modifiable Primary
+     */
     public abstract static class Accessor {
         public abstract boolean validate();
     }
@@ -87,10 +130,19 @@ public class ModifiablePrimaryNode implements PrimaryNode {
     public static final class Member extends Accessor {
         public final IdentifierNode name;
 
+        /**
+         * A constructor for initializing objects of class Member
+         * @param name is a name of the instance
+         */
         public Member(IdentifierNode name) {
             this.name = name;
         }
 
+        /**
+         * Check whether this object is equal to the passed one.
+         * @param o the object to check the equality with
+         * @return true if this object is equal to the passed one, false otherwise.
+         */
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
@@ -99,16 +151,28 @@ public class ModifiablePrimaryNode implements PrimaryNode {
             return Objects.equals(name, member.name);
         }
 
+        /**
+         * Calculate the hashcode of the object.
+         * @return hashcode
+         */
         @Override
         public int hashCode() {
             return Objects.hash(name);
         }
 
+        /**
+         * Get the formatted representation of the string.
+         * @return the object as a string
+         */
         @Override
         public String toString() {
             return "." + name;
         }
 
+        /**
+         * Check if node is valid
+         * @return true if this object is valid, false otherwise.
+         */
         @Override
         public boolean validate() {
             return name != null && name.validate();
@@ -118,10 +182,19 @@ public class ModifiablePrimaryNode implements PrimaryNode {
     public static final class Indexer extends Accessor {
         public final ExpressionNode value;
 
+        /**
+         * A constructor for initializing objects of class Indexer
+         * @param value is an index to get
+         */
         public Indexer(ExpressionNode value) {
             this.value = value;
         }
 
+        /**
+         * Check whether this object is equal to the passed one.
+         * @param o the object to check the equality with
+         * @return true if this object is equal to the passed one, false otherwise.
+         */
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
@@ -130,16 +203,28 @@ public class ModifiablePrimaryNode implements PrimaryNode {
             return Objects.equals(value, indexer.value);
         }
 
+        /**
+         * Calculate the hashcode of the object.
+         * @return hashcode
+         */
         @Override
         public int hashCode() {
             return Objects.hash(value);
         }
 
+        /**
+         * Get the formatted representation of the string.
+         * @return the object as a string
+         */
         @Override
         public String toString() {
             return "[" + value + "]";
         }
 
+        /**
+         * Check if node is valid
+         * @return true if this object is valid, false otherwise.
+         */
         @Override
         public boolean validate() {
             return value != null && value.validate();
@@ -151,22 +236,39 @@ public class ModifiablePrimaryNode implements PrimaryNode {
 
         private ArraySize() { }
 
+        /**
+         * Check whether this object is equal to the passed one.
+         * @param o the object to check the equality with
+         * @return true if this object is equal to the passed one, false otherwise.
+         */
         @Override
         public boolean equals(Object obj) {
             return obj != null && obj.getClass() == ArraySize.class;
         }
 
+        /**
+         * Get the formatted representation of the string.
+         * @return the object as a string
+         */
         @Override
         public String toString() {
             return ".size";
         }
 
+        /**
+         * Check if node is valid
+         * @return true if this object is valid, false otherwise.
+         */
         @Override
         public boolean validate() {
             return true;
         }
     }
 
+    /**
+     * Get the formatted representation of the string.
+     * @return the object as a string
+     */
     @Override
     public String toString() {
         var builder = new StringBuilder();
