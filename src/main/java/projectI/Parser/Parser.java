@@ -13,9 +13,13 @@ import projectI.AST.Statements.AssignmentNode;
 import projectI.AST.Statements.ReturnStatementNode;
 import projectI.AST.Statements.RoutineCallNode;
 import projectI.AST.Statements.StatementNode;
+import projectI.CodePosition;
 import projectI.Lexer.StringWithLocation;
 import projectI.Lexer.Token;
 import projectI.Lexer.TokenType;
+import projectI.Parser.Errors.*;
+
+import java.util.*;
 
 /**
  * A stage of compilation that takes the token produced by lexical analysis as input and generates a parse tree (or syntax tree)
@@ -52,15 +56,30 @@ public class Parser {
                 }
             }
 
-            if (declaration == null) return null;
+            if (declaration == null) {
+                if (getErrorCount() == 0)
+                    expectedDeclaration(left, endExclusive);
 
+                return null;
+            }
+
+            errors.clear();
             program.declarations.add(declaration);
 
             if (left == endExclusive) break;
-            if (tokens[left].getType() != TokenType.DeclarationSeparator) return null;
         }
 
+        if (getErrorCount() > 0)
+            return null;
+
         return program;
+    }
+
+    private void expectedDeclaration(int begin, int endExclusive) {
+        var endPosition = locations[endExclusive - 1].getPosition();
+        var lastTokenLength = tokens[endExclusive - 1].getLexeme().length();
+        endPosition = new CodePosition(endPosition.lineIndex, endPosition.beginningIndex + lastTokenLength);
+        errors.add(new ExpectedDeclarationError(locations[begin].getPosition(), endPosition));
     }
 
     private DeclarationNode tryParseDeclaration(int begin, int endExclusive) {
@@ -89,10 +108,15 @@ public class Parser {
 
         var position = locations[begin].getPosition();
 
-        if (begin + 1 >= endExclusive) return null;
-        if (tokens[begin + 1].getType() != TokenType.Identifier) return null;
+        var identifierIndex = begin + 1;
+        if (identifierIndex >= endExclusive) return null;
 
-        var identifier = tryParseIdentifier(begin + 1, begin + 2);
+        if (tokens[identifierIndex].getType() != TokenType.Identifier) {
+            expectedIdentifierAt(identifierIndex);
+            return null;
+        }
+
+        var identifier = tryParseIdentifier(identifierIndex, identifierIndex + 1);
         if (identifier == null) return null;
 
         if (begin + 2 >= endExclusive) return null;
@@ -598,22 +622,39 @@ public class Parser {
         if (begin >= endExclusive) return null;
         if (!tokens[begin].equals(TokenType.Keyword, "array")) return null;
         if (begin + 1 >= endExclusive) return null;
-        if (!tokens[begin + 1].equals(TokenType.Operator, "[")) return null;
+        if (!tokens[begin + 1].equals(TokenType.Operator, "[")) {
+            expectedOperator("[", begin);
+            return null;
+        }
 
         var closingBracketIndex = getIndexOfFirstStandaloneClosingBracket(begin + 2, endExclusive, '[', ']');
-        if (closingBracketIndex == -1) return null;
+        if (closingBracketIndex == -1) {
+            expectedOperator("]", begin + 1);
+            return null;
+        }
 
         ExpressionNode size = null;
 
         if (closingBracketIndex != begin + 2) {
             size = tryParseExpression(begin + 2, closingBracketIndex);
-            if (size == null) return null;
+            if (size == null) {
+                expectedExpression(begin + 2, closingBracketIndex);
+                return null;
+            }
         }
 
         var type = tryParseType(closingBracketIndex + 1, endExclusive);
-        if (type == null) return null;
+        if (type == null) {
+            expectedType(closingBracketIndex + 1, endExclusive);
+            return null;
+        }
 
         return new ArrayTypeNode(size, type, locations[begin].getPosition());
+    }
+    
+    private void expectedExpression(int begin, int endExclusive) {
+        var tokens = Arrays.copyOfRange(this.tokens, begin, endExclusive);
+        errors.add(new ExpectedExpressionError(tokens, locations[begin].getPosition()));
     }
 
     /**
@@ -625,7 +666,10 @@ public class Parser {
     public RecordTypeNode tryParseRecordType(int begin, int endExclusive) {
         if (begin >= endExclusive) return null;
         if (!tokens[begin].equals(TokenType.Keyword, "record")) return null;
-        if (!tokens[endExclusive - 1].equals(TokenType.Keyword, "end")) return null;
+        if (!tokens[endExclusive - 1].equals(TokenType.Keyword, "end")) {
+            expectedKeyword("end", endExclusive - 1);
+            return null;
+        }
 
         var record = new RecordTypeNode(locations[begin].getPosition());
         begin += 1;
@@ -650,12 +694,24 @@ public class Parser {
                 }
             }
 
-            if (variable == null) return null;
+            if (variable == null) {
+                expectedVariableDeclaration(left, endExclusive);
+                return null;
+            }
             if (left >= endExclusive) break;
             if (tokens[left].getType() != TokenType.DeclarationSeparator) return null;
         }
 
         return record;
+    }
+
+    private void expectedVariableDeclaration(int begin, int endExclusive) {
+        var tokens = Arrays.copyOfRange(this.tokens, begin, endExclusive);
+        var position = locations[begin].getPosition();
+        var endTokenPosition = locations[endExclusive - 1].getPosition();
+        var endTokenLength = this.tokens[endExclusive - 1].getLexeme().length();
+        var end = new CodePosition(endTokenPosition.lineIndex, endTokenPosition.beginningIndex + endTokenLength);
+        errors.add(new ExpectedVariableDeclarationError(tokens, position, end));
     }
 
     /**
@@ -696,10 +752,15 @@ public class Parser {
     public TypeDeclarationNode tryParseTypeDeclaration(int begin, int endExclusive) {
         if (begin >= endExclusive) return null;
         if (!tokens[begin].equals(TokenType.Keyword, "type")) return null;
-        if (begin + 1 >= endExclusive) return null;
 
-        var identifier = tryParseIdentifier(begin + 1, begin + 2);
-        if (identifier == null) return null;
+        var identifierIndex = begin + 1;
+        if (identifierIndex >= endExclusive) return null;
+
+        var identifier = tryParseIdentifier(identifierIndex, identifierIndex + 1);
+        if (identifier == null) {
+            expectedIdentifierAt(identifierIndex);
+            return null;
+        }
 
         if (begin + 2 >= endExclusive) return null;
         if (!tokens[begin + 2].equals(TokenType.Keyword, "is")) return null;
@@ -710,7 +771,12 @@ public class Parser {
         return new TypeDeclarationNode(identifier, type, locations[begin].getPosition());
     }
 
-    /**
+
+    private void expectedIdentifierAt(int tokenIndex) {
+        errors.add(new ExpectedIdentifierError(tokens[tokenIndex], locations[tokenIndex].getPosition()));
+    }
+
+     /**
      * Parse a Routine Declaration
      * @param begin is an index of toke with which the routine declarartion begins
      * @param endExclusive is an index of toke with which the routine declaration ends
@@ -719,25 +785,40 @@ public class Parser {
     public RoutineDeclarationNode tryParseRoutineDeclaration(int begin, int endExclusive) {
         if (begin >= endExclusive) return null;
         if (!tokens[begin].equals(TokenType.Keyword, "routine")) return null;
-        if (!tokens[endExclusive - 1].equals(TokenType.Keyword, "end")) return null;
+        if (!tokens[endExclusive - 1].equals(TokenType.Keyword, "end")) {
+            expectedKeyword("end", endExclusive - 1);
+            return null;
+        }
 
         var startPosition = locations[begin].getPosition();
         endExclusive--;
 
         if (begin + 1 >= endExclusive) return null;
         var identifier = tryParseIdentifier(begin + 1, begin + 2);
-        if (identifier == null) return null;
+        if (identifier == null) {
+            expectedIdentifierAt(begin + 1);
+            return null;
+        }
 
         if (begin + 2 >= endExclusive) return null;
-        if (!tokens[begin + 2].equals(TokenType.Operator, "(")) return null;
+        if (!tokens[begin + 2].equals(TokenType.Operator, "(")) {
+            expectedOperator("(", begin + 1);
+            return null;
+        }
 
         var matchingParenthesisIndex = getIndexOfFirstStandaloneClosingBracket(begin + 3, endExclusive, '(', ')');
-        if (matchingParenthesisIndex == -1) return null;
+        if (matchingParenthesisIndex == -1) {
+            expectedOperator(")", begin + 2);
+            return null;
+        }
 
         var parameters = tryParseParameters(begin + 3, matchingParenthesisIndex);
         if (parameters == null) return null;
 
-        if (matchingParenthesisIndex + 1 >= endExclusive) return null;
+        if (matchingParenthesisIndex + 1 >= endExclusive) {
+            expectedKeyword("is", matchingParenthesisIndex);
+            return null;
+        }
 
         if (tokens[matchingParenthesisIndex + 1].equals(TokenType.Keyword, "is")) {
             var body = tryParseBody(matchingParenthesisIndex + 2, endExclusive);
@@ -749,16 +830,27 @@ public class Parser {
                 if (!tokens[isIndex].equals(TokenType.Keyword, "is")) continue;
 
                 var returnType = tryParseType(matchingParenthesisIndex + 2, isIndex);
-                if (returnType == null) continue;
+                if (returnType == null) {
+                    expectedType(matchingParenthesisIndex + 2, isIndex);
+                    return null;
+                }
 
                 var body = tryParseBody(isIndex + 1, endExclusive);
-                if (body == null) continue;
+                if (body == null) return null;
 
                 return new RoutineDeclarationNode(identifier, parameters, returnType, body, startPosition);
             }
         }
 
+        expectedKeyword("is", matchingParenthesisIndex);
         return null;
+    }
+
+    private void expectedKeyword(String keyword, int previousTokenIndex) {
+        var previousPosition = locations[previousTokenIndex].getPosition();
+        var previousTokenLength = tokens[previousTokenIndex].getLexeme().length();
+        var position = new CodePosition(previousPosition.lineIndex, previousPosition.beginningIndex + previousTokenLength + 1);
+        errors.add(new ExpectedKeywordError(keyword, position));
     }
 
     /**
@@ -782,10 +874,16 @@ public class Parser {
                 if (!tokens[left + 1].equals(TokenType.Operator, ":")) return null;
 
                 var identifier = tryParseIdentifier(left, left + 1);
-                if (identifier == null) return null;
+                if (identifier == null) {
+                    expectedIdentifierAt(left);
+                    return null;
+                }
 
                 var type = tryParseType(left + 2, endExclusive);
-                if (type == null) return null;
+                if (type == null) {
+                    expectedType(left + 2, endExclusive);
+                    return null;
+                }
 
                 parameters.parameters.add(new Pair<>(identifier, type));
                 left = endExclusive;
@@ -806,6 +904,11 @@ public class Parser {
         }
 
         return parameters;
+    }
+
+    private void expectedType(int begin, int endExclusive) {
+        var tokens = Arrays.copyOfRange(this.tokens, begin, endExclusive);
+        errors.add(new ExpectedTypeError(tokens, locations[begin].getPosition()));
     }
 
     private int getIndexOfFirstToken(int begin, int endExclusive, TokenType type, String lexeme) {
@@ -835,22 +938,39 @@ public class Parser {
                 continue;
             }
 
+            var foundStatement = false;
+
             for (int rightExclusive = left + 1; rightExclusive <= endExclusive; rightExclusive++) {
                 if (rightExclusive != endExclusive && tokens[rightExclusive].getType() != TokenType.DeclarationSeparator) continue;
                 var statement = tryParseStatement(left, rightExclusive);
 
                 if (statement != null) {
                     body.statements.add(statement);
+                    errors.clear();
                     left = rightExclusive;
+                    foundStatement = true;
                     break;
                 }
             }
 
+            if (!foundStatement) {
+                expectedStatement(left, endExclusive);
+                return null;
+            }
             if (left == endExclusive) return body;
-            if (tokens[left].getType() != TokenType.DeclarationSeparator) return null;
         }
 
         return body;
+    }
+
+
+    private void expectedStatement(int begin, int endExclusive) {
+        var position = locations[begin].getPosition();
+        var end = locations[endExclusive - 1].getPosition();
+        var lastTokenLength = tokens[endExclusive - 1].getLexeme().length();
+        end = new CodePosition(end.lineIndex, end.beginningIndex + lastTokenLength);
+
+        errors.add(new ExpectedStatementError(position, end));
     }
 
     /**
@@ -900,12 +1020,24 @@ public class Parser {
         if (assignmentIndex == -1) return null;
 
         var modifiable = tryParseModifiablePrimary(begin, assignmentIndex);
-        if (modifiable == null) return null;
+        if (modifiable == null) {
+            expectedModifiablePrimary(begin, assignmentIndex);
+            return null;
+        }
 
         var expression = tryParseExpression(assignmentIndex + 1, endExclusive);
-        if (expression == null) return null;
+        if (expression == null) {
+            expectedExpression(assignmentIndex + 1, endExclusive);
+            return null;
+        }
 
         return new AssignmentNode(modifiable, expression);
+    }
+
+
+    private void expectedModifiablePrimary(int begin, int endExclusive) {
+        var tokens = Arrays.copyOfRange(this.tokens, begin, endExclusive);
+        errors.add(new ExpectedModifiablePrimaryError(tokens, locations[begin].getPosition()));
     }
 
     /**
@@ -923,7 +1055,10 @@ public class Parser {
         var routineCall = new RoutineCallNode(name, locations[begin].getPosition());
 
         if (!tokens[begin + 1].equals(TokenType.Operator, "(")) return null;
-        if (!tokens[endExclusive - 1].equals(TokenType.Operator, ")")) return null;
+        if (!tokens[endExclusive - 1].equals(TokenType.Operator, ")")) {
+            expectedOperator(")", endExclusive - 1);
+            return null;
+        }
 
         var left = begin + 2;
         endExclusive--;
@@ -933,13 +1068,19 @@ public class Parser {
 
             if (commaIndex == -1) {
                 var argument = tryParseExpression(left, endExclusive);
-                if (argument == null) return null;
+                if (argument == null) {
+                    expectedExpression(left, endExclusive);
+                    return null;
+                }
 
                 routineCall.arguments.add(argument);
                 left = endExclusive;
             } else {
                 var argument = tryParseExpression(left, commaIndex);
-                if (argument == null) return null;
+                if (argument == null) {
+                    expectedExpression(left, commaIndex);
+                    return null;
+                }
 
                 routineCall.arguments.add(argument);
                 left = commaIndex + 1;
@@ -948,6 +1089,13 @@ public class Parser {
         }
 
         return routineCall;
+    }
+
+    private void expectedOperator(String operator, int previousTokenIndex) {
+        var position = locations[previousTokenIndex].getPosition();
+        var tokenLength = tokens[previousTokenIndex].getLexeme().length();
+        position = new CodePosition(position.lineIndex, position.beginningIndex + tokenLength);
+        errors.add(new ExpectedOperatorError(operator, position));
     }
 
     /**
@@ -959,7 +1107,10 @@ public class Parser {
     public WhileLoopNode tryParseWhileLoop(int begin, int endExclusive) {
         if (begin >= endExclusive) return null;
         if (!tokens[begin].equals(TokenType.Keyword, "while")) return null;
-        if (!tokens[endExclusive - 1].equals(TokenType.Keyword, "end")) return null;
+        if (!tokens[endExclusive - 1].equals(TokenType.Keyword, "end")) {
+            expectedKeyword("end", endExclusive - 1);
+            return null;
+        }
 
         var loopTokenIndex = -1;
 
@@ -971,10 +1122,16 @@ public class Parser {
             }
         }
 
-        if (loopTokenIndex == -1) return null;
+        if (loopTokenIndex == -1) {
+            expectedKeyword("loop", begin + 1);
+            return null;
+        }
 
         var condition = tryParseExpression(begin + 1, loopTokenIndex);
-        if (condition == null) return null;
+        if (condition == null) {
+            expectedExpression(begin + 1, loopTokenIndex);
+            return null;
+        }
 
         var body = tryParseBody(loopTokenIndex + 1, endExclusive - 1);
         if (body == null) return null;
@@ -991,13 +1148,19 @@ public class Parser {
     public ForLoopNode tryParseForLoop(int begin, int endExclusive) {
         if (begin >= endExclusive) return null;
         if (!tokens[begin].equals(TokenType.Keyword, "for")) return null;
-        if (!tokens[endExclusive - 1].equals(TokenType.Keyword, "end")) return null;
+        if (!tokens[endExclusive - 1].equals(TokenType.Keyword, "end")) {
+            expectedKeyword("end", endExclusive - 1);
+            return null;
+        }
 
         int left = begin + 1;
         endExclusive--;
 
         var variable = tryParseIdentifier(left, left + 1);
-        if (variable == null) return null;
+        if (variable == null) {
+            expectedIdentifierAt(left);
+            return null;
+        }
 
         left++;
         var loopIndex = -1;
@@ -1009,15 +1172,37 @@ public class Parser {
             }
         }
 
-        if (loopIndex == -1) return null;
+        if (loopIndex == -1) {
+            expectedKeyword("loop", endExclusive - 1);
+            return null;
+        }
 
         var range = tryParseRange(left, loopIndex);
-        if (range == null) return null;
+        if (range == null) {
+            expectedRange(left, loopIndex);
+            return null;
+        }
 
         var body = tryParseBody(loopIndex + 1, endExclusive);
         if (body == null) return null;
 
         return new ForLoopNode(variable, range, body, locations[begin].getPosition());
+    }
+
+    private void expectedRange(int begin, int endExclusive) {
+        var tokens = Arrays.copyOfRange(this.tokens, begin, endExclusive);
+        var position = locations[begin].getPosition();
+        CodePosition end;
+
+        if (begin == endExclusive) {
+            end = position;
+        } else {
+            end = locations[endExclusive - 1].getPosition();
+            var tokenLength = this.tokens[endExclusive - 1].getLexeme().length();
+            end = new CodePosition(end.lineIndex, end.beginningIndex + tokenLength);
+        }
+
+        errors.add(new ExpectedRangeError(tokens, position, end));
     }
 
     /**
@@ -1027,8 +1212,14 @@ public class Parser {
      * @return a Range Node if it can be parsed otherwise null object
      */
     public RangeNode tryParseRange(int begin, int endExclusive) {
-        if (begin >= endExclusive) return null;
-        if (!tokens[begin].equals(TokenType.Keyword, "in")) return null;
+        if (begin >= endExclusive) {
+            expectedKeyword("in", begin - 1);
+            return null;
+        }
+        if (!tokens[begin].equals(TokenType.Keyword, "in")) {
+            expectedKeyword("in", begin - 1);
+            return null;
+        }
 
         int left = begin + 1;
         if (left >= endExclusive) return null;
@@ -1041,13 +1232,22 @@ public class Parser {
         }
 
         var dotsIndex = getIndexOfFirstToken(left, endExclusive, TokenType.Operator, "..");
-        if (dotsIndex == -1) return null;
+        if (dotsIndex == -1) {
+            expectedOperator("..", left);
+            return null;
+        }
 
         var from = tryParseExpression(left, dotsIndex);
-        if (from == null) return null;
+        if (from == null) {
+            expectedExpression(left, dotsIndex);
+            return null;
+        }
 
         var to = tryParseExpression(dotsIndex + 1, endExclusive);
-        if (to == null) return null;
+        if (to == null) {
+            expectedExpression(dotsIndex + 1, endExclusive);
+            return null;
+        }
 
         return new RangeNode(from, to, reverse, locations[begin].getPosition());
     }
@@ -1061,13 +1261,20 @@ public class Parser {
     public IfStatementNode tryParseIfStatement(int begin, int endExclusive) {
         if (begin >= endExclusive) return null;
         if (!tokens[begin].equals(TokenType.Keyword, "if")) return null;
-        if (!tokens[endExclusive - 1].equals(TokenType.Keyword, "end")) return null;
+
+        if (!tokens[endExclusive - 1].equals(TokenType.Keyword, "end")) {
+            expectedKeyword("end", endExclusive - 1);
+            return null;
+        }
 
         int left = begin + 1;
         endExclusive--;
 
         var thenIndex = getIndexOfFirstToken(left, endExclusive, TokenType.Keyword, "then");
-        if (thenIndex == -1) return null;
+        if (thenIndex == -1) {
+            expectedKeyword("then", endExclusive - 1);
+            return null;
+        }
 
         var condition = tryParseExpression(left, thenIndex);
         if (condition == null) return null;
@@ -1126,6 +1333,15 @@ public class Parser {
         return tokens.length;
     }
 
+    public int getErrorCount() {
+        return errors.size();
+    }
+
+    public List<ParsingError> getErrors() {
+        return Collections.unmodifiableList(errors);
+    }
+
     private final Token[] tokens;
     private final StringWithLocation[] locations;
+    private final List<ParsingError> errors = new ArrayList<>();
 }
