@@ -4,6 +4,9 @@ import projectI.CodePosition;
 
 import java.util.Objects;
 
+/**
+ * A node for Routine Declaration Representation
+ */
 public class RoutineDeclarationNode extends DeclarationNode {
     public final IdentifierNode name;
     public final ParametersNode parameters;
@@ -11,6 +14,13 @@ public class RoutineDeclarationNode extends DeclarationNode {
     public final BodyNode body;
     public final CodePosition startPosition;
 
+    /**
+     * A constructor for initializing objects of class RoutineDeclarationNode
+     * @param name is a name of Routine
+     * @param parameters is a list of routine's parameters
+     * @param returnType is a type that will be returned by routine
+     * @param body is a routine body
+     */
     public RoutineDeclarationNode(IdentifierNode name, ParametersNode parameters, TypeNode returnType, BodyNode body) {
         this.name = name;
         this.parameters = parameters;
@@ -19,6 +29,12 @@ public class RoutineDeclarationNode extends DeclarationNode {
         this.startPosition = null;
     }
 
+    /**
+     * A constructor for initializing objects of class RoutineDeclarationNode
+     * @param name is a name of Routine
+     * @param parameters is a list of routine's parameters
+     * @param body is a routine body
+     */
     public RoutineDeclarationNode(IdentifierNode name, ParametersNode parameters, BodyNode body) {
         this.name = name;
         this.parameters = parameters;
@@ -27,6 +43,14 @@ public class RoutineDeclarationNode extends DeclarationNode {
         this.startPosition = null;
     }
 
+    /**
+     * A constructor for initializing objects of class RoutineDeclarationNode
+     * @param name is a name of Routine
+     * @param parameters is a list of routine's parameters
+     * @param returnType is a type that will be returned by routine
+     * @param body is a routine body
+     * @param startPosition is a start position in the source code
+     */
     public RoutineDeclarationNode(IdentifierNode name, ParametersNode parameters, TypeNode returnType, BodyNode body, CodePosition startPosition) {
         this.name = name;
         this.parameters = parameters;
@@ -35,6 +59,13 @@ public class RoutineDeclarationNode extends DeclarationNode {
         this.startPosition = startPosition;
     }
 
+    /**
+     * A constructor for initializing objects of class RoutineDeclarationNode
+     * @param name is a name of Routine
+     * @param parameters is a list of routine's parameters
+     * @param body is a routine body
+     * @param startPosition is a start position in the source code
+     */
     public RoutineDeclarationNode(IdentifierNode name, ParametersNode parameters, BodyNode body, CodePosition startPosition) {
         this.name = name;
         this.parameters = parameters;
@@ -43,6 +74,11 @@ public class RoutineDeclarationNode extends DeclarationNode {
         this.startPosition = startPosition;
     }
 
+    /**
+     * Check whether this object is equal to the passed one.
+     * @param o the object to check the equality with
+     * @return true if this object is equal to the passed one, false otherwise.
+     */
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -54,11 +90,19 @@ public class RoutineDeclarationNode extends DeclarationNode {
                 Objects.equals(body, that.body);
     }
 
+    /**
+     * Calculate the hashcode of the object.
+     * @return hashcode
+     */
     @Override
     public int hashCode() {
         return Objects.hash(name, parameters, returnType, body);
     }
 
+    /**
+     * Get the formatted representation of the string.
+     * @return the object as a string
+     */
     @Override
     public String toString() {
         var builder = new StringBuilder();
@@ -90,11 +134,19 @@ public class RoutineDeclarationNode extends DeclarationNode {
         return builder.toString();
     }
 
+    /**
+     * Find start position in the source code
+     * @return start position
+     */
     @Override
     public CodePosition getStartPosition() {
         return startPosition;
     }
 
+    /**
+     * Check if node is valid
+     * @return true if this object is valid, false otherwise.
+     */
     @Override
     public boolean validate() {
         return name != null && name.validate() &&

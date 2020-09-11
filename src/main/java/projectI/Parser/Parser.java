@@ -21,7 +21,15 @@ import projectI.Parser.Errors.*;
 
 import java.util.*;
 
+/**
+ * A stage of compilation that takes the token produced by lexical analysis as input and generates a parse tree (or syntax tree)
+ */
 public class Parser {
+
+    /**
+     * Parse the program
+     * @return a program node if it can be parsed otherwise null object
+     */
     public ProgramNode tryParseProgram() {
         return tryParseProgram(0, tokens.length);
     }
@@ -88,6 +96,12 @@ public class Parser {
         return tryParseTypeDeclaration(begin, endExclusive);
     }
 
+    /**
+     * Parse a variable declaration
+     * @param begin is an index of token with which the variable declaration begins
+     * @param endExclusive is an index of token with which the variable declaration ends
+     * @return a Variable Declaration Node if it can be parsed otherwise null object
+     */
     public VariableDeclarationNode tryParseVariableDeclaration(int begin, int endExclusive) {
         if (begin >= endExclusive) return null;
         if (!tokens[begin].equals(TokenType.Keyword, "var")) return null;
@@ -143,6 +157,12 @@ public class Parser {
         return -1;
     }
 
+    /**
+     * Parse an expression
+     * @param begin is an index of token with which the expression begins
+     * @param endExclusive is an index of token with which the expression ends
+     * @return an Expression Node if it can be parsed otherwise null object
+     */
     public ExpressionNode tryParseExpression(int begin, int endExclusive) {
         int left = begin;
         RelationNode relation = null;
@@ -195,6 +215,12 @@ public class Parser {
         };
     }
 
+    /**
+     * Parse a relation
+     * @param begin is an index of toke with which the relation begins
+     * @param endExclusive is an index of toke with which the relation ends
+     * @return a Relation Node if it can be parsed otherwise null object
+     */
     public RelationNode tryParseRelation(int begin, int endExclusive) {
         if (begin >= endExclusive) return null;
         if (tokens[begin].equals(TokenType.Operator, "not")) {
@@ -230,6 +256,12 @@ public class Parser {
         return new BinaryRelationNode(simple, comparison, otherSimple, locations[left].getPosition());
     }
 
+    /**
+     * Parse a Simple
+     * @param begin is an index of toke with which the simple begins
+     * @param endExclusive is an index of toke with which the simple ends
+     * @return a Simple Node if it can be parsed otherwise null object
+     */
     public SimpleNode tryParseSimple(int begin, int endExclusive) {
         int left = begin;
         SummandNode factor = null;
@@ -271,6 +303,12 @@ public class Parser {
         return simple;
     }
 
+    /**
+     * Parse a Summand
+     * @param begin is an index of toke with which the summand begins
+     * @param endExclusive is an index of toke with which the summand ends
+     * @return a Summand Node if it can be parsed otherwise null object
+     */
     public SummandNode tryParseSummand(int begin, int endExclusive) {
         int left = begin;
         FactorNode factor = null;
@@ -312,6 +350,12 @@ public class Parser {
         return summand;
     }
 
+    /**
+     * Parse a factor
+     * @param begin is an index of toke with which the factor begins
+     * @param endExclusive is an index of toke with which the factor ends
+     * @return a Factor Node if it can be parsed otherwise null object
+     */
     public FactorNode tryParseFactor(int begin, int endExclusive) {
         var primary = tryParsePrimary(begin, endExclusive);
         if (primary != null) return primary;
@@ -334,6 +378,12 @@ public class Parser {
         };
     }
 
+    /**
+     * Parse a Primary
+     * @param begin is an index of toke with which the primary begins
+     * @param endExclusive is an index of toke with which the primary ends
+     * @return a Primary Node if it can be parsed otherwise null object
+     */
     public PrimaryNode tryParsePrimary(int begin, int endExclusive) {
         var integralLiteral = tryParseIntegralLiteral(begin, endExclusive);
         if (integralLiteral != null) return integralLiteral;
@@ -350,6 +400,12 @@ public class Parser {
         return tryParseModifiablePrimary(begin, endExclusive);
     }
 
+    /**
+     * Parse a Integral Literal
+     * @param begin is an index of toke with which the integral literal begins
+     * @param endExclusive is an index of toke with which the integral literal ends
+     * @return a Integral Literal Node if it can be parsed otherwise null object
+     */
     public IntegralLiteralNode tryParseIntegralLiteral(int begin, int endExclusive) {
         int literalTokenIndex;
         IntegralLiteralNode.Sign sign = null;
@@ -381,6 +437,12 @@ public class Parser {
         }
     }
 
+    /**
+     * Parse a Real Literal
+     * @param begin is an index of toke with which the real literal begins
+     * @param endExclusive is an index of toke with which the real literal ends
+     * @return a Real Literal Node if it can be parsed otherwise null object
+     */
     public RealLiteralNode tryParseRealLiteral(int begin, int endExclusive) {
         int literalTokenIndex;
         RealLiteralNode.Sign sign = null;
@@ -411,6 +473,12 @@ public class Parser {
         }
     }
 
+    /**
+     * Parse a Boolean Literal
+     * @param begin is an index of toke with which the boolean literal begins
+     * @param endExclusive is an index of toke with which the boolean literal ends
+     * @return a Boolean Literal Node if it can be parsed otherwise null object
+     */
     public BooleanLiteralNode tryParseBooleanLiteral(int begin, int endExclusive) {
         if (begin != endExclusive - 1) return null;
 
@@ -431,6 +499,12 @@ public class Parser {
         };
     }
 
+    /**
+     * Parse a Modifiable Primary
+     * @param begin is an index of toke with which the modifiable primary begins
+     * @param endExclusive is an index of toke with which the modifiable primary ends
+     * @return a Modifiable Primary Node if it can be parsed otherwise null object
+     */
     public ModifiablePrimaryNode tryParseModifiablePrimary(int begin, int endExclusive) {
         if (begin >= endExclusive) return null;
 
@@ -497,6 +571,12 @@ public class Parser {
         };
     }
 
+    /**
+     * Parse a Type
+     * @param begin is an index of toke with which the type begins
+     * @param endExclusive is an index of toke with which the type ends
+     * @return a Type Node if it can be parsed otherwise null object
+     */
     public TypeNode tryParseType(int begin, int endExclusive) {
         var primitive = tryParsePrimitiveType(begin, endExclusive);
         if (primitive != null) return primitive;
@@ -510,6 +590,12 @@ public class Parser {
         return tryParseIdentifier(begin, endExclusive);
     }
 
+    /**
+     * Parse a Primitive Type
+     * @param begin is an index of toke with which the primitive type begins
+     * @param endExclusive is an index of toke with which the primitive type ends
+     * @return a Primitive Type Node if it can be parsed otherwise null object
+     */
     public PrimitiveTypeNode tryParsePrimitiveType(int begin, int endExclusive) {
         if (begin != endExclusive - 1) return null;
 
@@ -526,6 +612,12 @@ public class Parser {
         };
     }
 
+    /**
+     * Parse an Array Type
+     * @param begin is an index of toke with which the array type begins
+     * @param endExclusive is an index of toke with which the array type ends
+     * @return an Array Type Node if it can be parsed otherwise null object
+     */
     public ArrayTypeNode tryParseArrayType(int begin, int endExclusive) {
         if (begin >= endExclusive) return null;
         if (!tokens[begin].equals(TokenType.Keyword, "array")) return null;
@@ -559,12 +651,18 @@ public class Parser {
 
         return new ArrayTypeNode(size, type, locations[begin].getPosition());
     }
-
+    
     private void expectedExpression(int begin, int endExclusive) {
         var tokens = Arrays.copyOfRange(this.tokens, begin, endExclusive);
         errors.add(new ExpectedExpressionError(tokens, locations[begin].getPosition()));
     }
 
+    /**
+     * Parse a Record Type
+     * @param begin is an index of toke with which the record type begins
+     * @param endExclusive is an index of toke with which the record type ends
+     * @return a Record Type Node if it can be parsed otherwise null object
+     */
     public RecordTypeNode tryParseRecordType(int begin, int endExclusive) {
         if (begin >= endExclusive) return null;
         if (!tokens[begin].equals(TokenType.Keyword, "record")) return null;
@@ -616,6 +714,12 @@ public class Parser {
         errors.add(new ExpectedVariableDeclarationError(tokens, position, end));
     }
 
+    /**
+     * Parse an Identifier
+     * @param begin is an index of toke with which the identifier begins
+     * @param endExclusive is an index of toke with which the identifier ends
+     * @return an Idintifier Node if it can be parsed otherwise null object
+     */
     public IdentifierNode tryParseIdentifier(int begin, int endExclusive) {
         if (begin != endExclusive - 1) return null;
         var token = tokens[begin];
@@ -639,6 +743,12 @@ public class Parser {
         return -1;
     }
 
+    /**
+     * Parse a Declaration
+     * @param begin is an index of toke with which the declarartion begins
+     * @param endExclusive is an index of toke with which the declaration ends
+     * @return a Declaration Node if it can be parsed otherwise null object
+     */
     public TypeDeclarationNode tryParseTypeDeclaration(int begin, int endExclusive) {
         if (begin >= endExclusive) return null;
         if (!tokens[begin].equals(TokenType.Keyword, "type")) return null;
@@ -661,10 +771,17 @@ public class Parser {
         return new TypeDeclarationNode(identifier, type, locations[begin].getPosition());
     }
 
+
     private void expectedIdentifierAt(int tokenIndex) {
         errors.add(new ExpectedIdentifierError(tokens[tokenIndex], locations[tokenIndex].getPosition()));
     }
 
+     /**
+     * Parse a Routine Declaration
+     * @param begin is an index of toke with which the routine declarartion begins
+     * @param endExclusive is an index of toke with which the routine declaration ends
+     * @return a Routine Declaration Node if it can be parsed otherwise null object
+     */
     public RoutineDeclarationNode tryParseRoutineDeclaration(int begin, int endExclusive) {
         if (begin >= endExclusive) return null;
         if (!tokens[begin].equals(TokenType.Keyword, "routine")) return null;
@@ -736,6 +853,12 @@ public class Parser {
         errors.add(new ExpectedKeywordError(keyword, position));
     }
 
+    /**
+     * Parse Parameters of a routine
+     * @param begin is an index of toke with which parameters begins
+     * @param endExclusive is an index of toke with which parameters ends
+     * @return a Parameters Node if it can be parsed otherwise null object
+     */
     public ParametersNode tryParseParameters(int begin, int endExclusive) {
         var startPosition = 0 <= begin && begin < tokens.length ? locations[begin].getPosition() : null;
         var parameters = new ParametersNode(startPosition);
@@ -797,6 +920,12 @@ public class Parser {
         return -1;
     }
 
+    /**
+     * Parse a Body of a routine
+     * @param begin is an index of toke with which the body begins
+     * @param endExclusive is an index of toke with which the body ends
+     * @return a Body Node if it can be parsed otherwise null object
+     */
     public BodyNode tryParseBody(int begin, int endExclusive) {
         var body = new BodyNode();
         if (begin >= endExclusive) return body;
@@ -834,6 +963,7 @@ public class Parser {
         return body;
     }
 
+
     private void expectedStatement(int begin, int endExclusive) {
         var position = locations[begin].getPosition();
         var end = locations[endExclusive - 1].getPosition();
@@ -843,6 +973,12 @@ public class Parser {
         errors.add(new ExpectedStatementError(position, end));
     }
 
+    /**
+     * Parse a Statement
+     * @param begin is an index of toke with which the statement begins
+     * @param endExclusive is an index of toke with which the statement ends
+     * @return a Statement Node if it can be parsed otherwise null object
+     */
     public StatementNode tryParseStatement(int begin, int endExclusive) {
         var simpleDeclaration = tryParseSimpleDeclaration(begin, endExclusive);
         if (simpleDeclaration != null) return simpleDeclaration;
@@ -865,6 +1001,12 @@ public class Parser {
         return tryParseReturn(begin, endExclusive);
     }
 
+    /**
+     * Parse an Assignment
+     * @param begin is an index of toke with which the assignment begins
+     * @param endExclusive is an index of toke with which the assignment ends
+     * @return a Assignment Node if it can be parsed otherwise null object
+     */
     public AssignmentNode tryParseAssignment(int begin, int endExclusive) {
         int assignmentIndex = -1;
 
@@ -892,11 +1034,18 @@ public class Parser {
         return new AssignmentNode(modifiable, expression);
     }
 
+
     private void expectedModifiablePrimary(int begin, int endExclusive) {
         var tokens = Arrays.copyOfRange(this.tokens, begin, endExclusive);
         errors.add(new ExpectedModifiablePrimaryError(tokens, locations[begin].getPosition()));
     }
 
+    /**
+     * Parse a Routine Call
+     * @param begin is an index of toke with which the routine call begins
+     * @param endExclusive is an index of toke with which the routine call ends
+     * @return a Routine Call Node if it can be parsed otherwise null object
+     */
     public RoutineCallNode tryParseRoutineCall(int begin, int endExclusive) {
         if (begin >= endExclusive - 1) return null;
 
@@ -949,6 +1098,12 @@ public class Parser {
         errors.add(new ExpectedOperatorError(operator, position));
     }
 
+    /**
+     * Parse a While Loop
+     * @param begin is an index of toke with which the while loop begins
+     * @param endExclusive is an index of toke with which the while loop ends
+     * @return a While Loop Node if it can be parsed otherwise null object
+     */
     public WhileLoopNode tryParseWhileLoop(int begin, int endExclusive) {
         if (begin >= endExclusive) return null;
         if (!tokens[begin].equals(TokenType.Keyword, "while")) return null;
@@ -984,6 +1139,12 @@ public class Parser {
         return new WhileLoopNode(condition, body, locations[begin].getPosition());
     }
 
+    /**
+     * Parse a For Loop
+     * @param begin is an index of toke with which the for loop begins
+     * @param endExclusive is an index of toke with which the for loop ends
+     * @return a For Loop Node if it can be parsed otherwise null object
+     */
     public ForLoopNode tryParseForLoop(int begin, int endExclusive) {
         if (begin >= endExclusive) return null;
         if (!tokens[begin].equals(TokenType.Keyword, "for")) return null;
@@ -1044,6 +1205,12 @@ public class Parser {
         errors.add(new ExpectedRangeError(tokens, position, end));
     }
 
+    /**
+     * Parse a Range of For Loop
+     * @param begin is an index of toke with which the range begins
+     * @param endExclusive is an index of toke with which the range ends
+     * @return a Range Node if it can be parsed otherwise null object
+     */
     public RangeNode tryParseRange(int begin, int endExclusive) {
         if (begin >= endExclusive) {
             expectedKeyword("in", begin - 1);
@@ -1085,6 +1252,12 @@ public class Parser {
         return new RangeNode(from, to, reverse, locations[begin].getPosition());
     }
 
+    /**
+     * Parse an If Statement
+     * @param begin is an index of toke with which the if statement begins
+     * @param endExclusive is an index of toke with which the if statement ends
+     * @return an If Statement Node if it can be parsed otherwise null object
+     */
     public IfStatementNode tryParseIfStatement(int begin, int endExclusive) {
         if (begin >= endExclusive) return null;
         if (!tokens[begin].equals(TokenType.Keyword, "if")) return null;
@@ -1124,6 +1297,12 @@ public class Parser {
         return new IfStatementNode(condition, body, null, locations[begin].getPosition());
     }
 
+    /**
+     * Parse a Return Statement
+     * @param begin is an index of toke with which the return statement begins
+     * @param endExclusive is an index of toke with which the return statement ends
+     * @return a Return Statement Node if it can be parsed otherwise null object
+     */
     public ReturnStatementNode tryParseReturn(int begin, int endExclusive) {
         if (begin >= endExclusive) return null;
         if (!tokens[begin].equals(TokenType.Keyword, "return")) return null;
@@ -1136,11 +1315,20 @@ public class Parser {
         return new ReturnStatementNode(expression, locations[begin].getPosition());
     }
 
+    /**
+     * A constructor for initializing objects of class Parser
+     * @param tokens is a list of tokes that will be used for parsing
+     * @param locations is a list of lexemes with their locations in source code
+     */
     public Parser(Token[] tokens, StringWithLocation[] locations) {
         this.tokens = tokens;
         this.locations = locations;
     }
 
+    /**
+     * Returns the number of tokens
+     * @return size of tokes list
+     */
     public int getTokensCount() {
         return tokens.length;
     }

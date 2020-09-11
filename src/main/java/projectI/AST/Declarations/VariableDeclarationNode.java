@@ -11,6 +11,12 @@ public class VariableDeclarationNode extends SimpleDeclarationNode {
     public final ExpressionNode expression;
     public final CodePosition startPosition;
 
+    /**
+     * A constructor for initializing objects of class VariableDeclarationNode
+     * @param identifier is an identifier for declaration
+     * @param type is a type of a variable
+     * @param expression is an expression that will be assigned to declared variable
+     */
     public VariableDeclarationNode(IdentifierNode identifier, TypeNode type, ExpressionNode expression) {
         this.identifier = identifier;
         this.type = type;
@@ -18,6 +24,13 @@ public class VariableDeclarationNode extends SimpleDeclarationNode {
         this.startPosition = null;
     }
 
+    /**
+     * A constructor for initializing objects of class VariableDeclarationNode
+     * @param identifier is an identifier for declaration
+     * @param type is a type of a variable
+     * @param expression is an expression that will be assigned to declared variable
+     * @param startPosition is a start position in the source code
+     */
     public VariableDeclarationNode(IdentifierNode identifier, TypeNode type, ExpressionNode expression, CodePosition startPosition) {
         this.identifier = identifier;
         this.type = type;
@@ -25,6 +38,11 @@ public class VariableDeclarationNode extends SimpleDeclarationNode {
         this.startPosition = startPosition;
     }
 
+    /**
+     * Check whether this object is equal to the passed one.
+     * @param o the object to check the equality with
+     * @return true if this object is equal to the passed one, false otherwise.
+     */
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -35,21 +53,37 @@ public class VariableDeclarationNode extends SimpleDeclarationNode {
                 Objects.equals(expression, that.expression);
     }
 
+    /**
+     * Calculate the hashcode of the object.
+     * @return hashcode
+     */
     @Override
     public int hashCode() {
         return Objects.hash(identifier, type, expression);
     }
 
+    /**
+     * Get the formatted representation of the string.
+     * @return the object as a string
+     */
     @Override
     public String toString() {
         return "var " + identifier + ": " + type + " is " + expression;
     }
 
+    /**
+     * Find start position in the source code
+     * @return start position
+     */
     @Override
     public CodePosition getStartPosition() {
         return startPosition;
     }
 
+    /**
+     * Check if node is valid
+     * @return true if this object is valid, false otherwise.
+     */
     @Override
     public boolean validate() {
         return identifier != null && identifier.validate() &&

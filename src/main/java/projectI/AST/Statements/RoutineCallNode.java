@@ -14,21 +14,40 @@ public class RoutineCallNode implements StatementNode, PrimaryNode {
     public final List<ExpressionNode> arguments = new ArrayList<>();
     public final CodePosition startPosition;
 
+    /**
+     * Add an argument to the routine call
+     * @param expression is an argument to add
+     * @return Routine call with added argument
+     */
     public RoutineCallNode addArgument(ExpressionNode expression) {
         arguments.add(expression);
         return this;
     }
 
+    /**
+     * A constructor for initializing objects of class RoutineCallNode
+     * @param name is a name of the routine
+     * @param startPosition is a start position in the source code
+     */
     public RoutineCallNode(IdentifierNode name, CodePosition startPosition) {
         this.name = name;
         this.startPosition = startPosition;
     }
 
+    /**
+     * A constructor for initializing objects of class RoutineCallNode
+     * @param name is a name of the routine
+     */
     public RoutineCallNode(IdentifierNode name) {
         this.name = name;
         this.startPosition = null;
     }
 
+    /**
+     * Check whether this object is equal to the passed one.
+     * @param o the object to check the equality with
+     * @return true if this object is equal to the passed one, false otherwise.
+     */
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -44,21 +63,37 @@ public class RoutineCallNode implements StatementNode, PrimaryNode {
         return true;
     }
 
+    /**
+     * Calculate the hashcode of the object.
+     * @return hashcode
+     */
     @Override
     public int hashCode() {
         return Objects.hash(name, arguments);
     }
 
+    /**
+     * Find a start position in the source code
+     * @return the position
+     */
     @Override
     public CodePosition getPosition() {
         return startPosition;
     }
 
+    /**
+     * Find a start position in the source code
+     * @return the position
+     */
     @Override
     public CodePosition getStartPosition() {
         return startPosition;
     }
 
+    /**
+     * Check if node is valid
+     * @return true if this object is valid, false otherwise.
+     */
     @Override
     public boolean validate() {
         if (name == null || !name.validate() || startPosition == null)

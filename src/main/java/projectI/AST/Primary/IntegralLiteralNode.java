@@ -9,30 +9,55 @@ public class IntegralLiteralNode implements PrimaryNode {
     public final Sign sign;
     public final CodePosition valuePosition;
 
+    /**
+     * A constructor for initializing objects of class SimpleNode
+     * @param value is an integer value
+     * @param valuePosition is a position in the source code
+     */
     public IntegralLiteralNode(int value, CodePosition valuePosition) {
         this.value = value;
         this.valuePosition = valuePosition;
         this.sign = null;
     }
 
+    /**
+     * A constructor for initializing objects of class SimpleNode
+     * @param value is an integer value
+     * @param sign is a sign of the value
+     * @param valuePosition is a position in the source code
+     */
     public IntegralLiteralNode(int value, Sign sign, CodePosition valuePosition) {
         this.value = value;
         this.sign = sign;
         this.valuePosition = valuePosition;
     }
 
+    /**
+     * A constructor for initializing objects of class SimpleNode
+     * @param value is an integer value
+     */
     public IntegralLiteralNode(int value) {
         this.value = value;
         this.sign = null;
         this.valuePosition = null;
     }
 
+    /**
+     * A constructor for initializing objects of class SimpleNode
+     * @param value is an integer value
+     * @param sign is a sign of the value
+     */
     public IntegralLiteralNode(int value, Sign sign) {
         this.value = value;
         this.sign = sign;
         this.valuePosition = null;
     }
 
+    /**
+     * Check whether this object is equal to the passed one.
+     * @param o the object to check the equality with
+     * @return true if this object is equal to the passed one, false otherwise.
+     */
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -41,16 +66,28 @@ public class IntegralLiteralNode implements PrimaryNode {
         return value == that.value && sign == that.sign;
     }
 
+    /**
+     * Calculate the hashcode of the object.
+     * @return hashcode
+     */
     @Override
     public int hashCode() {
         return Objects.hash(value, sign);
     }
 
+    /**
+     * Find a position in the source code
+     * @return the position
+     */
     @Override
     public CodePosition getPosition() {
         return valuePosition;
     }
 
+    /**
+     * Check if node is valid
+     * @return true if this object is valid, false otherwise.
+     */
     @Override
     public boolean validate() {
         return valuePosition != null;
@@ -60,6 +97,10 @@ public class IntegralLiteralNode implements PrimaryNode {
         PLUS, MINUS, NOT
     }
 
+    /**
+     * Get the formatted representation of the string.
+     * @return the object as a string
+     */
     @Override
     public String toString() {
         var builder = new StringBuilder();
@@ -71,14 +112,29 @@ public class IntegralLiteralNode implements PrimaryNode {
         return builder.toString();
     }
 
+    /**
+     * Add positive sign to the value
+     * @param value is an integer value of the Integral Literal
+     * @return Literal Integral with the sign
+     */
     public static IntegralLiteralNode plus(int value) {
         return new IntegralLiteralNode(value, Sign.PLUS);
     }
 
+    /**
+     * Add negative sign to the value
+     * @param value is an integer value of the Integral Literal
+     * @return Literal Integral with the sign
+     */
     public static IntegralLiteralNode minus(int value) {
         return new IntegralLiteralNode(value, Sign.MINUS);
     }
 
+    /**
+     * Add no sign to the value
+     * @param value is an integer value of the Integral Literal
+     * @return Literal Integral with no sign
+     */
     public static IntegralLiteralNode not(int value) {
         return new IntegralLiteralNode(value, Sign.NOT);
     }

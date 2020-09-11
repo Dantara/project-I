@@ -13,6 +13,12 @@ public class ForLoopNode implements StatementNode {
     public final BodyNode body;
     public final CodePosition startPosition;
 
+    /**
+     * A constructor for initializing objects of class ForLoopNode
+     * @param variable is an identifier that will be changed each iteration of the loop
+     * @param range is an interval in which variable will change
+     * @param body is a body of the loop
+     */
     public ForLoopNode(IdentifierNode variable, RangeNode range, BodyNode body) {
         this.variable = variable;
         this.range = range;
@@ -20,6 +26,14 @@ public class ForLoopNode implements StatementNode {
         this.startPosition = null;
     }
 
+    /**
+     *
+     * A constructor for initializing objects of class ForLoopNode
+     * @param variable is an identifier that will be changed each iteration of the loop
+     * @param range is an interval in which variable will change
+     * @param body is a body of the loop
+     * @param startPosition is a start position in the source code
+     */
     public ForLoopNode(IdentifierNode variable, RangeNode range, BodyNode body, CodePosition startPosition) {
         this.variable = variable;
         this.range = range;
@@ -27,6 +41,11 @@ public class ForLoopNode implements StatementNode {
         this.startPosition = startPosition;
     }
 
+    /**
+     * Check whether this object is equal to the passed one.
+     * @param o the object to check the equality with
+     * @return true if this object is equal to the passed one, false otherwise.
+     */
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -37,6 +56,10 @@ public class ForLoopNode implements StatementNode {
                 Objects.equals(body, that.body);
     }
 
+    /**
+     * Calculate the hashcode of the object.
+     * @return hashcode
+     */
     @Override
     public String toString() {
         var builder = new StringBuilder();
@@ -56,11 +79,19 @@ public class ForLoopNode implements StatementNode {
         return Objects.hash(variable, range, body);
     }
 
+    /**
+     * Find a start position in the source code
+     * @return the position
+     */
     @Override
     public CodePosition getStartPosition() {
         return startPosition;
     }
 
+    /**
+     * Check if node is valid
+     * @return true if this object is valid, false otherwise.
+     */
     @Override
     public boolean validate() {
         return variable != null && variable.validate() &&

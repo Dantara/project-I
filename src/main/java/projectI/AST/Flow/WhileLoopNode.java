@@ -12,18 +12,34 @@ public class WhileLoopNode implements StatementNode {
     public final BodyNode body;
     public final CodePosition startPosition;
 
+    /**
+     * A constructor for initializing objects of class WhileLoopNode
+     * @param condition is a condition of the while loop
+     * @param body is a part of code that will be executed if the condition holds
+     */
     public WhileLoopNode(ExpressionNode condition, BodyNode body) {
         this.condition = condition;
         this.body = body;
         this.startPosition = null;
     }
 
+    /**
+     * A constructor for initializing objects of class WhileLoopNode
+     * @param condition is a condition of the while loop
+     * @param body is a part of code that will be executed if the condition holds
+     * @param startPosition is a start position in the source code
+     */
     public WhileLoopNode(ExpressionNode condition, BodyNode body, CodePosition startPosition) {
         this.condition = condition;
         this.body = body;
         this.startPosition = startPosition;
     }
 
+    /**
+     * Check whether this object is equal to the passed one.
+     * @param o the object to check the equality with
+     * @return true if this object is equal to the passed one, false otherwise.
+     */
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -33,16 +49,28 @@ public class WhileLoopNode implements StatementNode {
                 Objects.equals(body, that.body);
     }
 
+    /**
+     * Calculate the hashcode of the object.
+     * @return hashcode
+     */
     @Override
     public int hashCode() {
         return Objects.hash(condition, body);
     }
 
+    /**
+     * Find a start position in the source code
+     * @return the position
+     */
     @Override
     public CodePosition getStartPosition() {
         return startPosition;
     }
 
+    /**
+     * Check if node is valid
+     * @return true if this object is valid, false otherwise.
+     */
     @Override
     public boolean validate() {
         return condition != null && condition.validate() &&
