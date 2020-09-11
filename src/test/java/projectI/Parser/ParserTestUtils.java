@@ -9,7 +9,10 @@ import projectI.AST.Flow.RangeNode;
 import projectI.AST.Primary.IntegralLiteralNode;
 import projectI.AST.Primary.ModifiablePrimaryNode;
 import projectI.AST.Statements.AssignmentNode;
+import projectI.AST.Statements.ReturnStatementNode;
 import projectI.AST.Statements.StatementNode;
+
+import java.beans.Expression;
 
 import static projectI.AST.ASTUtils.integerExpression;
 import static projectI.AST.ASTUtils.booleanExpression;
@@ -47,7 +50,7 @@ public class ParserTestUtils {
         return new VariableDeclarationNode(new IdentifierNode(identifier), new PrimitiveTypeNode(PrimitiveType.BOOLEAN), value == null ? null : booleanExpression(value));
     }
 
-    public static ProgramNode programDeclaration(DeclarationNode[] declarations) {
+    public static ProgramNode programDeclaration(DeclarationNode... declarations) {
         var program = new ProgramNode();
 
         for (DeclarationNode declaration: declarations) {
@@ -56,7 +59,7 @@ public class ParserTestUtils {
         return program;
     }
 
-    public static RoutineDeclarationNode mainRoutine(StatementNode[] statements) {
+    public static RoutineDeclarationNode mainRoutine(StatementNode... statements) {
         var body = new BodyNode();
 
         for (StatementNode statement: statements) {
@@ -66,10 +69,19 @@ public class ParserTestUtils {
         return new RoutineDeclarationNode(new IdentifierNode("main"), new ParametersNode(), body);
     }
 
+    public static RoutineDeclarationNode mainRoutineReturningInteger(StatementNode... statements) {
+        var body = new BodyNode();
+
+        for (StatementNode statement: statements) {
+            body.add(statement);
+        }
+
+        return new RoutineDeclarationNode(new IdentifierNode("main"), new ParametersNode(),
+                new PrimitiveTypeNode(PrimitiveType.INTEGER), body);
+    }
+
     public static ProgramNode mainProgram(StatementNode[] statements) {
-        return programDeclaration(new DeclarationNode[] {
-            mainRoutine(statements)
-        });
+        return programDeclaration(mainRoutine(statements));
     }
 
     public static ForLoopNode forLoop(String identifier, int from, int to, StatementNode[] statements) {
@@ -105,7 +117,7 @@ public class ParserTestUtils {
         return new ExpressionNode(new BinaryRelationNode(new SimpleNode(summand), BinaryRelationNode.Comparison.NOT_EQUAL, toSimple(new IntegralLiteralNode(value))));
     }
 
-     public static TypeDeclarationNode recordTypeDeclaration(String identifier, VariableDeclarationNode[] variables) {
+     public static TypeDeclarationNode recordTypeDeclaration(String identifier, VariableDeclarationNode... variables) {
          var record = new RecordTypeNode();
         
          for (VariableDeclarationNode variable: variables) {
@@ -118,6 +130,10 @@ public class ParserTestUtils {
      public static TypeDeclarationNode arrayTypeDeclaration(String identifier, int length, TypeNode type) {
          return new TypeDeclarationNode(new IdentifierNode(identifier), new ArrayTypeNode(integerExpression(length), type));
      }
+
+    public static TypeDeclarationNode arrayTypeDeclaration(String identifier, ExpressionNode length, TypeNode type) {
+        return new TypeDeclarationNode(new IdentifierNode(identifier), new ArrayTypeNode(length, type));
+    }
 
      public static AssignmentNode recordMemberAssignment(String variable, String member, ExpressionNode value) {
         return new AssignmentNode(recordMember(variable, member), value);
@@ -135,11 +151,20 @@ public class ParserTestUtils {
         return new ModifiablePrimaryNode(new IdentifierNode(array)).addIndexer(toExpression(new IntegralLiteralNode(index)));
     }
 
+    public static AssignmentNode arrayIndexAssignment(String array, int index, ExpressionNode assignedValue) {
+        var modifiablePrimary = arrayIndex(array, index);
+        return new AssignmentNode(modifiablePrimary, assignedValue);
+    }
+
     public static VariableDeclarationNode typedVariable(String variable, String type) {
         return new VariableDeclarationNode(new IdentifierNode(variable), new IdentifierNode(type), null);
     }
 
     public static ExpressionNode variableValue(String variable) {
         return toExpression(new ModifiablePrimaryNode(new IdentifierNode(variable)));
+    }
+
+    public static ReturnStatementNode returnValue(ExpressionNode value) {
+        return new ReturnStatementNode(value);
     }
 }
