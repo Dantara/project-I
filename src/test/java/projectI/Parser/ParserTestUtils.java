@@ -1,5 +1,6 @@
 package projectI.Parser;
 
+import org.javatuples.Pair;
 import projectI.AST.*;
 import projectI.AST.Declarations.*;
 import projectI.AST.Expressions.*;
@@ -13,6 +14,7 @@ import projectI.AST.Statements.ReturnStatementNode;
 import projectI.AST.Statements.StatementNode;
 
 import java.beans.Expression;
+import java.lang.reflect.Parameter;
 
 import static projectI.AST.ASTUtils.integerExpression;
 import static projectI.AST.ASTUtils.booleanExpression;
@@ -166,5 +168,13 @@ public class ParserTestUtils {
 
     public static ReturnStatementNode returnValue(ExpressionNode value) {
         return new ReturnStatementNode(value);
+    }
+
+    public static RoutineDeclarationNode routineDeclaration(String name, ParametersNode parameters, TypeNode returnType, BodyNode bodyNode) {
+        return new RoutineDeclarationNode(new IdentifierNode(name), parameters, returnType, bodyNode);
+    }
+
+    public static PrimitiveTypeNode integerType() {
+        return new PrimitiveTypeNode(PrimitiveType.INTEGER);
     }
 }

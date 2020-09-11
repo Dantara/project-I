@@ -3,11 +3,10 @@ package projectI.Parser;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+import org.javatuples.Pair;
 import projectI.AST.*;
 import projectI.AST.Declarations.*;
-import projectI.AST.Expressions.BinaryRelationNode;
-import projectI.AST.Expressions.ExpressionNode;
-import projectI.AST.Expressions.LogicalOperator;
+import projectI.AST.Expressions.*;
 import projectI.AST.Primary.BooleanLiteralNode;
 import projectI.AST.Primary.ModifiablePrimaryNode;
 import projectI.AST.Statements.AssignmentNode;
@@ -180,8 +179,17 @@ public class ParserCodeExamplesTest extends TestCase {
     public void testTypeSynonym() throws IOException, InvalidLexemeException {
         var program = tryParseProgram("code_examples/type_synonym.txt");
 
+        var expectedProgram = programDeclaration(
+                arrayTypeDeclaration("arr8", 8, integerType()),
+                mainRoutine(
+                        typedVariable("a", "arr8"),
+                        arrayIndexAssignment("a", 0, toExpression(arraySize("a")))
+                )
+        );
+
         assertNotNull(program);
         assertTrue(program.validate());
+        assertEquals(expectedProgram, program);
     }
 
     public void testWhileLoop() throws IOException, InvalidLexemeException {
