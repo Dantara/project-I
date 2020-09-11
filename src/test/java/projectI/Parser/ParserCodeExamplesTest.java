@@ -4,11 +4,6 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import projectI.AST.*;
-import projectI.AST.Declarations.*;
-import projectI.AST.Expressions.*;
-import projectI.AST.Flow.ForLoopNode;
-import projectI.AST.Primary.ModifiablePrimaryNode;
-import projectI.AST.Statements.AssignmentNode;
 import projectI.AST.Statements.StatementNode;
 import projectI.Lexer.InvalidLexemeException;
 import projectI.Lexer.Lexer;
@@ -17,7 +12,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import static projectI.AST.ASTUtils.integerExpression;
 import static projectI.AST.ASTUtils.toExpression;
 
 import static projectI.Parser.ParserTestUtils.*;
@@ -60,7 +54,7 @@ public class ParserCodeExamplesTest extends TestCase {
         var expectedProgram = mainProgram(new StatementNode[] {
             implicitIntegerDeclaration("a", 1),
             forLoop("i", 1, 10, new StatementNode[] {
-                ifStatement(not_equal(mod("a", 2), 0), new StatementNode[] {
+                ifStatement(notEqual(mod("a", 2), 0), new StatementNode[] {
                     integerAssignment("a", integerAddition("a", "i")),
                 }),
             })

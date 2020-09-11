@@ -101,7 +101,7 @@ public class ParserTestUtils {
         return new ExpressionNode(new BinaryRelationNode(new SimpleNode(summand), BinaryRelationNode.Comparison.EQUAL, toSimple(new IntegralLiteralNode(value))));
     }
 
-    public static ExpressionNode not_equal(SummandNode summand, int value) {
+    public static ExpressionNode notEqual(SummandNode summand, int value) {
         return new ExpressionNode(new BinaryRelationNode(new SimpleNode(summand), BinaryRelationNode.Comparison.NOT_EQUAL, toSimple(new IntegralLiteralNode(value))));
     }
 
