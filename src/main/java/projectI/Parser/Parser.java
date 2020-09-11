@@ -18,12 +18,12 @@ import projectI.Lexer.Token;
 import projectI.Lexer.TokenType;
 
 /**
- * A stage of compilation that takes the token produced by lexical analysis as input and generates a parse tree (or syntax tree).
+ * A stage of compilation that takes the token produced by lexical analysis as input and generates a parse tree (or syntax tree)
  */
 public class Parser {
 
     /**
-     * parse the programm
+     * Parse the programm
      * @return a program node if it can be parsed otherwise null object
      */
     public ProgramNode tryParseProgram() {
@@ -78,9 +78,9 @@ public class Parser {
     }
 
     /**
-     * parse a variable declaration
-     * @param begin is an index of tocken with which the variable declaration begins
-     * @param endExclusive is an index of tocken with which the variable declaration ends
+     * Parse a variable declaration
+     * @param begin is an index of token with which the variable declaration begins
+     * @param endExclusive is an index of token with which the variable declaration ends
      * @return a Variable Declaration Node if it can be parsed otherwise null object
      */
     public VariableDeclarationNode tryParseVariableDeclaration(int begin, int endExclusive) {
@@ -134,9 +134,9 @@ public class Parser {
     }
 
     /**
-     * parse an expression
-     * @param begin is an index of tocken with which the expression begins
-     * @param endExclusive is an index of tocken with which the expression ends
+     * Parse an expression
+     * @param begin is an index of token with which the expression begins
+     * @param endExclusive is an index of token with which the expression ends
      * @return an Expression Node if it can be parsed otherwise null object
      */
     public ExpressionNode tryParseExpression(int begin, int endExclusive) {
@@ -192,9 +192,9 @@ public class Parser {
     }
 
     /**
-     * parse a relation
-     * @param begin is an index of tocken with which the relation begins
-     * @param endExclusive is an index of tocken with which the relation ends
+     * Parse a relation
+     * @param begin is an index of toke with which the relation begins
+     * @param endExclusive is an index of toke with which the relation ends
      * @return a Relation Node if it can be parsed otherwise null object
      */
     public RelationNode tryParseRelation(int begin, int endExclusive) {
@@ -233,9 +233,9 @@ public class Parser {
     }
 
     /**
-     * parse a Simple
-     * @param begin is an index of tocken with which the simple begins
-     * @param endExclusive is an index of tocken with which the simple ends
+     * Parse a Simple
+     * @param begin is an index of toke with which the simple begins
+     * @param endExclusive is an index of toke with which the simple ends
      * @return a Simple Node if it can be parsed otherwise null object
      */
     public SimpleNode tryParseSimple(int begin, int endExclusive) {
@@ -280,9 +280,9 @@ public class Parser {
     }
 
     /**
-     * parse a Summand
-     * @param begin is an index of tocken with which the summand begins
-     * @param endExclusive is an index of tocken with which the summand ends
+     * Parse a Summand
+     * @param begin is an index of toke with which the summand begins
+     * @param endExclusive is an index of toke with which the summand ends
      * @return a Summand Node if it can be parsed otherwise null object
      */
     public SummandNode tryParseSummand(int begin, int endExclusive) {
@@ -327,9 +327,9 @@ public class Parser {
     }
 
     /**
-     * parse a factor
-     * @param begin is an index of tocken with which the factor begins
-     * @param endExclusive is an index of tocken with which the factor ends
+     * Parse a factor
+     * @param begin is an index of toke with which the factor begins
+     * @param endExclusive is an index of toke with which the factor ends
      * @return a Factor Node if it can be parsed otherwise null object
      */
     public FactorNode tryParseFactor(int begin, int endExclusive) {
@@ -355,9 +355,9 @@ public class Parser {
     }
 
     /**
-     * parse a Primary
-     * @param begin is an index of tocken with which the primary begins
-     * @param endExclusive is an index of tocken with which the primary ends
+     * Parse a Primary
+     * @param begin is an index of toke with which the primary begins
+     * @param endExclusive is an index of toke with which the primary ends
      * @return a Primary Node if it can be parsed otherwise null object
      */
     public PrimaryNode tryParsePrimary(int begin, int endExclusive) {
@@ -377,9 +377,9 @@ public class Parser {
     }
 
     /**
-     * parse a Integral Literal
-     * @param begin is an index of tocken with which the integral literal begins
-     * @param endExclusive is an index of tocken with which the integral literal ends
+     * Parse a Integral Literal
+     * @param begin is an index of toke with which the integral literal begins
+     * @param endExclusive is an index of toke with which the integral literal ends
      * @return a Integral Literal Node if it can be parsed otherwise null object
      */
     public IntegralLiteralNode tryParseIntegralLiteral(int begin, int endExclusive) {
@@ -414,9 +414,9 @@ public class Parser {
     }
 
     /**
-     * parse a Real Literal
-     * @param begin is an index of tocken with which the real literal begins
-     * @param endExclusive is an index of tocken with which the real literal ends
+     * Parse a Real Literal
+     * @param begin is an index of toke with which the real literal begins
+     * @param endExclusive is an index of toke with which the real literal ends
      * @return a Real Literal Node if it can be parsed otherwise null object
      */
     public RealLiteralNode tryParseRealLiteral(int begin, int endExclusive) {
@@ -450,9 +450,9 @@ public class Parser {
     }
 
     /**
-     * parse a Boolean Literal
-     * @param begin is an index of tocken with which the boolean literal begins
-     * @param endExclusive is an index of tocken with which the boolean literal ends
+     * Parse a Boolean Literal
+     * @param begin is an index of toke with which the boolean literal begins
+     * @param endExclusive is an index of toke with which the boolean literal ends
      * @return a Boolean Literal Node if it can be parsed otherwise null object
      */
     public BooleanLiteralNode tryParseBooleanLiteral(int begin, int endExclusive) {
@@ -476,9 +476,9 @@ public class Parser {
     }
 
     /**
-     * parse a Modifiable Primary
-     * @param begin is an index of tocken with which the modifiable primary begins
-     * @param endExclusive is an index of tocken with which the modifiable primary ends
+     * Parse a Modifiable Primary
+     * @param begin is an index of toke with which the modifiable primary begins
+     * @param endExclusive is an index of toke with which the modifiable primary ends
      * @return a Modifiable Primary Node if it can be parsed otherwise null object
      */
     public ModifiablePrimaryNode tryParseModifiablePrimary(int begin, int endExclusive) {
@@ -548,9 +548,9 @@ public class Parser {
     }
 
     /**
-     * parse a Type
-     * @param begin is an index of tocken with which the type begins
-     * @param endExclusive is an index of tocken with which the type ends
+     * Parse a Type
+     * @param begin is an index of toke with which the type begins
+     * @param endExclusive is an index of toke with which the type ends
      * @return a Type Node if it can be parsed otherwise null object
      */
     public TypeNode tryParseType(int begin, int endExclusive) {
@@ -567,9 +567,9 @@ public class Parser {
     }
 
     /**
-     * parse a Primitive Type
-     * @param begin is an index of tocken with which the primitive type begins
-     * @param endExclusive is an index of tocken with which the primitive type ends
+     * Parse a Primitive Type
+     * @param begin is an index of toke with which the primitive type begins
+     * @param endExclusive is an index of toke with which the primitive type ends
      * @return a Primitive Type Node if it can be parsed otherwise null object
      */
     public PrimitiveTypeNode tryParsePrimitiveType(int begin, int endExclusive) {
@@ -589,9 +589,9 @@ public class Parser {
     }
 
     /**
-     * parse an Array Type
-     * @param begin is an index of tocken with which the array type begins
-     * @param endExclusive is an index of tocken with which the array type ends
+     * Parse an Array Type
+     * @param begin is an index of toke with which the array type begins
+     * @param endExclusive is an index of toke with which the array type ends
      * @return an Array Type Node if it can be parsed otherwise null object
      */
     public ArrayTypeNode tryParseArrayType(int begin, int endExclusive) {
@@ -617,9 +617,9 @@ public class Parser {
     }
 
     /**
-     * parse a Record Type
-     * @param begin is an index of tocken with which the record type begins
-     * @param endExclusive is an index of tocken with which the record type ends
+     * Parse a Record Type
+     * @param begin is an index of toke with which the record type begins
+     * @param endExclusive is an index of toke with which the record type ends
      * @return a Record Type Node if it can be parsed otherwise null object
      */
     public RecordTypeNode tryParseRecordType(int begin, int endExclusive) {
@@ -659,10 +659,10 @@ public class Parser {
     }
 
     /**
-     * parse an Identifier
-     * @param begin is an index of tocken with which the identifier begins
-     * @param endExclusive is an index of tocken with which the identifier ends
-     * @return an IDintifier Node if it can be parsed otherwise null object
+     * Parse an Identifier
+     * @param begin is an index of toke with which the identifier begins
+     * @param endExclusive is an index of toke with which the identifier ends
+     * @return an Idintifier Node if it can be parsed otherwise null object
      */
     public IdentifierNode tryParseIdentifier(int begin, int endExclusive) {
         if (begin != endExclusive - 1) return null;
@@ -688,9 +688,9 @@ public class Parser {
     }
 
     /**
-     * parse a Declaration
-     * @param begin is an index of tocken with which the declarartion begins
-     * @param endExclusive is an index of tocken with which the declaration ends
+     * Parse a Declaration
+     * @param begin is an index of toke with which the declarartion begins
+     * @param endExclusive is an index of toke with which the declaration ends
      * @return a Declaration Node if it can be parsed otherwise null object
      */
     public TypeDeclarationNode tryParseTypeDeclaration(int begin, int endExclusive) {
@@ -711,9 +711,9 @@ public class Parser {
     }
 
     /**
-     * parse a Routine Declaration
-     * @param begin is an index of tocken with which the routine declarartion begins
-     * @param endExclusive is an index of tocken with which the routine declaration ends
+     * Parse a Routine Declaration
+     * @param begin is an index of toke with which the routine declarartion begins
+     * @param endExclusive is an index of toke with which the routine declaration ends
      * @return a Routine Declaration Node if it can be parsed otherwise null object
      */
     public RoutineDeclarationNode tryParseRoutineDeclaration(int begin, int endExclusive) {
@@ -762,9 +762,9 @@ public class Parser {
     }
 
     /**
-     * parse Parameters of a routine
-     * @param begin is an index of tocken with which parameters begins
-     * @param endExclusive is an index of tocken with which parameters ends
+     * Parse Parameters of a routine
+     * @param begin is an index of toke with which parameters begins
+     * @param endExclusive is an index of toke with which parameters ends
      * @return a Parameters Node if it can be parsed otherwise null object
      */
     public ParametersNode tryParseParameters(int begin, int endExclusive) {
@@ -818,9 +818,9 @@ public class Parser {
     }
 
     /**
-     * parse a Body of a routine
-     * @param begin is an index of tocken with which the body begins
-     * @param endExclusive is an index of tocken with which the body ends
+     * Parse a Body of a routine
+     * @param begin is an index of toke with which the body begins
+     * @param endExclusive is an index of toke with which the body ends
      * @return a Body Node if it can be parsed otherwise null object
      */
     public BodyNode tryParseBody(int begin, int endExclusive) {
@@ -854,9 +854,9 @@ public class Parser {
     }
 
     /**
-     * parse a Statement
-     * @param begin is an index of tocken with which the statement begins
-     * @param endExclusive is an index of tocken with which the statement ends
+     * Parse a Statement
+     * @param begin is an index of toke with which the statement begins
+     * @param endExclusive is an index of toke with which the statement ends
      * @return a Statement Node if it can be parsed otherwise null object
      */
     public StatementNode tryParseStatement(int begin, int endExclusive) {
@@ -882,9 +882,9 @@ public class Parser {
     }
 
     /**
-     * parse an Assignment
-     * @param begin is an index of tocken with which the assignment begins
-     * @param endExclusive is an index of tocken with which the assignment ends
+     * Parse an Assignment
+     * @param begin is an index of toke with which the assignment begins
+     * @param endExclusive is an index of toke with which the assignment ends
      * @return a Assignment Node if it can be parsed otherwise null object
      */
     public AssignmentNode tryParseAssignment(int begin, int endExclusive) {
@@ -909,9 +909,9 @@ public class Parser {
     }
 
     /**
-     * parse a Routine Call
-     * @param begin is an index of tocken with which the routine call begins
-     * @param endExclusive is an index of tocken with which the routine call ends
+     * Parse a Routine Call
+     * @param begin is an index of toke with which the routine call begins
+     * @param endExclusive is an index of toke with which the routine call ends
      * @return a Routine Call Node if it can be parsed otherwise null object
      */
     public RoutineCallNode tryParseRoutineCall(int begin, int endExclusive) {
@@ -951,9 +951,9 @@ public class Parser {
     }
 
     /**
-     * parse a While Loop
-     * @param begin is an index of tocken with which the while loop begins
-     * @param endExclusive is an index of tocken with which the while loop ends
+     * Parse a While Loop
+     * @param begin is an index of toke with which the while loop begins
+     * @param endExclusive is an index of toke with which the while loop ends
      * @return a While Loop Node if it can be parsed otherwise null object
      */
     public WhileLoopNode tryParseWhileLoop(int begin, int endExclusive) {
@@ -983,9 +983,9 @@ public class Parser {
     }
 
     /**
-     * parse a For Loop
-     * @param begin is an index of tocken with which the for loop begins
-     * @param endExclusive is an index of tocken with which the for loop ends
+     * Parse a For Loop
+     * @param begin is an index of toke with which the for loop begins
+     * @param endExclusive is an index of toke with which the for loop ends
      * @return a For Loop Node if it can be parsed otherwise null object
      */
     public ForLoopNode tryParseForLoop(int begin, int endExclusive) {
@@ -1021,9 +1021,9 @@ public class Parser {
     }
 
     /**
-     * parse a Range of For Loop
-     * @param begin is an index of tocken with which the range begins
-     * @param endExclusive is an index of tocken with which the range ends
+     * Parse a Range of For Loop
+     * @param begin is an index of toke with which the range begins
+     * @param endExclusive is an index of toke with which the range ends
      * @return a Range Node if it can be parsed otherwise null object
      */
     public RangeNode tryParseRange(int begin, int endExclusive) {
@@ -1053,9 +1053,9 @@ public class Parser {
     }
 
     /**
-     * parse an If Statement
-     * @param begin is an index of tocken with which the if statement begins
-     * @param endExclusive is an index of tocken with which the if statement ends
+     * Parse an If Statement
+     * @param begin is an index of toke with which the if statement begins
+     * @param endExclusive is an index of toke with which the if statement ends
      * @return an If Statement Node if it can be parsed otherwise null object
      */
     public IfStatementNode tryParseIfStatement(int begin, int endExclusive) {
@@ -1091,9 +1091,9 @@ public class Parser {
     }
 
     /**
-     * parse a Return Statement
-     * @param begin is an index of tocken with which the return statement begins
-     * @param endExclusive is an index of tocken with which the return statement ends
+     * Parse a Return Statement
+     * @param begin is an index of toke with which the return statement begins
+     * @param endExclusive is an index of toke with which the return statement ends
      * @return a Return Statement Node if it can be parsed otherwise null object
      */
     public ReturnStatementNode tryParseReturn(int begin, int endExclusive) {
@@ -1109,9 +1109,9 @@ public class Parser {
     }
 
     /**
-     * a constructor for initializing objects of class Parser
-     * @param tokens is a list of tockens that will be used for parsing
-     * @param locations is a list of lexemes with their locations in source code.
+     * A constructor for initializing objects of class Parser
+     * @param tokens is a list of tokes that will be used for parsing
+     * @param locations is a list of lexemes with their locations in source code
      */
     public Parser(Token[] tokens, StringWithLocation[] locations) {
         this.tokens = tokens;
@@ -1119,8 +1119,8 @@ public class Parser {
     }
 
     /**
-     * counts an amount of tockens
-     * @return size of tockens list
+     * Returns the number of tokens
+     * @return size of tokes list
      */
     public int getTokensCount() {
         return tokens.length;
