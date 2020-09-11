@@ -7,6 +7,7 @@ import projectI.AST.Expressions.*;
 import projectI.AST.Flow.ForLoopNode;
 import projectI.AST.Flow.IfStatementNode;
 import projectI.AST.Flow.RangeNode;
+import projectI.AST.Flow.WhileLoopNode;
 import projectI.AST.Primary.IntegralLiteralNode;
 import projectI.AST.Primary.ModifiablePrimaryNode;
 import projectI.AST.Statements.AssignmentNode;
@@ -15,6 +16,7 @@ import projectI.AST.Statements.StatementNode;
 
 import java.beans.Expression;
 import java.lang.reflect.Parameter;
+import java.util.Collections;
 
 import static projectI.AST.ASTUtils.*;
 
@@ -60,7 +62,7 @@ public class ParserTestUtils {
         return new AssignmentNode(new ModifiablePrimaryNode(new IdentifierNode(identifier)), booleanExpression(value));
     }
 
-    public static AssignmentNode integerAssignment(String identifier, ExpressionNode expression) {
+    public static AssignmentNode assignment(String identifier, ExpressionNode expression) {
         return new AssignmentNode(new ModifiablePrimaryNode(new IdentifierNode(identifier)), expression);
     }
 
@@ -197,5 +199,15 @@ public class ParserTestUtils {
 
     public static PrimitiveTypeNode integerType() {
         return new PrimitiveTypeNode(PrimitiveType.INTEGER);
+    }
+
+    public static WhileLoopNode whileLoop(ExpressionNode condition, StatementNode... statements) {
+        var body = new BodyNode();
+
+        for (var statement : statements) {
+            body.add(statement);
+        }
+
+        return new WhileLoopNode(condition, body);
     }
 }

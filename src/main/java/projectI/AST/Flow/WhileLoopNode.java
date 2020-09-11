@@ -49,4 +49,9 @@ public class WhileLoopNode implements StatementNode {
                 body != null && body.validate() &&
                 startPosition != null;
     }
+
+    @Override
+    public String toString() {
+        return "while " + condition + " loop {" + body + "}";
+    }
 }

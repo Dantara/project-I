@@ -3,13 +3,11 @@ package projectI.Parser;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import org.javatuples.Pair;
 import projectI.AST.*;
 import projectI.AST.Declarations.*;
 import projectI.AST.Expressions.*;
-import projectI.AST.Primary.BooleanLiteralNode;
+import projectI.AST.Primary.IntegralLiteralNode;
 import projectI.AST.Primary.ModifiablePrimaryNode;
-import projectI.AST.Statements.AssignmentNode;
 import projectI.AST.Statements.StatementNode;
 import projectI.Lexer.InvalidLexemeException;
 import projectI.Lexer.Lexer;
@@ -62,7 +60,7 @@ public class ParserCodeExamplesTest extends TestCase {
             implicitIntegerDeclaration("a", 1),
             forLoop("i", 1, 10, new StatementNode[] {
                 ifStatement(notEqual(mod("a", 2), 0),
-                        integerAssignment("a", integerAddition("a", "i"))),
+                        assignment("a", integerAddition("a", "i"))),
             })
         });
 
@@ -217,8 +215,26 @@ public class ParserCodeExamplesTest extends TestCase {
     public void testWhileLoop() throws IOException, InvalidLexemeException {
         var program = tryParseProgram("code_examples/while_loop.txt");
 
+        var comparison = new BinaryRelationNode(toSimple(new ModifiablePrimaryNode(new IdentifierNode("a"))),
+                BinaryRelationNode.Comparison.LESS,
+                toSimple(new IntegralLiteralNode(10)));
+
+        var addition = new SimpleNode(toSummand(new ModifiablePrimaryNode(new IdentifierNode("a"))))
+                .addSummand(AdditionOperator.PLUS, toSummand(new IntegralLiteralNode(1)));
+
+        var expectedProgram = programDeclaration(
+                mainRoutine(
+                        implicitIntegerDeclaration("a", 0),
+
+                        whileLoop(new ExpressionNode(comparison),
+                                assignment("a", toExpression(addition))
+                        )
+                )
+        );
+
         assertNotNull(program);
         assertTrue(program.validate());
+        assertEquals(expectedProgram, program);
     }
 
     public void testConditional_Invalid() throws IOException, InvalidLexemeException {

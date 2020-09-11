@@ -1,16 +1,9 @@
 package projectI.AST;
 
 import projectI.AST.Expressions.*;
-import projectI.AST.Primary.BooleanLiteralNode;
-import projectI.AST.Primary.IntegralLiteralNode;
-import projectI.AST.Primary.ModifiablePrimaryNode;
-import projectI.AST.Primary.RealLiteralNode;
+import projectI.AST.Primary.*;
 
 public final class ASTUtils {
-    public static ExpressionNode toExpression(FactorNode factor) {
-        return new ExpressionNode(toRelation(factor));
-    }
-
     public static ExpressionNode toExpression(SimpleNode simple) {
         return new ExpressionNode(new BinaryRelationNode(simple));
     }
@@ -24,19 +17,23 @@ public final class ASTUtils {
     }
 
     public static ExpressionNode integerExpression(int value) {
-        return toSummand(new IntegralLiteralNode(value));
+        return toExpression(new IntegralLiteralNode(value));
     }
 
     public static ExpressionNode realExpression(double value) {
-        return toSummand(new RealLiteralNode(value, null, null));
+        return toExpression(new RealLiteralNode(value, null, null));
     }
 
     public static ExpressionNode booleanExpression(boolean value) {
-        return toSummand(BooleanLiteralNode.create(value));
+        return toExpression(BooleanLiteralNode.create(value));
     }
 
-    public static ExpressionNode toSummand(FactorNode summand) {
-        return new ExpressionNode(toRelation(summand));
+    public static ExpressionNode toExpression(FactorNode factor) {
+        return new ExpressionNode(toRelation(factor));
+    }
+
+    public static SummandNode toSummand(PrimaryNode primaryNode) {
+        return new SummandNode(primaryNode);
     }
 
     private ASTUtils() { }
