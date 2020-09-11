@@ -38,6 +38,20 @@ public class ForLoopNode implements StatementNode {
     }
 
     @Override
+    public String toString() {
+        var builder = new StringBuilder();
+
+        builder.append("for loop: range = ");
+        builder.append(range);
+
+        builder.append("{\n\t");
+        builder.append(body);
+        builder.append("}");
+
+        return builder.toString();
+    }
+
+    @Override
     public int hashCode() {
         return Objects.hash(variable, range, body);
     }
