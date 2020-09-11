@@ -24,7 +24,7 @@ public class Parser {
 
     /**
      * Parse the programm
-     * @return a program node if it can be parsed otherwise null object
+     * @return a programm node if it can be parsed otherwise null object
      */
     public ProgramNode tryParseProgram() {
         return tryParseProgram(0, tokens.length);
