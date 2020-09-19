@@ -1,5 +1,7 @@
 package projectI.AST.Declarations;
 
+import org.javatuples.Pair;
+import org.javatuples.Triplet;
 import projectI.AST.ASTNode;
 import projectI.AST.Types.RuntimeRecordType;
 import projectI.AST.Types.RuntimeType;
@@ -121,7 +123,16 @@ public class RecordTypeNode extends UserTypeNode {
     }
 
     @Override
-    public RuntimeType getType(SymbolTable symbolTable, ASTNode scope) {
-        return new RuntimeRecordType(this);
+    public RuntimeType getType(SymbolTable symbolTable) {
+        var record = new RuntimeRecordType();
+
+        for (var variable : variables) {
+            var type = variable.type != null ? variable.type.getType(symbolTable) : null;
+            var value = variable.expression != null ? variable.expression.tryEvaluateConstant() : null;
+
+            record.variables.add(new Triplet<>(variable.identifier.name, type, value));
+        }
+
+        return record;
     }
 }

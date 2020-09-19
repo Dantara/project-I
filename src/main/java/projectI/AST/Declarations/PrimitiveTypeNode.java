@@ -83,7 +83,7 @@ public class PrimitiveTypeNode implements TypeNode {
     }
 
     @Override
-    public RuntimeType getType(SymbolTable symbolTable, ASTNode scope) {
+    public RuntimeType getType(SymbolTable symbolTable) {
         return new RuntimePrimitiveType(type);
     }
 }

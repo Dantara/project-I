@@ -7,6 +7,7 @@ import projectI.AST.Primary.PrimaryNode;
 import projectI.AST.Types.RuntimeType;
 import projectI.CodePosition;
 import projectI.SemanticAnalysis.InvalidRuntimeType;
+import projectI.SemanticAnalysis.SymbolTable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -101,8 +102,8 @@ public class RoutineCallNode implements StatementNode, PrimaryNode {
     }
 
     @Override
-    public RuntimeType getType() {
-        return new InvalidRuntimeType();
+    public RuntimeType getType(SymbolTable symbolTable) {
+        return symbolTable.tryGetType(this, name.name);
     }
 
     /**

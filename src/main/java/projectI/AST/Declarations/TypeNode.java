@@ -5,5 +5,5 @@ import projectI.AST.Types.RuntimeType;
 import projectI.SemanticAnalysis.SymbolTable;
 
 public interface TypeNode extends ASTNode {
-    RuntimeType getType(SymbolTable symbolTable, ASTNode scope);
+    RuntimeType getType(SymbolTable symbolTable);
 }

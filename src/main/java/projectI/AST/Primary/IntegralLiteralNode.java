@@ -5,6 +5,7 @@ import projectI.AST.Declarations.PrimitiveType;
 import projectI.AST.Types.RuntimePrimitiveType;
 import projectI.AST.Types.RuntimeType;
 import projectI.CodePosition;
+import projectI.SemanticAnalysis.SymbolTable;
 
 import java.util.Objects;
 
@@ -105,7 +106,7 @@ public class IntegralLiteralNode implements PrimaryNode {
     }
 
     @Override
-    public RuntimeType getType() {
+    public RuntimeType getType(SymbolTable symbolTable) {
         return new RuntimePrimitiveType(PrimitiveType.INTEGER);
     }
 

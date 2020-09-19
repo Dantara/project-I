@@ -6,6 +6,7 @@ import projectI.AST.Types.RuntimePrimitiveType;
 import projectI.AST.Types.RuntimeType;
 import projectI.CodePosition;
 import projectI.SemanticAnalysis.InvalidRuntimeType;
+import projectI.SemanticAnalysis.SymbolTable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -175,18 +176,18 @@ public class SimpleNode implements ASTNode {
         return null;
     }
 
-    public RuntimeType getType() {
-        if (otherSummands.size() == 0) return summand.getType();
+    public RuntimeType getType(SymbolTable symbolTable) {
+        if (otherSummands.size() == 0) return summand.getType(symbolTable);
 
-        var type = summand.getType();
+        var type = summand.getType(symbolTable);
         if (!(type instanceof RuntimePrimitiveType)) return new InvalidRuntimeType();
         var primitiveType = (RuntimePrimitiveType) type;
 
         for (var otherSummand : otherSummands) {
-            var otherType = otherSummand.node.getType();
+            var otherType = otherSummand.node.getType(symbolTable);
             if (!(otherType instanceof RuntimePrimitiveType)) return new InvalidRuntimeType();
             var otherPrimitiveType = (RuntimePrimitiveType) otherType;
-            if (primitiveType == otherPrimitiveType) continue;
+            if (primitiveType.equals(otherPrimitiveType)) continue;
 
             if (primitiveType.type == PrimitiveType.INTEGER && otherPrimitiveType.type != PrimitiveType.REAL ||
                     primitiveType.type == PrimitiveType.REAL && otherPrimitiveType.type != PrimitiveType.INTEGER)

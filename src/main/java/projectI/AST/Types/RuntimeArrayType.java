@@ -3,7 +3,7 @@ package projectI.AST.Types;
 import java.util.Objects;
 
 public final class RuntimeArrayType implements RuntimeType {
-    public RuntimeArrayType(RuntimeType elementType, int size) {
+    public RuntimeArrayType(RuntimeType elementType, Integer size) {
         ElementType = elementType;
         Size = size;
     }
@@ -28,5 +28,5 @@ public final class RuntimeArrayType implements RuntimeType {
     }
 
     public final RuntimeType ElementType;
-    public final int Size;
+    public final Integer Size;
 }

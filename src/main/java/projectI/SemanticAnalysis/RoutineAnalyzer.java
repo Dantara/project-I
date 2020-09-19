@@ -28,8 +28,11 @@ public class RoutineAnalyzer implements SemanticAnalyzer {
                 throw new SemanticAnalysisException(this, routine);
             }
 
-            if (routine.returnType != null && !routine.returnType.getType(symbolTable, routine).equals(returnStatement.expression.getType())) {
-                throw new SemanticAnalysisException(this, routine);
+            if (routine.returnType != null) {
+                var returnExpressionType = returnStatement.expression.getType(symbolTable);
+                var routineReturnType = routine.returnType.getType(symbolTable);
+                if (!routineReturnType.equals(returnExpressionType))
+                    throw new SemanticAnalysisException(this, routine);
             }
         }
     }

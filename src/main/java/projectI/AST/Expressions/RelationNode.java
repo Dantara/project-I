@@ -3,6 +3,7 @@ package projectI.AST.Expressions;
 import projectI.AST.ASTNode;
 import projectI.AST.Types.RuntimeType;
 import projectI.CodePosition;
+import projectI.SemanticAnalysis.SymbolTable;
 
 public interface RelationNode extends ASTNode {
     /**
@@ -13,5 +14,5 @@ public interface RelationNode extends ASTNode {
 
     Object tryEvaluateConstant();
 
-    RuntimeType getType();
+    RuntimeType getType(SymbolTable symbolTable);
 }

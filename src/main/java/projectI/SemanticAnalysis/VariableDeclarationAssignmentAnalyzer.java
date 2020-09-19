@@ -45,9 +45,9 @@ public class VariableDeclarationAssignmentAnalyzer implements SemanticAnalyzer {
 
     private void analyze(VariableDeclarationNode variableDeclaration, SymbolTable symbolTable) throws SemanticAnalysisException {
         if (variableDeclaration.expression == null || variableDeclaration.type == null) return;
-        var type = variableDeclaration.type.getType(symbolTable, variableDeclaration);
+        var type = variableDeclaration.type.getType(symbolTable);
 
-        if (!variableDeclaration.expression.getType().canBeCastedTo(type))
+        if (!variableDeclaration.expression.getType(symbolTable).canBeCastedTo(type))
             throw new SemanticAnalysisException(this, variableDeclaration);
     }
 }

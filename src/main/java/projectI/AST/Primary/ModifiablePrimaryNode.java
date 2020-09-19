@@ -1,12 +1,17 @@
 package projectI.AST.Primary;
 
 import projectI.AST.ASTNode;
+import projectI.AST.Declarations.ArrayTypeNode;
+import projectI.AST.Declarations.PrimitiveType;
 import projectI.AST.Expressions.ExpressionNode;
 import projectI.AST.Declarations.IdentifierNode;
+import projectI.AST.Types.RuntimeArrayType;
+import projectI.AST.Types.RuntimePrimitiveType;
+import projectI.AST.Types.RuntimeRecordType;
 import projectI.AST.Types.RuntimeType;
-import projectI.AST.Types.UnknownType;
 import projectI.CodePosition;
 import projectI.SemanticAnalysis.InvalidRuntimeType;
+import projectI.SemanticAnalysis.SymbolTable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -121,7 +126,14 @@ public class ModifiablePrimaryNode implements PrimaryNode {
     }
 
     @Override
-    public RuntimeType getType() {
+    public RuntimeType getType(SymbolTable symbolTable) {
+        var type = symbolTable.tryGetType(this, identifier.name);
+        if (accessors.size() == 0) return type;
+
+        for (var accessor : accessors) {
+            type = accessor.getRuntimeType(type, symbolTable);
+        }
+
         return new InvalidRuntimeType();
     }
 
@@ -150,6 +162,7 @@ public class ModifiablePrimaryNode implements PrimaryNode {
      */
     public abstract static class Accessor {
         public abstract boolean validate();
+        public abstract RuntimeType getRuntimeType(RuntimeType modifiable, SymbolTable symbolTable);
     }
 
     public static final class Member extends Accessor {
@@ -201,6 +214,21 @@ public class ModifiablePrimaryNode implements PrimaryNode {
         @Override
         public boolean validate() {
             return name != null && name.validate();
+        }
+
+        @Override
+        public RuntimeType getRuntimeType(RuntimeType modifiable, SymbolTable symbolTable) {
+            if (modifiable instanceof RuntimeRecordType) {
+                var record = (RuntimeRecordType) modifiable;
+
+                for (var variable : record.variables) {
+                    if (!variable.getValue0().equals(name.name)) continue;
+
+                    return variable.getValue1();
+                }
+            }
+
+            return new InvalidRuntimeType();
         }
     }
 
@@ -254,6 +282,16 @@ public class ModifiablePrimaryNode implements PrimaryNode {
         public boolean validate() {
             return value != null && value.validate();
         }
+
+        @Override
+        public RuntimeType getRuntimeType(RuntimeType modifiable, SymbolTable symbolTable) {
+            if (modifiable instanceof RuntimeArrayType) {
+                var array = (RuntimeArrayType) modifiable;
+                return array.ElementType;
+            }
+
+            return new InvalidRuntimeType();
+        }
     }
 
     public static final class ArraySize extends Accessor {
@@ -287,6 +325,15 @@ public class ModifiablePrimaryNode implements PrimaryNode {
         @Override
         public boolean validate() {
             return true;
+        }
+
+        @Override
+        public RuntimeType getRuntimeType(RuntimeType modifiable, SymbolTable symbolTable) {
+            if (modifiable instanceof RuntimeArrayType) {
+                return new RuntimePrimitiveType(PrimitiveType.INTEGER);
+            }
+
+            return new InvalidRuntimeType();
         }
     }
 

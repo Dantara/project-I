@@ -5,6 +5,7 @@ import projectI.AST.Expressions.ExpressionNode;
 import projectI.AST.Types.RuntimeArrayType;
 import projectI.AST.Types.RuntimeType;
 import projectI.CodePosition;
+import projectI.SemanticAnalysis.InvalidRuntimeType;
 import projectI.SemanticAnalysis.SymbolTable;
 
 import java.util.Objects;
@@ -98,11 +99,20 @@ public class ArrayTypeNode extends UserTypeNode {
     }
 
     @Override
-    public RuntimeType getType(SymbolTable symbolTable, ASTNode scope) {
-        var length = size.tryEvaluateConstant();
-        if (length == null) return null;
-        if (!(length instanceof Integer)) return null;
+    public RuntimeType getType(SymbolTable symbolTable) {
+        if (size == null) {
+            return new RuntimeArrayType(elementType.getType(symbolTable), null);
+        }
 
-        return new RuntimeArrayType(elementType.getType(symbolTable, scope), (Integer) length);
+        var size = this.size.tryEvaluateConstant();
+        if (size == null) return new InvalidRuntimeType();
+        if (size instanceof Boolean) {
+            size = ((Boolean) size) ? 1 : 0;
+        }
+        if (size instanceof Double) {
+            size = (int) ((double) size);
+        }
+
+        return new RuntimeArrayType(elementType.getType(symbolTable), (Integer) size);
     }
 }

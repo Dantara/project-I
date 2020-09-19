@@ -1,7 +1,6 @@
 package projectI.AST.Declarations;
 
 import projectI.AST.ASTNode;
-import projectI.AST.Types.RecordType;
 import projectI.AST.Types.RuntimeType;
 import projectI.CodePosition;
 import projectI.SemanticAnalysis.InvalidRuntimeType;
@@ -87,8 +86,8 @@ public class IdentifierNode implements TypeNode {
     }
 
     @Override
-    public RuntimeType getType(SymbolTable symbolTable, ASTNode scope) {
-        var definedType = symbolTable.tryGetType(scope, name);
+    public RuntimeType getType(SymbolTable symbolTable) {
+        var definedType = symbolTable.tryGetType(this, name);
         return definedType != null ? definedType : new InvalidRuntimeType();
     }
 }

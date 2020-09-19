@@ -5,6 +5,7 @@ import projectI.AST.Declarations.PrimitiveType;
 import projectI.AST.Types.RuntimePrimitiveType;
 import projectI.AST.Types.RuntimeType;
 import projectI.CodePosition;
+import projectI.SemanticAnalysis.SymbolTable;
 
 import java.util.Objects;
 
@@ -92,7 +93,7 @@ public class BooleanLiteralNode implements PrimaryNode {
     }
 
     @Override
-    public RuntimeType getType() {
+    public RuntimeType getType(SymbolTable symbolTable) {
         return new RuntimePrimitiveType(PrimitiveType.BOOLEAN);
     }
 
@@ -103,5 +104,10 @@ public class BooleanLiteralNode implements PrimaryNode {
     @Override
     public boolean validate() {
         return position != null;
+    }
+
+    @Override
+    public String toString() {
+        return Boolean.toString(value);
     }
 }

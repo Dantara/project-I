@@ -129,21 +129,34 @@ public class Parser {
                 var type = tryParseType(begin + 3, endExclusive);
                 if (type == null) return null;
 
-                return new VariableDeclarationNode(identifier, type, null, position);
+                var variable = new VariableDeclarationNode(identifier, type, null, position);
+                identifier.setParent(variable);
+                type.setParent(variable);
+
+                return variable;
             } else {
                 var type = tryParseType(begin + 3, isIndex);
                 if (type == null) return null;
                 var expression = tryParseExpression(isIndex + 1, endExclusive);
                 if (expression == null) return null;
 
-                return new VariableDeclarationNode(identifier, type, expression, position);
+                var variable = new VariableDeclarationNode(identifier, type, expression, position);
+                identifier.setParent(variable);
+                type.setParent(variable);
+                expression.setParent(variable);
+
+                return variable;
             }
 
         } else if (tokens[begin + 2].equals(TokenType.Keyword, "is")) {
             var expression = tryParseExpression(begin + 3, endExclusive);
             if (expression == null) return null;
 
-            return new VariableDeclarationNode(identifier, null, expression, position);
+            var variable = new VariableDeclarationNode(identifier, null, expression, position);
+            identifier.setParent(variable);
+            expression.setParent(variable);
+
+            return variable;
         }
 
         return null;
@@ -180,6 +193,7 @@ public class Parser {
         if (relation == null) return null;
 
         var expression = new ExpressionNode(relation);
+        relation.setParent(expression);
 
         while (left < endExclusive) {
             var operator = tryParseLogicalOperator(tokens[left]);
@@ -200,6 +214,7 @@ public class Parser {
             if (relation == null) return null;
 
             expression.addRelation(operator, relation, locations[operatorIndex].getPosition());
+            relation.setParent(expression);
         }
 
         return expression;
@@ -228,7 +243,10 @@ public class Parser {
             var innerRelation = tryParseRelation(begin + 1, endExclusive);
             if (innerRelation == null) return null;
 
-            return new NegatedRelationNode(innerRelation, locations[begin].getPosition());
+            var negatedRelation = new NegatedRelationNode(innerRelation, locations[begin].getPosition());
+            innerRelation.setParent(negatedRelation);
+
+            return negatedRelation;
         }
 
         int left = begin;
@@ -244,7 +262,11 @@ public class Parser {
         }
 
         if (simple == null) return null;
-        if (left >= endExclusive) return new BinaryRelationNode(simple);
+        if (left >= endExclusive) {
+            var binaryRelation = new BinaryRelationNode(simple);
+            simple.setParent(binaryRelation);
+            return binaryRelation;
+        }
 
         var comparison = tryParseComparison(tokens[left]);
         if (comparison == null) return null;
@@ -254,7 +276,10 @@ public class Parser {
         var otherSimple = tryParseSimple(left + 1, endExclusive);
         if (otherSimple == null) return null;
 
-        return new BinaryRelationNode(simple, comparison, otherSimple, locations[left].getPosition());
+        var binaryRelation = new BinaryRelationNode(simple, comparison, otherSimple, locations[left].getPosition());
+        simple.setParent(binaryRelation);
+        otherSimple.setParent(binaryRelation);
+        return binaryRelation;
     }
 
     /**
@@ -279,6 +304,7 @@ public class Parser {
         if (factor == null) return null;
 
         var simple = new SimpleNode(factor);
+        factor.setParent(simple);
 
         while (left < endExclusive) {
             var operator = tryParseSimpleNodeOperator(tokens[left]);
@@ -299,6 +325,7 @@ public class Parser {
             if (factor == null) return null;
 
             simple.addSummand(operator, factor, locations[operatorIndex].getPosition());
+            factor.setParent(simple);
         }
 
         return simple;
@@ -326,6 +353,7 @@ public class Parser {
         if (factor == null) return null;
 
         var summand = new SummandNode(factor);
+        factor.setParent(summand);
 
         while (left < endExclusive) {
             var operator = tryParseFactorOperator(tokens[left]);
@@ -346,6 +374,7 @@ public class Parser {
             if (factor == null) return null;
 
             summand.addFactor(operator, factor, locations[operatorIndex].getPosition());
+            factor.setParent(summand);
         }
 
         return summand;
@@ -524,6 +553,7 @@ public class Parser {
 
                 if (member != null) {
                     modifiablePrimary.addMember(member);
+                    member.setParent(modifiablePrimary);
                 } else if (tokens[left].equals(TokenType.Keyword, "size")) {
                     modifiablePrimary.addArraySize();
                 } else {
@@ -539,6 +569,7 @@ public class Parser {
                 if (indexer == null) return null;
 
                 modifiablePrimary.addIndexer(indexer);
+                indexer.setParent(modifiablePrimary);
                 left = closingBracketIndex + 1;
             } else {
                 return null;

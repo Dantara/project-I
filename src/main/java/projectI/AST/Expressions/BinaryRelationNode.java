@@ -5,6 +5,7 @@ import projectI.AST.Declarations.PrimitiveType;
 import projectI.AST.Types.RuntimePrimitiveType;
 import projectI.AST.Types.RuntimeType;
 import projectI.CodePosition;
+import projectI.SemanticAnalysis.SymbolTable;
 
 import java.util.Objects;
 
@@ -123,8 +124,8 @@ public class BinaryRelationNode implements RelationNode {
     }
 
     @Override
-    public RuntimeType getType() {
-        if (comparison == null) return simple.getType();
+    public RuntimeType getType(SymbolTable symbolTable) {
+        if (comparison == null) return simple.getType(symbolTable);
 
         return new RuntimePrimitiveType(PrimitiveType.BOOLEAN);
     }

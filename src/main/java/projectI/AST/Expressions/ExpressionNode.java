@@ -5,6 +5,7 @@ import projectI.AST.Declarations.PrimitiveType;
 import projectI.AST.Types.RuntimePrimitiveType;
 import projectI.AST.Types.RuntimeType;
 import projectI.CodePosition;
+import projectI.SemanticAnalysis.SymbolTable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -136,8 +137,8 @@ public class ExpressionNode implements FactorNode {
         return true;
     }
 
-    public RuntimeType getType() {
-        if (otherRelations.size() == 0) return relation.getType();
+    public RuntimeType getType(SymbolTable symbolTable) {
+        if (otherRelations.size() == 0) return relation.getType(symbolTable);
 
         return new RuntimePrimitiveType(PrimitiveType.BOOLEAN);
     }
