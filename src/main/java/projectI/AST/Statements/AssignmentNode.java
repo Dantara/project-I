@@ -1,5 +1,6 @@
 package projectI.AST.Statements;
 
+import projectI.AST.ASTNode;
 import projectI.AST.Expressions.ExpressionNode;
 import projectI.AST.Primary.ModifiablePrimaryNode;
 import projectI.CodePosition;
@@ -9,6 +10,17 @@ import java.util.Objects;
 public class AssignmentNode implements StatementNode {
     public final ModifiablePrimaryNode modifiable;
     public final ExpressionNode assignedValue;
+    public ASTNode parent;
+
+    @Override
+    public ASTNode getParent() {
+        return parent;
+    }
+
+    @Override
+    public void setParent(ASTNode parent) {
+        this.parent = parent;
+    }
 
     /**
      * A constructor for initializing objects of class AssignmentNode

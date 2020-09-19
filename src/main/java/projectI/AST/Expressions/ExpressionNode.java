@@ -1,5 +1,9 @@
 package projectI.AST.Expressions;
 
+import projectI.AST.ASTNode;
+import projectI.AST.Declarations.PrimitiveType;
+import projectI.AST.Types.RuntimePrimitiveType;
+import projectI.AST.Types.RuntimeType;
 import projectI.CodePosition;
 
 import java.util.ArrayList;
@@ -9,6 +13,18 @@ import java.util.Objects;
 public class ExpressionNode implements FactorNode {
     public final RelationNode relation;
     public final List<OperatorWithNode<LogicalOperator, RelationNode>> otherRelations = new ArrayList<>();
+
+    public ASTNode parent;
+
+    @Override
+    public ASTNode getParent() {
+        return parent;
+    }
+
+    @Override
+    public void setParent(ASTNode parent) {
+        this.parent = parent;
+    }
 
     /**
      * Find a position in the source code
@@ -118,5 +134,42 @@ public class ExpressionNode implements FactorNode {
         }
 
         return true;
+    }
+
+    public RuntimeType getType() {
+        if (otherRelations.size() == 0) return relation.getType();
+
+        return new RuntimePrimitiveType(PrimitiveType.BOOLEAN);
+    }
+
+    public Object tryEvaluateConstant() {
+        var value = relation.tryEvaluateConstant();
+        if (value == null) return null;
+        if (otherRelations.size() == 0) return value;
+        if (value instanceof Integer) {
+            int integerValue = (Integer) value;
+            if (integerValue != 0 && integerValue != 1) return null;
+            value = integerValue != 0;
+        }
+
+        for (var otherRelation : otherRelations) {
+            var otherValue = otherRelation.node.tryEvaluateConstant();
+            if (otherValue == null) return null;
+            if (otherValue instanceof Double) return null;
+
+            if (otherValue instanceof Integer) {
+                int integerValue = (Integer) otherValue;
+                if (integerValue != 0 && integerValue != 1) return null;
+                otherValue = integerValue != 0;
+            }
+
+            value = switch (otherRelation.operator) {
+                case AND -> (Boolean) value && (Boolean) otherValue;
+                case OR -> (Boolean) value || (Boolean) otherValue;
+                case XOR -> value != otherValue;
+            };
+        }
+
+        return value;
     }
 }

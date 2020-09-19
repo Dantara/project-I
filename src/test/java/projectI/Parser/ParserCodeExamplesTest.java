@@ -27,7 +27,7 @@ public class ParserCodeExamplesTest extends TestCase {
     }
 
     public static Test suite() {
-        return new TestSuite(ParserCodeExamplesTest.class);
+        return new TestSuite(projectI.Parser.SemanticAnalysisTest.class);
     }
 
     public static ProgramNode tryParseProgram(String path) throws IOException, InvalidLexemeException {

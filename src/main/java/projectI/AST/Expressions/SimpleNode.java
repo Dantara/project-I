@@ -1,7 +1,11 @@
 package projectI.AST.Expressions;
 
 import projectI.AST.ASTNode;
+import projectI.AST.Declarations.PrimitiveType;
+import projectI.AST.Types.RuntimePrimitiveType;
+import projectI.AST.Types.RuntimeType;
 import projectI.CodePosition;
+import projectI.SemanticAnalysis.InvalidRuntimeType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,6 +14,17 @@ import java.util.Objects;
 public class SimpleNode implements ASTNode {
     public final SummandNode summand;
     public final List<OperatorWithNode<AdditionOperator, SummandNode>> otherSummands = new ArrayList<>();
+    public ASTNode parent;
+
+    @Override
+    public ASTNode getParent() {
+        return parent;
+    }
+
+    @Override
+    public void setParent(ASTNode parent) {
+        this.parent = parent;
+    }
 
     /**
      * A constructor for initializing objects of class SimpleNode
@@ -119,5 +134,74 @@ public class SimpleNode implements ASTNode {
         }
 
         return true;
+    }
+
+    public Object tryEvaluateConstant() {
+        var value = summand.tryEvaluateConstant();
+        if (value == null) return null;
+        if (otherSummands.size() == 0) return value;
+        if (value instanceof Boolean) return null;
+
+        for (var otherSummand : otherSummands) {
+            var otherValue = otherSummand.node.tryEvaluateConstant();
+            if (otherValue == null) return null;
+            if (otherValue instanceof Boolean) return null;
+
+            if (value instanceof Double && otherValue instanceof Integer) {
+                otherValue = Double.valueOf((Integer) otherValue);
+            }
+
+            if (value instanceof Integer && otherValue instanceof Double) {
+                value = Double.valueOf((Integer) value);
+            }
+
+            if (value instanceof Integer && otherValue instanceof Integer) {
+                value = switch (otherSummand.operator) {
+                    case PLUS -> (Integer) value + (Integer) otherValue;
+                    case MINUS -> (Integer) value - (Integer) otherValue;
+                };
+
+                continue;
+            }
+
+            if (value instanceof Double && otherValue instanceof Double) {
+                value = switch (otherSummand.operator) {
+                    case PLUS -> (Double) value + (Double) otherValue;
+                    case MINUS -> (Double) value - (Double) otherValue;
+                };
+            }
+        }
+
+        return null;
+    }
+
+    public RuntimeType getType() {
+        if (otherSummands.size() == 0) return summand.getType();
+
+        var type = summand.getType();
+        if (!(type instanceof RuntimePrimitiveType)) return new InvalidRuntimeType();
+        var primitiveType = (RuntimePrimitiveType) type;
+
+        for (var otherSummand : otherSummands) {
+            var otherType = otherSummand.node.getType();
+            if (!(otherType instanceof RuntimePrimitiveType)) return new InvalidRuntimeType();
+            var otherPrimitiveType = (RuntimePrimitiveType) otherType;
+            if (primitiveType == otherPrimitiveType) continue;
+
+            if (primitiveType.type == PrimitiveType.INTEGER && otherPrimitiveType.type != PrimitiveType.REAL ||
+                    primitiveType.type == PrimitiveType.REAL && otherPrimitiveType.type != PrimitiveType.INTEGER)
+                primitiveType = new RuntimePrimitiveType(PrimitiveType.REAL);
+
+            if (primitiveType.type == PrimitiveType.INTEGER && otherPrimitiveType.type != PrimitiveType.BOOLEAN ||
+                    primitiveType.type == PrimitiveType.BOOLEAN && otherPrimitiveType.type != PrimitiveType.INTEGER)
+                primitiveType = new RuntimePrimitiveType(PrimitiveType.INTEGER);
+
+            if (primitiveType.type == PrimitiveType.REAL && otherPrimitiveType.type != PrimitiveType.BOOLEAN ||
+                    primitiveType.type == PrimitiveType.BOOLEAN && otherPrimitiveType.type != PrimitiveType.REAL)
+                primitiveType = new RuntimePrimitiveType(PrimitiveType.REAL);
+
+        }
+
+        return primitiveType;
     }
 }

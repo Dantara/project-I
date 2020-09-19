@@ -1,5 +1,6 @@
 package projectI.AST.Flow;
 
+import projectI.AST.ASTNode;
 import projectI.AST.Declarations.BodyNode;
 import projectI.AST.Expressions.ExpressionNode;
 import projectI.AST.Statements.StatementNode;
@@ -11,6 +12,17 @@ public class WhileLoopNode implements StatementNode {
     public final ExpressionNode condition;
     public final BodyNode body;
     public final CodePosition startPosition;
+    public ASTNode parent;
+
+    @Override
+    public ASTNode getParent() {
+        return parent;
+    }
+
+    @Override
+    public void setParent(ASTNode parent) {
+        this.parent = parent;
+    }
 
     /**
      * A constructor for initializing objects of class WhileLoopNode

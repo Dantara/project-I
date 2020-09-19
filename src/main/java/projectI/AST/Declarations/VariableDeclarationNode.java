@@ -1,5 +1,6 @@
 package projectI.AST.Declarations;
 
+import projectI.AST.ASTNode;
 import projectI.AST.Expressions.ExpressionNode;
 import projectI.CodePosition;
 
@@ -10,6 +11,17 @@ public class VariableDeclarationNode extends SimpleDeclarationNode {
     public final TypeNode type;
     public final ExpressionNode expression;
     public final CodePosition startPosition;
+    public ASTNode parent;
+
+    @Override
+    public ASTNode getParent() {
+        return parent;
+    }
+
+    @Override
+    public void setParent(ASTNode parent) {
+        this.parent = parent;
+    }
 
     /**
      * A constructor for initializing objects of class VariableDeclarationNode

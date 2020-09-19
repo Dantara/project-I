@@ -11,6 +11,18 @@ public class RangeNode implements ASTNode {
     public final ExpressionNode to;
     public final boolean reverse;
     public final CodePosition startPosition;
+    public ASTNode parent;
+
+    @Override
+    public ASTNode getParent() {
+        return parent;
+    }
+
+    @Override
+    public void setParent(ASTNode parent) {
+        this.parent = parent;
+    }
+
 
     /**
      * A constructor for initializing objects of class RangeNode

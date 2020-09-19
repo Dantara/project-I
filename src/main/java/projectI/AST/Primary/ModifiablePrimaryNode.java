@@ -1,8 +1,12 @@
 package projectI.AST.Primary;
 
+import projectI.AST.ASTNode;
 import projectI.AST.Expressions.ExpressionNode;
 import projectI.AST.Declarations.IdentifierNode;
+import projectI.AST.Types.RuntimeType;
+import projectI.AST.Types.UnknownType;
 import projectI.CodePosition;
+import projectI.SemanticAnalysis.InvalidRuntimeType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,6 +16,17 @@ public class ModifiablePrimaryNode implements PrimaryNode {
     public final IdentifierNode identifier;
     public final List<Accessor> accessors = new ArrayList<>();
     public final CodePosition startPosition;
+    public ASTNode parent;
+
+    @Override
+    public ASTNode getParent() {
+        return parent;
+    }
+
+    @Override
+    public void setParent(ASTNode parent) {
+        this.parent = parent;
+    }
 
     /**
      * A constructor for initializing objects of class ModifiablePrimaryNode
@@ -98,6 +113,16 @@ public class ModifiablePrimaryNode implements PrimaryNode {
     @Override
     public CodePosition getPosition() {
         return startPosition;
+    }
+
+    @Override
+    public Object tryEvaluateConstant() {
+        return null;
+    }
+
+    @Override
+    public RuntimeType getType() {
+        return new InvalidRuntimeType();
     }
 
     /**

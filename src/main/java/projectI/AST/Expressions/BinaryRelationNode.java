@@ -1,5 +1,9 @@
 package projectI.AST.Expressions;
 
+import projectI.AST.ASTNode;
+import projectI.AST.Declarations.PrimitiveType;
+import projectI.AST.Types.RuntimePrimitiveType;
+import projectI.AST.Types.RuntimeType;
 import projectI.CodePosition;
 
 import java.util.Objects;
@@ -9,6 +13,17 @@ public class BinaryRelationNode implements RelationNode {
     public final Comparison comparison;
     public final SimpleNode otherSimple;
     public final CodePosition comparisonPosition;
+    public ASTNode parent;
+
+    @Override
+    public ASTNode getParent() {
+        return parent;
+    }
+
+    @Override
+    public void setParent(ASTNode parent) {
+        this.parent = parent;
+    }
 
     /**
      * A constructor for initializing objects of class BinaryRelationNode
@@ -55,6 +70,63 @@ public class BinaryRelationNode implements RelationNode {
     @Override
     public CodePosition getPosition() {
         return simple.getPosition();
+    }
+
+    @Override
+    public Object tryEvaluateConstant() {
+        var leftValue = simple.tryEvaluateConstant();
+        if (leftValue == null) return null;
+        if (comparison == null) return leftValue;
+
+        var rightValue = simple.tryEvaluateConstant();
+        if (rightValue == null) return null;
+
+        if (leftValue instanceof Boolean && rightValue instanceof Boolean) {
+            return switch (comparison) {
+                case EQUAL -> leftValue == rightValue;
+                case NOT_EQUAL -> leftValue != rightValue;
+                default -> null;
+            };
+        }
+
+        if (leftValue instanceof Double && rightValue instanceof Integer) {
+            rightValue = Double.valueOf((Integer) rightValue);
+        }
+
+        if (leftValue instanceof Integer && rightValue instanceof Double) {
+            leftValue = Double.valueOf((Integer) leftValue);
+        }
+
+        if (leftValue instanceof Integer && rightValue instanceof Integer) {
+            return switch (comparison) {
+                case LESS -> (Integer) leftValue < (Integer) rightValue;
+                case LESS_EQUAL -> (Integer) leftValue <= (Integer) rightValue;
+                case GREATER -> (Integer) leftValue > (Integer) rightValue;
+                case GREATER_EQUAL -> (Integer) leftValue >= (Integer) rightValue;
+                case EQUAL -> leftValue == rightValue;
+                case NOT_EQUAL -> leftValue != rightValue;
+            };
+        }
+
+        if (leftValue instanceof Double && rightValue instanceof Double) {
+            return switch (comparison) {
+                case LESS -> (Double) leftValue < (Double) rightValue;
+                case LESS_EQUAL -> (Double) leftValue <= (Double) rightValue;
+                case GREATER -> (Double) leftValue > (Double) rightValue;
+                case GREATER_EQUAL -> (Double) leftValue >= (Double) rightValue;
+                case EQUAL -> leftValue == rightValue;
+                case NOT_EQUAL -> leftValue != rightValue;
+            };
+        }
+
+        return null;
+    }
+
+    @Override
+    public RuntimeType getType() {
+        if (comparison == null) return simple.getType();
+
+        return new RuntimePrimitiveType(PrimitiveType.BOOLEAN);
     }
 
     /**

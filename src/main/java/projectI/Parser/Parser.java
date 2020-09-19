@@ -65,6 +65,7 @@ public class Parser {
 
             errors.clear();
             program.declarations.add(declaration);
+            declaration.setParent(program);
 
             if (left == endExclusive) break;
         }
@@ -768,7 +769,10 @@ public class Parser {
         var type = tryParseType(begin + 3, endExclusive);
         if (type == null) return null;
 
-        return new TypeDeclarationNode(identifier, type, locations[begin].getPosition());
+        var declaration = new TypeDeclarationNode(identifier, type, locations[begin].getPosition());
+        identifier.setParent(declaration);
+
+        return declaration;
     }
 
 
@@ -824,7 +828,12 @@ public class Parser {
             var body = tryParseBody(matchingParenthesisIndex + 2, endExclusive);
             if (body == null) return null;
 
-            return new RoutineDeclarationNode(identifier, parameters, body, startPosition);
+            var routine = new RoutineDeclarationNode(identifier, parameters, body, startPosition);
+            body.setParent(routine);
+            identifier.setParent(routine);
+            parameters.setParent(routine);
+
+            return routine;
         } else if (tokens[matchingParenthesisIndex + 1].equals(TokenType.Operator, ":")) {
             for (int isIndex = matchingParenthesisIndex + 2; isIndex < endExclusive; isIndex++) {
                 if (!tokens[isIndex].equals(TokenType.Keyword, "is")) continue;
@@ -838,7 +847,13 @@ public class Parser {
                 var body = tryParseBody(isIndex + 1, endExclusive);
                 if (body == null) return null;
 
-                return new RoutineDeclarationNode(identifier, parameters, returnType, body, startPosition);
+                var routine = new RoutineDeclarationNode(identifier, parameters, returnType, body, startPosition);
+                body.setParent(routine);
+                identifier.setParent(routine);
+                parameters.setParent(routine);
+                returnType.setParent(routine);
+
+                return routine;
             }
         }
 
@@ -886,6 +901,10 @@ public class Parser {
                 }
 
                 parameters.parameters.add(new Pair<>(identifier, type));
+
+                identifier.setParent(parameters);
+                type.setParent(parameters);
+
                 left = endExclusive;
             } else {
                 if (left + 2 >= commaIndex) return null;
@@ -899,6 +918,10 @@ public class Parser {
                 if (type == null) return null;
 
                 parameters.parameters.add(new Pair<>(identifier, type));
+
+                identifier.setParent(parameters);
+                type.setParent(parameters);
+
                 left = commaIndex + 1;
             }
         }
@@ -946,6 +969,7 @@ public class Parser {
 
                 if (statement != null) {
                     body.statements.add(statement);
+                    statement.setParent(body);
                     errors.clear();
                     left = rightExclusive;
                     foundStatement = true;
@@ -1031,7 +1055,12 @@ public class Parser {
             return null;
         }
 
-        return new AssignmentNode(modifiable, expression);
+        var assignmentNode = new AssignmentNode(modifiable, expression);
+
+        modifiable.setParent(assignmentNode);
+        expression.setParent(assignmentNode);
+
+        return assignmentNode;
     }
 
 
@@ -1074,6 +1103,7 @@ public class Parser {
                 }
 
                 routineCall.arguments.add(argument);
+                argument.setParent(routineCall);
                 left = endExclusive;
             } else {
                 var argument = tryParseExpression(left, commaIndex);
@@ -1083,6 +1113,7 @@ public class Parser {
                 }
 
                 routineCall.arguments.add(argument);
+                argument.setParent(routineCall);
                 left = commaIndex + 1;
                 if (left == endExclusive) return null;
             }
@@ -1136,7 +1167,11 @@ public class Parser {
         var body = tryParseBody(loopTokenIndex + 1, endExclusive - 1);
         if (body == null) return null;
 
-        return new WhileLoopNode(condition, body, locations[begin].getPosition());
+        var whileLoop = new WhileLoopNode(condition, body, locations[begin].getPosition());
+        condition.setParent(whileLoop);
+        body.setParent(whileLoop);
+
+        return whileLoop;
     }
 
     /**
@@ -1186,7 +1221,12 @@ public class Parser {
         var body = tryParseBody(loopIndex + 1, endExclusive);
         if (body == null) return null;
 
-        return new ForLoopNode(variable, range, body, locations[begin].getPosition());
+        var forLoop = new ForLoopNode(variable, range, body, locations[begin].getPosition());
+        variable.setParent(forLoop);
+        range.setParent(forLoop);
+        body.setParent(forLoop);
+
+        return forLoop;
     }
 
     private void expectedRange(int begin, int endExclusive) {
@@ -1287,6 +1327,11 @@ public class Parser {
                 var elseBody = tryParseBody(elseIndex + 1, endExclusive);
                 if (elseBody == null) continue;
 
+                var statement = new IfStatementNode(condition, body, elseBody, locations[begin].getPosition());
+                condition.setParent(statement);
+                body.setParent(statement);
+                elseBody.setParent(statement);
+
                 return new IfStatementNode(condition, body, elseBody, locations[begin].getPosition());
             }
         }
@@ -1294,7 +1339,10 @@ public class Parser {
         var body = tryParseBody(thenIndex + 1, endExclusive);
         if (body == null) return null;
 
-        return new IfStatementNode(condition, body, null, locations[begin].getPosition());
+        var statement = new IfStatementNode(condition, body, null, locations[begin].getPosition());
+        condition.setParent(statement);
+        body.setParent(statement);
+        return statement;
     }
 
     /**
@@ -1312,7 +1360,10 @@ public class Parser {
         var expression = tryParseExpression(begin + 1, endExclusive);
         if (expression == null) return null;
 
-        return new ReturnStatementNode(expression, locations[begin].getPosition());
+        var returnStatement = new ReturnStatementNode(expression, locations[begin].getPosition());
+        expression.setParent(returnStatement);
+
+        return returnStatement;
     }
 
     /**

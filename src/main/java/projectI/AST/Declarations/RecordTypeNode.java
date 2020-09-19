@@ -1,6 +1,10 @@
 package projectI.AST.Declarations;
 
+import projectI.AST.ASTNode;
+import projectI.AST.Types.RuntimeRecordType;
+import projectI.AST.Types.RuntimeType;
 import projectI.CodePosition;
+import projectI.SemanticAnalysis.SymbolTable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,6 +15,17 @@ import java.util.Objects;
  */
 public class RecordTypeNode extends UserTypeNode {
     public final CodePosition startPosition;
+    public ASTNode parent;
+
+    @Override
+    public ASTNode getParent() {
+        return parent;
+    }
+
+    @Override
+    public void setParent(ASTNode parent) {
+        this.parent = parent;
+    }
 
     /**
      * List of record's variables
@@ -103,5 +118,10 @@ public class RecordTypeNode extends UserTypeNode {
         }
 
         return true;
+    }
+
+    @Override
+    public RuntimeType getType(SymbolTable symbolTable, ASTNode scope) {
+        return new RuntimeRecordType(this);
     }
 }

@@ -67,6 +67,16 @@ public class ProgramNode implements ASTNode {
         return builder.toString();
     }
 
+    @Override
+    public ASTNode getParent() {
+        return null;
+    }
+
+    @Override
+    public void setParent(ASTNode parent) {
+        throw new IllegalStateException();
+    }
+
     /**
      * Check if node is valid
      * @return true if this object is valid, false otherwise.

@@ -1,5 +1,9 @@
 package projectI.AST.Primary;
 
+import projectI.AST.ASTNode;
+import projectI.AST.Declarations.PrimitiveType;
+import projectI.AST.Types.RuntimePrimitiveType;
+import projectI.AST.Types.RuntimeType;
 import projectI.CodePosition;
 
 import java.util.Objects;
@@ -8,6 +12,17 @@ public class IntegralLiteralNode implements PrimaryNode {
     public final int value;
     public final Sign sign;
     public final CodePosition valuePosition;
+    public ASTNode parent;
+
+    @Override
+    public ASTNode getParent() {
+        return parent;
+    }
+
+    @Override
+    public void setParent(ASTNode parent) {
+        this.parent = parent;
+    }
 
     /**
      * A constructor for initializing objects of class SimpleNode
@@ -82,6 +97,16 @@ public class IntegralLiteralNode implements PrimaryNode {
     @Override
     public CodePosition getPosition() {
         return valuePosition;
+    }
+
+    @Override
+    public Object tryEvaluateConstant() {
+        return value;
+    }
+
+    @Override
+    public RuntimeType getType() {
+        return new RuntimePrimitiveType(PrimitiveType.INTEGER);
     }
 
     /**

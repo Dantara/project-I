@@ -1,5 +1,9 @@
 package projectI.AST.Expressions;
 
+import projectI.AST.ASTNode;
+import projectI.AST.Declarations.PrimitiveType;
+import projectI.AST.Types.RuntimePrimitiveType;
+import projectI.AST.Types.RuntimeType;
 import projectI.CodePosition;
 
 import java.util.Objects;
@@ -7,6 +11,17 @@ import java.util.Objects;
 public class NegatedRelationNode implements RelationNode {
     public final RelationNode innerRelation;
     public final CodePosition startPosition;
+    public ASTNode parent;
+
+    @Override
+    public ASTNode getParent() {
+        return parent;
+    }
+
+    @Override
+    public void setParent(ASTNode parent) {
+        this.parent = parent;
+    }
 
     /**
      * A constructor for initializing objects of class BinaryRelationNode
@@ -56,6 +71,26 @@ public class NegatedRelationNode implements RelationNode {
     @Override
     public CodePosition getPosition() {
         return startPosition;
+    }
+
+    @Override
+    public Object tryEvaluateConstant() {
+        var innerValue = innerRelation.tryEvaluateConstant();
+        if (innerValue == null) return null;
+        if (innerValue instanceof Double) return null;
+        if (innerValue instanceof Integer) {
+            int integerValue = (Integer) innerValue;
+            if (integerValue != 0 && integerValue != 1) return null;
+
+            innerValue = integerValue != 0;
+        }
+
+        return !((Boolean) innerValue);
+    }
+
+    @Override
+    public RuntimeType getType() {
+        return new RuntimePrimitiveType(PrimitiveType.BOOLEAN);
     }
 
     /**
