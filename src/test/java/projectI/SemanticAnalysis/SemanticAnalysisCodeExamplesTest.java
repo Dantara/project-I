@@ -143,4 +143,24 @@ public class SemanticAnalysisCodeExamplesTest extends TestCase {
 
         }
     }
+
+    public void testRange_Invalid() throws IOException, InvalidLexemeException, SemanticAnalysisException {
+        try {
+            var program = tryParseProgram("code_examples/range_invalid.txt");
+            analyzer.analyze(program);
+            fail();
+        } catch (IncompatibleTypesException ignored) {
+
+        }
+    }
+
+    public void testWhileLoopCondition_Invalid() throws IOException, InvalidLexemeException, SemanticAnalysisException {
+        try {
+            var program = tryParseProgram("code_examples/while_condition_invalid.txt");
+            analyzer.analyze(program);
+            fail();
+        } catch (IncompatibleTypesException ignored) {
+
+        }
+    }
 }

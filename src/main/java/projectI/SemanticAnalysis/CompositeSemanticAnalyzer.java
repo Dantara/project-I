@@ -23,5 +23,6 @@ public final class CompositeSemanticAnalyzer implements SemanticAnalyzer {
             new RoutineDeclarationAnalyzer(),
             new RoutineCallArgumentsAnalyzer(),
             new ArraySizesAnalyzer(),
+            new LoopAnalyzer()
     };
 }

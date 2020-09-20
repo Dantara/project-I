@@ -1,0 +1,7 @@
+routine main() is
+    var arr : array[5] integer
+
+    while arr loop
+
+    end
+end

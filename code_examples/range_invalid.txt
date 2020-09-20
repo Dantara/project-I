@@ -1,0 +1,6 @@
+routine main() is
+    var arr : array[5] integer
+    for i in arr .. 10 loop
+
+    end
+end

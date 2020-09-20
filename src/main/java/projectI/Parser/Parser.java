@@ -1328,7 +1328,11 @@ public class Parser {
             return null;
         }
 
-        return new RangeNode(from, to, reverse, locations[begin].getPosition());
+        var range = new RangeNode(from, to, reverse, locations[begin].getPosition());
+        from.setParent(range);
+        to.setParent(range);
+
+        return range;
     }
 
     /**
