@@ -180,6 +180,16 @@ public class SemanticAnalysisCodeExamplesTest extends TestCase {
         }
     }
 
+    public void testMismatchArgument_Invalid() throws IOException, InvalidLexemeException, SemanticAnalysisException {
+        try {
+            var program = tryParseProgram("code_examples/mismatch_argument_invalid.txt");
+            analyzer.analyze(program);
+            fail();
+        } catch (IncompatibleTypesException ignored) {
+
+        }
+    }
+
     public void testUndefinedType1_Invalid() throws IOException, InvalidLexemeException, SemanticAnalysisException {
         try {
             var program = tryParseProgram("code_examples/undefined_type_invalid1.txt");

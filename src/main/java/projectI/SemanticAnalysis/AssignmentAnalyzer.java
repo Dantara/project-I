@@ -1,43 +1,31 @@
 package projectI.SemanticAnalysis;
 
-import projectI.AST.Declarations.BodyNode;
-import projectI.AST.Declarations.HasBody;
-import projectI.AST.ProgramNode;
+import projectI.AST.Declarations.VariableDeclarationNode;
 import projectI.AST.Statements.AssignmentNode;
 import projectI.SemanticAnalysis.Exceptions.IncompatibleTypesException;
 import projectI.SemanticAnalysis.Exceptions.SemanticAnalysisException;
 
-public class AssignmentAnalyzer implements SemanticAnalyzer {
+public class AssignmentAnalyzer extends VisitorAnalyzer {
     @Override
-    public void analyze(ProgramNode program, SymbolTable symbolTable) throws SemanticAnalysisException {
-        for (var declaration : program.declarations) {
-            if (declaration instanceof HasBody) {
-                analyze((HasBody) declaration, symbolTable);
-            }
-        }
-    }
+    protected void analyze(AssignmentNode assignment, SymbolTable symbolTable) throws SemanticAnalysisException {
+        super.analyze(assignment, symbolTable);
 
-    private void analyze(HasBody hasBody, SymbolTable symbolTable) throws SemanticAnalysisException  {
-        for (int index = 0; index < hasBody.getBodiesCount(); index++) {
-            analyze(hasBody.getBody(index), symbolTable);
-        }
-    }
-
-    private void analyze(BodyNode body, SymbolTable symbolTable) throws SemanticAnalysisException  {
-        for (var statement : body.statements) {
-            if (statement instanceof HasBody) {
-                analyze((HasBody) statement, symbolTable);
-            } else if (statement instanceof AssignmentNode) {
-                analyze((AssignmentNode) statement, symbolTable);
-            }
-        }
-    }
-
-    private void analyze(AssignmentNode assignment, SymbolTable symbolTable) throws SemanticAnalysisException  {
         var leftType = assignment.modifiable.getType(symbolTable);
         var rightType = assignment.assignedValue.getType(symbolTable);
 
         if (!rightType.canBeCastedTo(leftType))
             throw new IncompatibleTypesException(this, assignment, leftType, rightType);
+    }
+
+    @Override
+    protected void analyze(VariableDeclarationNode variableDeclaration, SymbolTable symbolTable) throws SemanticAnalysisException {
+        super.analyze(variableDeclaration, symbolTable);
+
+        if (variableDeclaration.expression == null || variableDeclaration.type == null) return;
+        var variableType = variableDeclaration.type.getType(symbolTable);
+        var variableAssignedType = variableDeclaration.expression.getType(symbolTable);
+
+        if (!variableAssignedType.canBeCastedTo(variableType))
+            throw new IncompatibleTypesException(this, variableDeclaration, variableType, variableAssignedType);
     }
 }

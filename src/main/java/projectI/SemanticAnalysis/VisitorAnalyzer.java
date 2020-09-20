@@ -162,6 +162,8 @@ public class VisitorAnalyzer implements SemanticAnalyzer {
             analyze((BooleanLiteralNode) primary, symbolTable);
         else if (primary instanceof ModifiablePrimaryNode)
             analyze((ModifiablePrimaryNode) primary, symbolTable);
+        else if (primary instanceof RoutineCallNode)
+            analyze((RoutineCallNode) primary, symbolTable);
     }
 
     protected void analyze(IntegralLiteralNode literal, SymbolTable symbolTable) throws SemanticAnalysisException {
@@ -258,6 +260,10 @@ public class VisitorAnalyzer implements SemanticAnalyzer {
             analyze((IfStatementNode) statement, symbolTable);
         else if (statement instanceof ReturnStatementNode)
             analyze((ReturnStatementNode) statement, symbolTable);
+        else if (statement instanceof TypeDeclarationNode)
+            analyze((TypeDeclarationNode) statement, symbolTable);
+        else if (statement instanceof VariableDeclarationNode)
+            analyze((VariableDeclarationNode) statement, symbolTable);
     }
 
     protected void analyze(AssignmentNode assignment, SymbolTable symbolTable) throws SemanticAnalysisException {

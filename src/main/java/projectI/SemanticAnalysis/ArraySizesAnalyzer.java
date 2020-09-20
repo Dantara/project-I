@@ -2,27 +2,25 @@ package projectI.SemanticAnalysis;
 
 import projectI.AST.Declarations.ArrayTypeNode;
 import projectI.AST.Declarations.ParametersNode;
-import projectI.AST.Expressions.ExpressionNode;
 import projectI.SemanticAnalysis.Exceptions.ExpectedConstantException;
 import projectI.SemanticAnalysis.Exceptions.SemanticAnalysisException;
 
-public final class ArraySizesAnalyzer extends ExpressionAnalyzer {
+public final class ArraySizesAnalyzer extends VisitorAnalyzer {
     @Override
-    protected void analyze(ExpressionNode expression, SymbolTable symbolTable) throws SemanticAnalysisException {
-        if (expression.parent instanceof ArrayTypeNode) {
-            var array = (ArrayTypeNode) expression.parent;
-            if (array.parent instanceof ParametersNode) {
-                return;
-            }
+    protected void analyze(ArrayTypeNode array, SymbolTable symbolTable) throws SemanticAnalysisException {
+        super.analyze(array, symbolTable);
 
-            if (array.size == null) {
-                throw new SemanticAnalysisException(this, array);
-            }
+        if (array.parent instanceof ParametersNode) {
+            return;
+        }
 
-            var value = array.size.tryEvaluateConstant(symbolTable);
-            if (value == null) {
-                throw new ExpectedConstantException(this, array, array.size);
-            }
+        if (array.size == null) {
+            throw new SemanticAnalysisException(this, array);
+        }
+
+        var value = array.size.tryEvaluateConstant(symbolTable);
+        if (value == null) {
+            throw new ExpectedConstantException(this, array, array.size);
         }
     }
 }

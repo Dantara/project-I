@@ -6,18 +6,11 @@ import projectI.AST.Statements.ReturnStatementNode;
 import projectI.SemanticAnalysis.Exceptions.IncompatibleTypesException;
 import projectI.SemanticAnalysis.Exceptions.SemanticAnalysisException;
 
-public class RoutineDeclarationAnalyzer implements SemanticAnalyzer {
-
+public class RoutineDeclarationAnalyzer extends VisitorAnalyzer {
     @Override
-    public void analyze(ProgramNode program, SymbolTable symbolTable) throws SemanticAnalysisException {
-        for (var declaration : program.declarations) {
-            if (!(declaration instanceof RoutineDeclarationNode)) continue;
-
-            analyze((RoutineDeclarationNode) declaration, symbolTable);
-        }
-    }
-
-    private void analyze(RoutineDeclarationNode routine, SymbolTable symbolTable) throws SemanticAnalysisException {
+    protected void analyze(RoutineDeclarationNode routine, SymbolTable symbolTable) throws SemanticAnalysisException {
+        super.analyze(routine, symbolTable);
+        
         for (var statement: routine.body.statements) {
             if (!(statement instanceof ReturnStatementNode)) continue;
 
