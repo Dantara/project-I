@@ -1,7 +1,6 @@
 package projectI.AST.Primary;
 
 import projectI.AST.ASTNode;
-import projectI.AST.Declarations.ArrayTypeNode;
 import projectI.AST.Declarations.PrimitiveType;
 import projectI.AST.Expressions.ExpressionNode;
 import projectI.AST.Declarations.IdentifierNode;
@@ -10,7 +9,7 @@ import projectI.AST.Types.RuntimePrimitiveType;
 import projectI.AST.Types.RuntimeRecordType;
 import projectI.AST.Types.RuntimeType;
 import projectI.CodePosition;
-import projectI.SemanticAnalysis.InvalidRuntimeType;
+import projectI.AST.Types.InvalidRuntimeType;
 import projectI.SemanticAnalysis.SymbolTable;
 
 import java.util.ArrayList;
@@ -127,7 +126,7 @@ public class ModifiablePrimaryNode implements PrimaryNode {
 
     @Override
     public RuntimeType getType(SymbolTable symbolTable) {
-        var type = symbolTable.tryGetType(this, identifier.name);
+        var type = symbolTable.getType(this, identifier.name);
         if (accessors.size() == 0) return type;
 
         for (var accessor : accessors) {
@@ -228,7 +227,7 @@ public class ModifiablePrimaryNode implements PrimaryNode {
                 }
             }
 
-            return new InvalidRuntimeType();
+            return InvalidRuntimeType.instance;
         }
     }
 
@@ -290,7 +289,7 @@ public class ModifiablePrimaryNode implements PrimaryNode {
                 return array.ElementType;
             }
 
-            return new InvalidRuntimeType();
+            return InvalidRuntimeType.instance;
         }
     }
 
@@ -333,7 +332,7 @@ public class ModifiablePrimaryNode implements PrimaryNode {
                 return new RuntimePrimitiveType(PrimitiveType.INTEGER);
             }
 
-            return new InvalidRuntimeType();
+            return InvalidRuntimeType.instance;
         }
     }
 

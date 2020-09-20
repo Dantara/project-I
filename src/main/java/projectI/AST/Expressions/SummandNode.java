@@ -5,7 +5,7 @@ import projectI.AST.Declarations.PrimitiveType;
 import projectI.AST.Types.RuntimePrimitiveType;
 import projectI.AST.Types.RuntimeType;
 import projectI.CodePosition;
-import projectI.SemanticAnalysis.InvalidRuntimeType;
+import projectI.AST.Types.InvalidRuntimeType;
 import projectI.SemanticAnalysis.SymbolTable;
 
 import java.util.ArrayList;
@@ -186,12 +186,12 @@ public class SummandNode implements ASTNode {
         if (otherFactors.size() == 0) return factor.getType(symbolTable);
 
         var type = factor.getType(symbolTable);
-        if (!(type instanceof RuntimePrimitiveType)) return new InvalidRuntimeType();
+        if (!(type instanceof RuntimePrimitiveType)) return InvalidRuntimeType.instance;
         var primitiveType = (RuntimePrimitiveType) type;
 
         for (var otherFactor : otherFactors) {
             var otherType = otherFactor.node.getType(symbolTable);
-            if (!(otherType instanceof RuntimePrimitiveType)) return new InvalidRuntimeType();
+            if (!(otherType instanceof RuntimePrimitiveType)) return InvalidRuntimeType.instance;
             var otherPrimitiveType = (RuntimePrimitiveType) otherType;
             if (primitiveType == otherPrimitiveType) continue;
 

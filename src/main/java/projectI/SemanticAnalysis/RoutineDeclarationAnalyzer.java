@@ -4,7 +4,7 @@ import projectI.AST.Declarations.RoutineDeclarationNode;
 import projectI.AST.ProgramNode;
 import projectI.AST.Statements.ReturnStatementNode;
 
-public class RoutineAnalyzer implements SemanticAnalyzer {
+public class RoutineDeclarationAnalyzer implements SemanticAnalyzer {
 
     @Override
     public void analyze(ProgramNode program, SymbolTable symbolTable) throws SemanticAnalysisException {
@@ -31,8 +31,8 @@ public class RoutineAnalyzer implements SemanticAnalyzer {
             if (routine.returnType != null) {
                 var returnExpressionType = returnStatement.expression.getType(symbolTable);
                 var routineReturnType = routine.returnType.getType(symbolTable);
-                if (!routineReturnType.equals(returnExpressionType))
-                    throw new SemanticAnalysisException(this, routine);
+                if (!returnExpressionType.canBeCastedTo(routineReturnType))
+                    throw new IncompatibleTypesException(this, routine, routineReturnType, returnExpressionType);
             }
         }
     }

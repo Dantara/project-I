@@ -1,6 +1,4 @@
-package projectI.SemanticAnalysis;
-
-import projectI.AST.Types.RuntimeType;
+package projectI.AST.Types;
 
 public final class InvalidRuntimeType implements RuntimeType {
     @Override
@@ -12,4 +10,11 @@ public final class InvalidRuntimeType implements RuntimeType {
     public boolean equals(Object obj) {
         return obj.getClass() == getClass();
     }
+
+    @Override
+    public String toString() {
+        return "Invalid type";
+    }
+
+    public final static InvalidRuntimeType instance = new InvalidRuntimeType();
 }

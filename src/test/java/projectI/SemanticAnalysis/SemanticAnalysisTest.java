@@ -1,4 +1,4 @@
-package projectI.Parser;
+package projectI.SemanticAnalysis;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -11,6 +11,7 @@ import projectI.AST.Primary.ModifiablePrimaryNode;
 import projectI.AST.Statements.StatementNode;
 import projectI.Lexer.InvalidLexemeException;
 import projectI.Lexer.Lexer;
+import projectI.Parser.Parser;
 import projectI.SemanticAnalysis.CompositeSemanticAnalyzer;
 import projectI.SemanticAnalysis.SemanticAnalysisException;
 import projectI.SemanticAnalysis.SemanticAnalyzer;

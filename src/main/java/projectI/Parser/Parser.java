@@ -681,7 +681,14 @@ public class Parser {
             return null;
         }
 
-        return new ArrayTypeNode(size, type, locations[begin].getPosition());
+        var array = new ArrayTypeNode(size, type, locations[begin].getPosition());
+
+        type.setParent(array);
+        if (size != null)
+            size.setParent(array);
+
+
+        return array;
     }
     
     private void expectedExpression(int begin, int endExclusive) {
@@ -802,6 +809,7 @@ public class Parser {
 
         var declaration = new TypeDeclarationNode(identifier, type, locations[begin].getPosition());
         identifier.setParent(declaration);
+        type.setParent(declaration);
 
         return declaration;
     }
@@ -1359,11 +1367,12 @@ public class Parser {
                 if (elseBody == null) continue;
 
                 var statement = new IfStatementNode(condition, body, elseBody, locations[begin].getPosition());
+
                 condition.setParent(statement);
                 body.setParent(statement);
                 elseBody.setParent(statement);
 
-                return new IfStatementNode(condition, body, elseBody, locations[begin].getPosition());
+                return statement;
             }
         }
 
@@ -1371,8 +1380,10 @@ public class Parser {
         if (body == null) return null;
 
         var statement = new IfStatementNode(condition, body, null, locations[begin].getPosition());
+
         condition.setParent(statement);
         body.setParent(statement);
+
         return statement;
     }
 

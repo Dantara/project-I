@@ -8,13 +8,23 @@ import java.util.Objects;
 /**
  * A node for Routine Declaration Representation
  */
-public class RoutineDeclarationNode extends DeclarationNode {
+public class RoutineDeclarationNode extends DeclarationNode implements HasBody {
     public final IdentifierNode name;
     public final ParametersNode parameters;
     public final TypeNode returnType;
     public final BodyNode body;
     public final CodePosition startPosition;
     public ASTNode parent;
+
+    @Override
+    public int getBodiesCount() {
+        return 1;
+    }
+
+    @Override
+    public BodyNode getBody(int index) {
+        return body;
+    }
 
     @Override
     public ASTNode getParent() {

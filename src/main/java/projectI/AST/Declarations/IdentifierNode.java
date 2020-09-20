@@ -3,7 +3,6 @@ package projectI.AST.Declarations;
 import projectI.AST.ASTNode;
 import projectI.AST.Types.RuntimeType;
 import projectI.CodePosition;
-import projectI.SemanticAnalysis.InvalidRuntimeType;
 import projectI.SemanticAnalysis.SymbolTable;
 
 import java.util.Objects;
@@ -87,7 +86,6 @@ public class IdentifierNode implements TypeNode {
 
     @Override
     public RuntimeType getType(SymbolTable symbolTable) {
-        var definedType = symbolTable.tryGetType(this, name);
-        return definedType != null ? definedType : new InvalidRuntimeType();
+        return symbolTable.getType(this, name);
     }
 }

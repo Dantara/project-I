@@ -1,10 +1,9 @@
 package projectI.SemanticAnalysis;
 
-import projectI.AST.Declarations.RoutineDeclarationNode;
-import projectI.AST.Declarations.SimpleDeclarationNode;
-import projectI.AST.Declarations.TypeDeclarationNode;
-import projectI.AST.Declarations.VariableDeclarationNode;
+import projectI.AST.Declarations.*;
+import projectI.AST.Flow.ForLoopNode;
 import projectI.AST.ProgramNode;
+import projectI.AST.Types.RuntimePrimitiveType;
 import projectI.AST.Types.RuntimeRoutineType;
 import projectI.AST.Types.RuntimeType;
 
@@ -46,9 +45,26 @@ public class SymbolTableConstructor implements SemanticAnalyzer {
             symbolTable.defineType(routine, parameter.getValue0().name, parameter.getValue1().getType(symbolTable));
         }
 
-        for (var statement : routine.body.statements) {
+        analyze((HasBody) routine, symbolTable);
+    }
+
+    private void analyze(HasBody hasBody, SymbolTable symbolTable) throws SemanticAnalysisException {
+        for (int index = 0; index < hasBody.getBodiesCount(); index++) {
+            analyze(hasBody.getBody(index), symbolTable);
+        }
+    }
+
+    private void analyze(BodyNode body, SymbolTable symbolTable) throws SemanticAnalysisException {
+        for (var statement : body.statements) {
             if (statement instanceof SimpleDeclarationNode) {
                 analyze((SimpleDeclarationNode) statement, symbolTable);
+            } else if (statement instanceof HasBody) {
+                if (statement instanceof ForLoopNode) {
+                    var loop = (ForLoopNode) statement;
+                    symbolTable.defineType(statement, loop.variable.name, new RuntimePrimitiveType(PrimitiveType.INTEGER));
+                }
+
+                analyze((HasBody) statement, symbolTable);
             }
         }
     }

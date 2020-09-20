@@ -2,17 +2,28 @@ package projectI.AST.Flow;
 
 import projectI.AST.ASTNode;
 import projectI.AST.Declarations.BodyNode;
+import projectI.AST.Declarations.HasBody;
 import projectI.AST.Expressions.ExpressionNode;
 import projectI.AST.Statements.StatementNode;
 import projectI.CodePosition;
 
 import java.util.Objects;
 
-public class WhileLoopNode implements StatementNode {
+public class WhileLoopNode implements StatementNode, HasBody {
     public final ExpressionNode condition;
     public final BodyNode body;
     public final CodePosition startPosition;
     public ASTNode parent;
+
+    @Override
+    public BodyNode getBody(int index) {
+        return body;
+    }
+
+    @Override
+    public int getBodiesCount() {
+        return 1;
+    }
 
     @Override
     public ASTNode getParent() {

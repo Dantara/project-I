@@ -2,18 +2,30 @@ package projectI.AST.Flow;
 
 import projectI.AST.ASTNode;
 import projectI.AST.Declarations.BodyNode;
+import projectI.AST.Declarations.HasBody;
 import projectI.AST.Expressions.ExpressionNode;
 import projectI.AST.Statements.StatementNode;
 import projectI.CodePosition;
 
 import java.util.Objects;
 
-public class IfStatementNode implements StatementNode {
+public class IfStatementNode implements StatementNode, HasBody {
     public final ExpressionNode condition;
     public final BodyNode body;
     public final BodyNode elseBody;
     public final CodePosition startPosition;
-    public ASTNode parent;
+    private ASTNode parent;
+
+    @Override
+    public BodyNode getBody(int index) {
+        if (elseBody == null) return body;
+        return index == 0 ? body : elseBody;
+    }
+
+    @Override
+    public int getBodiesCount() {
+        return elseBody == null ? 1 : 2;
+    }
 
     @Override
     public ASTNode getParent() {

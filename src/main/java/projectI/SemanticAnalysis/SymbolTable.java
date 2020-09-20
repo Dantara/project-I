@@ -1,6 +1,8 @@
 package projectI.SemanticAnalysis;
 
 import projectI.AST.ASTNode;
+import projectI.AST.ProgramNode;
+import projectI.AST.Types.InvalidRuntimeType;
 import projectI.AST.Types.RuntimeType;
 
 import java.util.HashMap;
@@ -8,42 +10,38 @@ import java.util.HashMap;
 public class SymbolTable {
     public final HashMap<ASTNode, HashMap<String, RuntimeType>> types = new HashMap<>();
 
-    public void defineType(ASTNode node, String identifier, RuntimeType runtimeType) throws SemanticAnalysisException {
+    public void defineType(ASTNode scope, String identifier, RuntimeType runtimeType) throws SemanticAnalysisException {
         if (runtimeType instanceof InvalidRuntimeType)
-            throw new UndefinedSymbolException(this, node, identifier);
+            throw new UndefinedSymbolException(this, scope, identifier);
 
-        if (!types.containsKey(node)) {
+        if (!types.containsKey(scope)) {
             var map = new HashMap<String, RuntimeType>();
-            types.put(node, map);
+            types.put(scope, map);
         }
 
-        var map = types.get(node);
-        var scope = node;
+        var map = types.get(scope);
 
-        while (scope != null) {
-            if (types.containsKey(scope)) {
-                var scopeMap = types.get(node);
-                if (scopeMap.containsKey(identifier))
-                    throw new IdentifierAlreadyDefinedException(this, scope, identifier);
-            }
-
-            scope = scope.getParent();
+        if (getType(scope, identifier) instanceof InvalidRuntimeType) {
+            map.put(identifier, runtimeType);
+        } else {
+            throw new IdentifierAlreadyDefinedException(this, scope, identifier);
         }
-
-        map.put(identifier, runtimeType);
     }
 
-    public RuntimeType tryGetType(ASTNode scope, String identifier) {
+    public RuntimeType getType(ASTNode scope, String identifier) {
         while (scope != null) {
-            if (types.containsKey(scope)) {
-                var types = this.types.get(scope);
-                if (types.containsKey(identifier))
-                    return types.get(identifier);
+            if (this.types.containsKey(scope)) {
+                var definedTypes = this.types.get(scope);
+                if (definedTypes.containsKey(identifier))
+                    return definedTypes.get(identifier);
             }
+
+            if (!(scope instanceof ProgramNode) && scope.getParent() == null)
+                throw new IllegalStateException(String.format("%s is supposed to have a parent but it does not.", scope.toString()));
 
             scope = scope.getParent();
         }
 
-        return new InvalidRuntimeType();
+        return InvalidRuntimeType.instance;
     }
 }

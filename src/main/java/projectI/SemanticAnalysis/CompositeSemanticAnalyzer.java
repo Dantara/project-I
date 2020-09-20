@@ -8,14 +8,17 @@ public final class CompositeSemanticAnalyzer implements SemanticAnalyzer {
     }
 
     @Override
-    public void analyze(ProgramNode program, SymbolTable symbolTable) throws SemanticAnalysisException {for (var analyzer : analyzers) {
+    public void analyze(ProgramNode program, SymbolTable symbolTable) throws SemanticAnalysisException {
+        for (var analyzer : analyzers) {
             analyzer.analyze(program, symbolTable);
         }
     }
 
     private final static SemanticAnalyzer[] analyzers = new SemanticAnalyzer[] {
+            new StatementParentsAnalyzer(),
             new SymbolTableConstructor(),
+            new AssignmentAnalyzer(),
             new VariableDeclarationAssignmentAnalyzer(),
-            new RoutineAnalyzer()
+            new RoutineDeclarationAnalyzer(),
     };
 }

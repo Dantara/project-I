@@ -13,6 +13,6 @@ public class SemanticAnalysisException extends Exception {
 
     @Override
     public String getMessage() {
-        return analyzer + " has failed at " + node;
+        return analyzer.getClass().getSimpleName() + " has found an error at " + node;
     }
 }
