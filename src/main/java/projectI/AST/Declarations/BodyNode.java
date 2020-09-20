@@ -11,6 +11,17 @@ import java.util.Objects;
  * Node of a body inside loops, routine declaration or if statemnt
  */
 public class BodyNode implements ASTNode {
+    public ASTNode parent;
+
+    @Override
+    public ASTNode getParent() {
+        return parent;
+    }
+
+    @Override
+    public void setParent(ASTNode parent) {
+        this.parent = parent;
+    }
 
     /**
      * List of statements

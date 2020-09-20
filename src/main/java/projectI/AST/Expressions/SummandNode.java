@@ -1,7 +1,12 @@
 package projectI.AST.Expressions;
 
 import projectI.AST.ASTNode;
+import projectI.AST.Declarations.PrimitiveType;
+import projectI.AST.Types.RuntimePrimitiveType;
+import projectI.AST.Types.RuntimeType;
 import projectI.CodePosition;
+import projectI.AST.Types.InvalidRuntimeType;
+import projectI.SemanticAnalysis.SymbolTable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,6 +15,17 @@ import java.util.Objects;
 public class SummandNode implements ASTNode {
     public final FactorNode factor;
     public final List<OperatorWithNode<MultiplicationOperator, FactorNode>> otherFactors = new ArrayList<>();
+    public ASTNode parent;
+
+    @Override
+    public ASTNode getParent() {
+        return parent;
+    }
+
+    @Override
+    public void setParent(ASTNode parent) {
+        this.parent = parent;
+    }
 
     /**
      * A constructor for initializing objects of class SummandNode
@@ -78,6 +94,8 @@ public class SummandNode implements ASTNode {
      */
     @Override
     public String toString() {
+        if (otherFactors.size() == 0) return factor.toString();
+
         var builder = new StringBuilder();
         builder.append(factor);
         builder.append(" ");
@@ -119,5 +137,79 @@ public class SummandNode implements ASTNode {
         }
 
         return true;
+    }
+
+    public Object tryEvaluateConstant(SymbolTable symbolTable) {
+        var value = factor.tryEvaluateConstant(symbolTable);
+        if (value == null) return null;
+        if (otherFactors.size() == 0) return value;
+        if (value instanceof Boolean) return null;
+
+        for (var otherFactor : otherFactors) {
+            var otherValue = otherFactor.node.tryEvaluateConstant(symbolTable);
+            if (otherValue == null) return null;
+            if (otherValue instanceof Boolean) return null;
+
+            if (value instanceof Double && otherValue instanceof Integer) {
+                otherValue = Double.valueOf((Integer) otherValue);
+            }
+
+            if (value instanceof Integer && otherValue instanceof Double) {
+                value = Double.valueOf((Integer) value);
+            }
+
+            if (value instanceof Integer && otherValue instanceof Integer) {
+                value = switch (otherFactor.operator) {
+                    case DIVIDE -> (Integer) value / (Integer) otherValue;
+                    case MULTIPLY -> (Integer) value * (Integer) otherValue;
+                    case MODULO -> (Integer) value % (Integer) otherValue;
+                };
+
+
+                continue;
+            }
+
+            if (value instanceof Double && otherValue instanceof Double) {
+                value = switch (otherFactor.operator) {
+                    case DIVIDE -> (Double) value / (Double) otherValue;
+                    case MULTIPLY -> (Double) value * (Double) otherValue;
+                    case MODULO -> null;
+                };
+            }
+
+            if (value == null)
+                return null;
+        }
+
+        return null;
+    }
+
+    public RuntimeType getType(SymbolTable symbolTable) {
+        if (otherFactors.size() == 0) return factor.getType(symbolTable);
+
+        var type = factor.getType(symbolTable);
+        if (!(type instanceof RuntimePrimitiveType)) return InvalidRuntimeType.instance;
+        var primitiveType = (RuntimePrimitiveType) type;
+
+        for (var otherFactor : otherFactors) {
+            var otherType = otherFactor.node.getType(symbolTable);
+            if (!(otherType instanceof RuntimePrimitiveType)) return InvalidRuntimeType.instance;
+            var otherPrimitiveType = (RuntimePrimitiveType) otherType;
+            if (primitiveType == otherPrimitiveType) continue;
+
+            if (primitiveType.type == PrimitiveType.INTEGER && otherPrimitiveType.type != PrimitiveType.REAL ||
+                    primitiveType.type == PrimitiveType.REAL && otherPrimitiveType.type != PrimitiveType.INTEGER)
+                primitiveType = new RuntimePrimitiveType(PrimitiveType.REAL);
+
+            if (primitiveType.type == PrimitiveType.INTEGER && otherPrimitiveType.type != PrimitiveType.BOOLEAN ||
+                    primitiveType.type == PrimitiveType.BOOLEAN && otherPrimitiveType.type != PrimitiveType.INTEGER)
+                primitiveType = new RuntimePrimitiveType(PrimitiveType.INTEGER);
+
+            if (primitiveType.type == PrimitiveType.REAL && otherPrimitiveType.type != PrimitiveType.BOOLEAN ||
+                    primitiveType.type == PrimitiveType.BOOLEAN && otherPrimitiveType.type != PrimitiveType.REAL)
+                primitiveType = new RuntimePrimitiveType(PrimitiveType.REAL);
+        }
+
+        return primitiveType;
     }
 }

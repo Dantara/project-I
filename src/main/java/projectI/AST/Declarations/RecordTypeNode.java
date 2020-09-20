@@ -1,6 +1,12 @@
 package projectI.AST.Declarations;
 
+import org.javatuples.Pair;
+import org.javatuples.Triplet;
+import projectI.AST.ASTNode;
+import projectI.AST.Types.RuntimeRecordType;
+import projectI.AST.Types.RuntimeType;
 import projectI.CodePosition;
+import projectI.SemanticAnalysis.SymbolTable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,6 +17,17 @@ import java.util.Objects;
  */
 public class RecordTypeNode extends UserTypeNode {
     public final CodePosition startPosition;
+    public ASTNode parent;
+
+    @Override
+    public ASTNode getParent() {
+        return parent;
+    }
+
+    @Override
+    public void setParent(ASTNode parent) {
+        this.parent = parent;
+    }
 
     /**
      * List of record's variables
@@ -103,5 +120,19 @@ public class RecordTypeNode extends UserTypeNode {
         }
 
         return true;
+    }
+
+    @Override
+    public RuntimeType getType(SymbolTable symbolTable) {
+        var record = new RuntimeRecordType();
+
+        for (var variable : variables) {
+            var type = variable.type != null ? variable.type.getType(symbolTable) : null;
+            var value = variable.expression != null ? variable.expression.tryEvaluateConstant(symbolTable) : null;
+
+            record.variables.add(new Triplet<>(variable.identifier.name, type, value));
+        }
+
+        return record;
     }
 }

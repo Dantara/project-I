@@ -1,8 +1,11 @@
 package projectI;
 
+import projectI.AST.ProgramNode;
 import projectI.Lexer.InvalidLexemeException;
 import projectI.Lexer.Lexer;
 import projectI.Parser.Parser;
+import projectI.SemanticAnalysis.CompositeSemanticAnalyzer;
+import projectI.SemanticAnalysis.Exceptions.SemanticAnalysisException;
 
 import java.io.File;
 import java.io.IOException;
@@ -16,6 +19,10 @@ public class App
 
         var file = new File(fileName);
 
+        if (!file.exists()) {
+            file = new File("code_examples/" + fileName);
+        }
+
         if (file.exists()) {
             try {
                 var sourceCode = Files.readString(file.toPath());
@@ -24,6 +31,7 @@ public class App
 
                 if (program != null && program.validate()) {
                     System.out.println(program);
+                    runSemanticAnalysis(program);
                 } else {
                     printParsingErrors(parser);
                 }
@@ -66,4 +74,18 @@ public class App
             System.err.println(error);
         }
     }
+
+    private static void runSemanticAnalysis(ProgramNode program) {
+        try {
+            analyzer.analyze(program);
+        } catch (SemanticAnalysisException e) {
+            System.err.println("Semantic analysis not passed.");
+            System.err.println(e.getMessage());
+            return;
+        }
+
+        System.out.println("Semantic analysis passed.");
+    }
+
+    private final static CompositeSemanticAnalyzer analyzer = new CompositeSemanticAnalyzer();
 }

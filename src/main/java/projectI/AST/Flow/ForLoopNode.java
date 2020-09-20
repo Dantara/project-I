@@ -1,17 +1,40 @@
 package projectI.AST.Flow;
 
+import projectI.AST.ASTNode;
 import projectI.AST.Declarations.BodyNode;
+import projectI.AST.Declarations.HasBody;
 import projectI.AST.Declarations.IdentifierNode;
 import projectI.AST.Statements.StatementNode;
 import projectI.CodePosition;
 
 import java.util.Objects;
 
-public class ForLoopNode implements StatementNode {
+public class ForLoopNode implements StatementNode, HasBody {
     public final IdentifierNode variable;
     public final RangeNode range;
     public final BodyNode body;
     public final CodePosition startPosition;
+    public ASTNode parent;
+
+    @Override
+    public BodyNode getBody(int index) {
+        return body;
+    }
+
+    @Override
+    public int getBodiesCount() {
+        return 1;
+    }
+
+    @Override
+    public ASTNode getParent() {
+        return parent;
+    }
+
+    @Override
+    public void setParent(ASTNode parent) {
+        this.parent = parent;
+    }
 
     /**
      * A constructor for initializing objects of class ForLoopNode

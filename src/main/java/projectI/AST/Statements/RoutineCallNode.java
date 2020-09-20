@@ -1,9 +1,14 @@
 package projectI.AST.Statements;
 
+import projectI.AST.ASTNode;
 import projectI.AST.Expressions.ExpressionNode;
 import projectI.AST.Declarations.IdentifierNode;
 import projectI.AST.Primary.PrimaryNode;
+import projectI.AST.Types.InvalidRuntimeType;
+import projectI.AST.Types.RuntimeRoutineType;
+import projectI.AST.Types.RuntimeType;
 import projectI.CodePosition;
+import projectI.SemanticAnalysis.SymbolTable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,6 +18,17 @@ public class RoutineCallNode implements StatementNode, PrimaryNode {
     public final IdentifierNode name;
     public final List<ExpressionNode> arguments = new ArrayList<>();
     public final CodePosition startPosition;
+    public ASTNode parent;
+
+    @Override
+    public ASTNode getParent() {
+        return parent;
+    }
+
+    @Override
+    public void setParent(ASTNode parent) {
+        this.parent = parent;
+    }
 
     /**
      * Add an argument to the routine call
@@ -79,6 +95,23 @@ public class RoutineCallNode implements StatementNode, PrimaryNode {
     @Override
     public CodePosition getPosition() {
         return startPosition;
+    }
+
+    @Override
+    public Object tryEvaluateConstant(SymbolTable symbolTable) {
+        return null;
+    }
+
+    @Override
+    public RuntimeType getType(SymbolTable symbolTable) {
+        var routine = symbolTable.getType(this, name.name);
+
+        if (routine instanceof RuntimeRoutineType)
+        {
+            return ((RuntimeRoutineType) routine).returnType;
+        }
+
+        return InvalidRuntimeType.instance;
     }
 
     /**

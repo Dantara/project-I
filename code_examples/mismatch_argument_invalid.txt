@@ -1,0 +1,8 @@
+routine func(a : integer) is
+
+end
+
+routine main() is
+    var arr : array[5] integer
+    func(arr)
+end

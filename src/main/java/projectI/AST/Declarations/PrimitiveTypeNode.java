@@ -1,12 +1,27 @@
 package projectI.AST.Declarations;
 
+import projectI.AST.ASTNode;
+import projectI.AST.Types.RuntimePrimitiveType;
+import projectI.AST.Types.RuntimeType;
 import projectI.CodePosition;
+import projectI.SemanticAnalysis.SymbolTable;
 
 import java.util.Objects;
 
 public class PrimitiveTypeNode implements TypeNode {
     public final CodePosition position;
     public final PrimitiveType type;
+    public ASTNode parent;
+
+    @Override
+    public ASTNode getParent() {
+        return parent;
+    }
+
+    @Override
+    public void setParent(ASTNode parent) {
+        this.parent = parent;
+    }
 
     /**
      * A constructor for initializing objects of class PrimitiveTypeNode
@@ -65,5 +80,10 @@ public class PrimitiveTypeNode implements TypeNode {
     @Override
     public boolean validate() {
         return type != null && position != null;
+    }
+
+    @Override
+    public RuntimeType getType(SymbolTable symbolTable) {
+        return new RuntimePrimitiveType(type);
     }
 }

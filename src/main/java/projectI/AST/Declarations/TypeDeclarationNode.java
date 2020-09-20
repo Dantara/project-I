@@ -1,5 +1,6 @@
 package projectI.AST.Declarations;
 
+import projectI.AST.ASTNode;
 import projectI.CodePosition;
 
 import java.util.Objects;
@@ -8,6 +9,17 @@ public class TypeDeclarationNode extends SimpleDeclarationNode {
     public final IdentifierNode identifier;
     public final TypeNode type;
     public final CodePosition startPosition;
+    public ASTNode parent;
+
+    @Override
+    public ASTNode getParent() {
+        return parent;
+    }
+
+    @Override
+    public void setParent(ASTNode parent) {
+        this.parent = parent;
+    }
 
     /**
      * A constructor for initializing objects of class TypeDeclarationNode

@@ -1,6 +1,9 @@
 package projectI.AST.Declarations;
 
+import projectI.AST.ASTNode;
+import projectI.AST.Types.RuntimeType;
 import projectI.CodePosition;
+import projectI.SemanticAnalysis.SymbolTable;
 
 import java.util.Objects;
 
@@ -10,6 +13,17 @@ import java.util.Objects;
 public class IdentifierNode implements TypeNode {
     public final String name;
     public final CodePosition position;
+    public ASTNode parent;
+
+    @Override
+    public ASTNode getParent() {
+        return parent;
+    }
+
+    @Override
+    public void setParent(ASTNode parent) {
+        this.parent = parent;
+    }
 
     /**
      * A constructor for initializing objects of class IdentifierNode
@@ -68,5 +82,10 @@ public class IdentifierNode implements TypeNode {
     @Override
     public boolean validate() {
         return name != null && position != null;
+    }
+
+    @Override
+    public RuntimeType getType(SymbolTable symbolTable) {
+        return symbolTable.getType(this, name);
     }
 }

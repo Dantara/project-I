@@ -1,7 +1,12 @@
 package projectI.AST.Declarations;
 
+import projectI.AST.ASTNode;
 import projectI.AST.Expressions.ExpressionNode;
+import projectI.AST.Types.RuntimeArrayType;
+import projectI.AST.Types.RuntimeType;
 import projectI.CodePosition;
+import projectI.AST.Types.InvalidRuntimeType;
+import projectI.SemanticAnalysis.SymbolTable;
 
 import java.util.Objects;
 
@@ -12,6 +17,17 @@ public class ArrayTypeNode extends UserTypeNode {
     public final ExpressionNode size;
     public final TypeNode elementType;
     public final CodePosition startPosition;
+    public ASTNode parent;
+
+    @Override
+    public ASTNode getParent() {
+        return parent;
+    }
+
+    @Override
+    public void setParent(ASTNode parent) {
+        this.parent = parent;
+    }
 
     /**
      * A constructor for initializing objects of class ArrayTypeNode
@@ -80,5 +96,25 @@ public class ArrayTypeNode extends UserTypeNode {
         return elementType != null && elementType.validate() &&
                 (size == null || size.validate()) &&
                 startPosition != null;
+    }
+
+    @Override
+    public RuntimeType getType(SymbolTable symbolTable) {
+        var element = elementType.getType(symbolTable);
+
+        if (size == null) {
+            return new RuntimeArrayType(element, null);
+        }
+
+        var size = this.size.tryEvaluateConstant(symbolTable);
+        if (size == null) return InvalidRuntimeType.instance;
+        if (size instanceof Boolean) {
+            size = ((Boolean) size) ? 1 : 0;
+        }
+        if (size instanceof Double) {
+            size = (int) ((double) size);
+        }
+
+        return new RuntimeArrayType(element, (Integer) size);
     }
 }

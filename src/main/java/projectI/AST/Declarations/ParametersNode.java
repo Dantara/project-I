@@ -9,6 +9,17 @@ import java.util.List;
 import java.util.Objects;
 
 public class ParametersNode implements ASTNode {
+    public ASTNode parent;
+
+    @Override
+    public ASTNode getParent() {
+        return parent;
+    }
+
+    @Override
+    public void setParent(ASTNode parent) {
+        this.parent = parent;
+    }
 
     /**
      * Start position in the source code

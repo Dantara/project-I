@@ -1,12 +1,28 @@
 package projectI.AST.Primary;
 
+import projectI.AST.ASTNode;
+import projectI.AST.Declarations.PrimitiveType;
+import projectI.AST.Types.RuntimePrimitiveType;
+import projectI.AST.Types.RuntimeType;
 import projectI.CodePosition;
+import projectI.SemanticAnalysis.SymbolTable;
 
 import java.util.Objects;
 
 public class BooleanLiteralNode implements PrimaryNode {
     public final boolean value;
     public final CodePosition position;
+    public ASTNode parent;
+
+    @Override
+    public ASTNode getParent() {
+        return parent;
+    }
+
+    @Override
+    public void setParent(ASTNode parent) {
+        this.parent = parent;
+    }
 
     /**
      * A constructor for initializing objects of class BooleanLiteralNode
@@ -71,6 +87,16 @@ public class BooleanLiteralNode implements PrimaryNode {
         return position;
     }
 
+    @Override
+    public Object tryEvaluateConstant(SymbolTable symbolTable) {
+        return value;
+    }
+
+    @Override
+    public RuntimeType getType(SymbolTable symbolTable) {
+        return new RuntimePrimitiveType(PrimitiveType.BOOLEAN);
+    }
+
     /**
      * Check if node is valid
      * @return true if this object is valid, false otherwise.
@@ -78,5 +104,10 @@ public class BooleanLiteralNode implements PrimaryNode {
     @Override
     public boolean validate() {
         return position != null;
+    }
+
+    @Override
+    public String toString() {
+        return Boolean.toString(value);
     }
 }

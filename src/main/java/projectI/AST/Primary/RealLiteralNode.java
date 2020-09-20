@@ -1,6 +1,11 @@
 package projectI.AST.Primary;
 
+import projectI.AST.ASTNode;
+import projectI.AST.Declarations.PrimitiveType;
+import projectI.AST.Types.RuntimePrimitiveType;
+import projectI.AST.Types.RuntimeType;
 import projectI.CodePosition;
+import projectI.SemanticAnalysis.SymbolTable;
 
 import java.util.Objects;
 
@@ -8,6 +13,17 @@ public class RealLiteralNode implements PrimaryNode {
     public final double value;
     public final Sign sign;
     public final CodePosition valuePosition;
+    public ASTNode parent;
+
+    @Override
+    public ASTNode getParent() {
+        return parent;
+    }
+
+    @Override
+    public void setParent(ASTNode parent) {
+        this.parent = parent;
+    }
 
     /**
      * A constructor for initializing objects of class RealLiteralNode
@@ -100,6 +116,23 @@ public class RealLiteralNode implements PrimaryNode {
     @Override
     public CodePosition getPosition() {
         return valuePosition;
+    }
+
+    @Override
+    public Object tryEvaluateConstant(SymbolTable symbolTable) {
+        if (sign == null) return value;
+
+        switch (sign) {
+            case PLUS: return value;
+            case MINUS: return -value;
+        };
+
+        return null;
+    }
+
+    @Override
+    public RuntimeType getType(SymbolTable symbolTable) {
+        return new RuntimePrimitiveType(PrimitiveType.REAL);
     }
 
     /**

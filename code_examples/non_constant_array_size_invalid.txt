@@ -1,0 +1,4 @@
+routine main() is
+    var count is 5
+    type arr is array[count] integer
+end
