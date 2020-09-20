@@ -19,18 +19,20 @@ public class SymbolTable {
         if (runtimeType instanceof InvalidRuntimeType)
             throw new UndefinedSymbolException(this, scope, identifier);
 
-        if (!types.containsKey(scope)) {
-            var map = new HashMap<String, RuntimeType>();
-            types.put(scope, map);
-        }
-
-        var map = types.get(scope);
-
         if (getType(scope, identifier) instanceof InvalidRuntimeType) {
+            var map = getTypesDefinedAt(scope);
             map.put(identifier, runtimeType);
         } else {
             throw new IdentifierAlreadyDefinedException(this, scope, identifier);
         }
+    }
+
+    private HashMap<String, RuntimeType> getTypesDefinedAt(ASTNode scope) {
+        if (types.containsKey(scope)) return types.get(scope);
+
+        var scopeTypes = new HashMap<String, RuntimeType>();
+        types.put(scope, scopeTypes);
+        return scopeTypes;
     }
 
     public void defineConstant(ExpressionNode expression, Object value) {
@@ -46,10 +48,10 @@ public class SymbolTable {
 
     public RuntimeType getType(ASTNode scope, String identifier) {
         while (scope != null) {
-            if (this.types.containsKey(scope)) {
-                var definedTypes = this.types.get(scope);
-                if (definedTypes.containsKey(identifier))
-                    return definedTypes.get(identifier);
+            var definedTypes = getTypesDefinedAt(scope);
+
+            if (definedTypes.containsKey(identifier)) {
+                return definedTypes.get(identifier);
             }
 
             if (!(scope instanceof ProgramNode) && scope.getParent() == null)
