@@ -102,6 +102,8 @@ public class ExpressionNode implements FactorNode {
      */
     @Override
     public String toString() {
+        if (otherRelations.size() == 0) return relation.toString();
+
         var builder = new StringBuilder();
         builder.append(relation);
         builder.append(" ");

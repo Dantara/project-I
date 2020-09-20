@@ -94,6 +94,8 @@ public class SummandNode implements ASTNode {
      */
     @Override
     public String toString() {
+        if (otherFactors.size() == 0) return factor.toString();
+
         var builder = new StringBuilder();
         builder.append(factor);
         builder.append(" ");

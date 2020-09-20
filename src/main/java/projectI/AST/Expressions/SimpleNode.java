@@ -94,6 +94,8 @@ public class SimpleNode implements ASTNode {
      */
     @Override
     public String toString() {
+        if (otherSummands.size() == 0) return summand.toString();
+
         var builder = new StringBuilder();
         builder.append(summand);
         builder.append(" ");

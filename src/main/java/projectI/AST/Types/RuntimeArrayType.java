@@ -4,8 +4,8 @@ import java.util.Objects;
 
 public final class RuntimeArrayType implements RuntimeType {
     public RuntimeArrayType(RuntimeType elementType, Integer size) {
-        ElementType = elementType;
-        Size = size;
+        this.elementType = elementType;
+        this.size = size;
     }
 
     @Override
@@ -18,15 +18,20 @@ public final class RuntimeArrayType implements RuntimeType {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         RuntimeArrayType that = (RuntimeArrayType) o;
-        return Size == that.Size &&
-                Objects.equals(ElementType, that.ElementType);
+        return size.equals(that.size) &&
+                Objects.equals(elementType, that.elementType);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(ElementType, Size);
+        return Objects.hash(elementType, size);
     }
 
-    public final RuntimeType ElementType;
-    public final Integer Size;
+    public final RuntimeType elementType;
+    public final Integer size;
+
+    @Override
+    public String toString() {
+        return String.format("array[%s] %s", size, elementType);
+    }
 }

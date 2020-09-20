@@ -286,7 +286,7 @@ public class ModifiablePrimaryNode implements PrimaryNode {
         public RuntimeType getRuntimeType(RuntimeType modifiable, SymbolTable symbolTable) {
             if (modifiable instanceof RuntimeArrayType) {
                 var array = (RuntimeArrayType) modifiable;
-                return array.ElementType;
+                return array.elementType;
             }
 
             return InvalidRuntimeType.instance;

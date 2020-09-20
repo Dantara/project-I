@@ -40,6 +40,6 @@ public final class RuntimePrimitiveType implements RuntimeType {
 
     @Override
     public String toString() {
-        return type.toString();
+        return type.toString().toLowerCase();
     }
 }

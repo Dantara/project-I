@@ -19,6 +19,10 @@ public class App
 
         var file = new File(fileName);
 
+        if (!file.exists()) {
+            file = new File("code_examples/" + fileName);
+        }
+
         if (file.exists()) {
             try {
                 var sourceCode = Files.readString(file.toPath());
@@ -76,7 +80,7 @@ public class App
             analyzer.analyze(program);
         } catch (SemanticAnalysisException e) {
             System.err.println("Semantic analysis not passed.");
-            System.err.println(e);
+            System.err.println(e.getMessage());
             return;
         }
 
