@@ -16,8 +16,8 @@ public final class CompositeSemanticAnalyzer implements SemanticAnalyzer {
     }
 
     private final static SemanticAnalyzer[] analyzers = new SemanticAnalyzer[] {
+            new ParentsAnalyzer(),
             new ConstantsCaching(),
-            new StatementParentsAnalyzer(),
             new SymbolTableConstructor(),
             new AssignmentAnalyzer(),
             new VariableDeclarationAssignmentAnalyzer(),

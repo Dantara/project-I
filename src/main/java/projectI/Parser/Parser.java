@@ -542,6 +542,7 @@ public class Parser {
         if (identifier == null) return null;
 
         var modifiablePrimary = new ModifiablePrimaryNode(identifier, locations[begin].getPosition());
+        identifier.setParent(modifiablePrimary);
         var left = begin + 1;
 
         while (left < endExclusive) {
@@ -728,6 +729,7 @@ public class Parser {
 
                 if (variable != null) {
                     record.variables.add(variable);
+                    variable.setParent(record);
                     left = rightExclusive;
                     break;
                 }
@@ -1121,6 +1123,7 @@ public class Parser {
         if (name == null) return null;
 
         var routineCall = new RoutineCallNode(name, locations[begin].getPosition());
+        name.setParent(routineCall);
 
         if (!tokens[begin + 1].equals(TokenType.Operator, "(")) return null;
         if (!tokens[endExclusive - 1].equals(TokenType.Operator, ")")) {
