@@ -4,6 +4,9 @@ import projectI.AST.ASTNode;
 import projectI.AST.ProgramNode;
 import projectI.AST.Types.InvalidRuntimeType;
 import projectI.AST.Types.RuntimeType;
+import projectI.SemanticAnalysis.Exceptions.IdentifierAlreadyDefinedException;
+import projectI.SemanticAnalysis.Exceptions.SemanticAnalysisException;
+import projectI.SemanticAnalysis.Exceptions.UndefinedSymbolException;
 
 import java.util.HashMap;
 

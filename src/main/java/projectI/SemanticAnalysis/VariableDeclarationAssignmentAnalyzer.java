@@ -1,11 +1,12 @@
 package projectI.SemanticAnalysis;
 
-import projectI.AST.ASTNode;
 import projectI.AST.Declarations.RecordTypeNode;
 import projectI.AST.Declarations.RoutineDeclarationNode;
 import projectI.AST.Declarations.TypeDeclarationNode;
 import projectI.AST.Declarations.VariableDeclarationNode;
 import projectI.AST.ProgramNode;
+import projectI.SemanticAnalysis.Exceptions.IncompatibleTypesException;
+import projectI.SemanticAnalysis.Exceptions.SemanticAnalysisException;
 
 public class VariableDeclarationAssignmentAnalyzer implements SemanticAnalyzer {
 

@@ -6,6 +6,8 @@ import projectI.AST.ProgramNode;
 import projectI.AST.Types.RuntimePrimitiveType;
 import projectI.AST.Types.RuntimeRoutineType;
 import projectI.AST.Types.RuntimeType;
+import projectI.AST.Types.VoidRuntimeType;
+import projectI.SemanticAnalysis.Exceptions.SemanticAnalysisException;
 
 public class SymbolTableConstructor implements SemanticAnalyzer {
     @Override
@@ -31,7 +33,7 @@ public class SymbolTableConstructor implements SemanticAnalyzer {
     }
 
     private void analyze(RoutineDeclarationNode routine, SymbolTable symbolTable) throws SemanticAnalysisException {
-        RuntimeType returnType = routine.returnType != null ? routine.returnType.getType(symbolTable) : null;
+        RuntimeType returnType = routine.returnType != null ? routine.returnType.getType(symbolTable) : VoidRuntimeType.instance;
         var routineType = new RuntimeRoutineType(returnType);
 
         for (var parameter : routine.parameters.parameters) {

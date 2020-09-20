@@ -3,6 +3,8 @@ package projectI.SemanticAnalysis;
 import projectI.AST.Declarations.RoutineDeclarationNode;
 import projectI.AST.ProgramNode;
 import projectI.AST.Statements.ReturnStatementNode;
+import projectI.SemanticAnalysis.Exceptions.IncompatibleTypesException;
+import projectI.SemanticAnalysis.Exceptions.SemanticAnalysisException;
 
 public class RoutineDeclarationAnalyzer implements SemanticAnalyzer {
 

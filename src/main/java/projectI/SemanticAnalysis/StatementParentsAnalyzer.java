@@ -5,6 +5,7 @@ import projectI.AST.Declarations.HasBody;
 import projectI.AST.Declarations.RoutineDeclarationNode;
 import projectI.AST.ProgramNode;
 import projectI.AST.Statements.StatementNode;
+import projectI.SemanticAnalysis.Exceptions.SemanticAnalysisException;
 
 public class StatementParentsAnalyzer implements SemanticAnalyzer {
     @Override

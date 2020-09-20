@@ -1,6 +1,7 @@
-package projectI.SemanticAnalysis;
+package projectI.SemanticAnalysis.Exceptions;
 
 import projectI.AST.ASTNode;
+import projectI.SemanticAnalysis.SymbolTable;
 
 public class UndefinedSymbolException extends SemanticAnalysisException {
     public final String identifier;

@@ -1,6 +1,7 @@
-package projectI.SemanticAnalysis;
+package projectI.SemanticAnalysis.Exceptions;
 
 import projectI.AST.ASTNode;
+import projectI.SemanticAnalysis.SymbolTable;
 
 public class IdentifierAlreadyDefinedException extends SemanticAnalysisException{
     public final String identifier;

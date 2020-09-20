@@ -1,7 +1,8 @@
-package projectI.SemanticAnalysis;
+package projectI.SemanticAnalysis.Exceptions;
 
 import projectI.AST.ASTNode;
 import projectI.AST.Types.RuntimeType;
+import projectI.SemanticAnalysis.SemanticAnalyzer;
 
 public class IncompatibleTypesException extends SemanticAnalysisException {
     public final RuntimeType leftType;

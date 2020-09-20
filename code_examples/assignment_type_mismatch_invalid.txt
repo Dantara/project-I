@@ -1,0 +1,5 @@
+routine main() is
+    var a : array[5] integer
+    var b : integer
+    a := b
+end

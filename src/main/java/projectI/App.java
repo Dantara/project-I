@@ -5,8 +5,7 @@ import projectI.Lexer.InvalidLexemeException;
 import projectI.Lexer.Lexer;
 import projectI.Parser.Parser;
 import projectI.SemanticAnalysis.CompositeSemanticAnalyzer;
-import projectI.SemanticAnalysis.SemanticAnalysisException;
-import projectI.SemanticAnalysis.SymbolTable;
+import projectI.SemanticAnalysis.Exceptions.SemanticAnalysisException;
 
 import java.io.File;
 import java.io.IOException;

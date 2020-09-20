@@ -1,6 +1,6 @@
 package projectI.AST.Types;
 
-public final class InvalidRuntimeType implements RuntimeType {
+public class VoidRuntimeType implements RuntimeType {
     @Override
     public boolean canBeCastedTo(RuntimeType otherType) {
         return equals(otherType);
@@ -13,12 +13,12 @@ public final class InvalidRuntimeType implements RuntimeType {
 
     @Override
     public String toString() {
-        return "Invalid type";
+        return "VOID";
     }
 
-    private InvalidRuntimeType() {
+    private VoidRuntimeType() {
 
     }
 
-    public final static InvalidRuntimeType instance = new InvalidRuntimeType();
+    public final static VoidRuntimeType instance = new VoidRuntimeType();
 }

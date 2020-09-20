@@ -4,6 +4,8 @@ import projectI.AST.Declarations.BodyNode;
 import projectI.AST.Declarations.HasBody;
 import projectI.AST.ProgramNode;
 import projectI.AST.Statements.AssignmentNode;
+import projectI.SemanticAnalysis.Exceptions.IncompatibleTypesException;
+import projectI.SemanticAnalysis.Exceptions.SemanticAnalysisException;
 
 public class AssignmentAnalyzer implements SemanticAnalyzer {
     @Override

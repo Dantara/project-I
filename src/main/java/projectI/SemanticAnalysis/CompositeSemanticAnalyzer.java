@@ -1,6 +1,7 @@
 package projectI.SemanticAnalysis;
 
 import projectI.AST.ProgramNode;
+import projectI.SemanticAnalysis.Exceptions.SemanticAnalysisException;
 
 public final class CompositeSemanticAnalyzer implements SemanticAnalyzer {
     public void analyze(ProgramNode program) throws SemanticAnalysisException {
@@ -20,5 +21,7 @@ public final class CompositeSemanticAnalyzer implements SemanticAnalyzer {
             new AssignmentAnalyzer(),
             new VariableDeclarationAssignmentAnalyzer(),
             new RoutineDeclarationAnalyzer(),
+            new RoutineCallArgumentsAnalyzer(),
+            new ArraySizesAnalyzer(),
     };
 }

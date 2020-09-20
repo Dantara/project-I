@@ -1,6 +1,7 @@
-package projectI.SemanticAnalysis;
+package projectI.SemanticAnalysis.Exceptions;
 
 import projectI.AST.ASTNode;
+import projectI.SemanticAnalysis.SemanticAnalyzer;
 
 public class SemanticAnalysisException extends Exception {
     public final SemanticAnalyzer analyzer;

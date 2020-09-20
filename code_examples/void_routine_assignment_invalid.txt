@@ -1,0 +1,8 @@
+routine do_work() is
+
+end
+
+routine main() is
+    var a : integer
+    a := do_work()
+end

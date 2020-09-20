@@ -4,6 +4,8 @@ import projectI.AST.ASTNode;
 import projectI.AST.Expressions.ExpressionNode;
 import projectI.AST.Declarations.IdentifierNode;
 import projectI.AST.Primary.PrimaryNode;
+import projectI.AST.Types.InvalidRuntimeType;
+import projectI.AST.Types.RuntimeRoutineType;
 import projectI.AST.Types.RuntimeType;
 import projectI.CodePosition;
 import projectI.SemanticAnalysis.SymbolTable;
@@ -102,7 +104,14 @@ public class RoutineCallNode implements StatementNode, PrimaryNode {
 
     @Override
     public RuntimeType getType(SymbolTable symbolTable) {
-        return symbolTable.getType(this, name.name);
+        var routine = symbolTable.getType(this, name.name);
+
+        if (routine instanceof RuntimeRoutineType)
+        {
+            return ((RuntimeRoutineType) routine).returnType;
+        }
+
+        return InvalidRuntimeType.instance;
     }
 
     /**

@@ -4,34 +4,24 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import projectI.AST.*;
-import projectI.AST.Declarations.*;
-import projectI.AST.Expressions.*;
-import projectI.AST.Primary.IntegralLiteralNode;
-import projectI.AST.Primary.ModifiablePrimaryNode;
-import projectI.AST.Statements.StatementNode;
 import projectI.Lexer.InvalidLexemeException;
 import projectI.Lexer.Lexer;
 import projectI.Parser.Parser;
-import projectI.SemanticAnalysis.CompositeSemanticAnalyzer;
-import projectI.SemanticAnalysis.SemanticAnalysisException;
-import projectI.SemanticAnalysis.SemanticAnalyzer;
+import projectI.SemanticAnalysis.Exceptions.ExpectedConstantException;
+import projectI.SemanticAnalysis.Exceptions.IncompatibleTypesException;
+import projectI.SemanticAnalysis.Exceptions.SemanticAnalysisException;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import static projectI.AST.ASTUtils.*;
-import static projectI.AST.Primary.BooleanLiteralNode.falseLiteral;
-import static projectI.AST.Primary.BooleanLiteralNode.trueLiteral;
-import static projectI.Parser.ParserTestUtils.*;
-
-public class SemanticAnalysisTest extends TestCase {
-    public SemanticAnalysisTest(String testName) {
+public class SemanticAnalysisCodeExamplesTest extends TestCase {
+    public SemanticAnalysisCodeExamplesTest(String testName) {
         super(testName);
     }
 
     public static Test suite() {
-        return new TestSuite(SemanticAnalysisTest.class);
+        return new TestSuite(SemanticAnalysisCodeExamplesTest.class);
     }
 
     public static ProgramNode tryParseProgram(String path) throws IOException, InvalidLexemeException {
@@ -122,5 +112,35 @@ public class SemanticAnalysisTest extends TestCase {
     public void testWhileLoop() throws IOException, InvalidLexemeException, SemanticAnalysisException {
         var program = tryParseProgram("code_examples/while_loop.txt");
         analyzer.analyze(program);
+    }
+
+    public void testVoidRoutineAssignment_Invalid() throws IOException, InvalidLexemeException, SemanticAnalysisException {
+        try {
+            var program = tryParseProgram("code_examples/void_routine_assignment_invalid.txt");
+            analyzer.analyze(program);
+            fail();
+        } catch (IncompatibleTypesException ignored) {
+
+        }
+    }
+
+    public void testAssignmentTypeMismatch_Invalid() throws IOException, InvalidLexemeException, SemanticAnalysisException {
+        try {
+            var program = tryParseProgram("code_examples/assignment_type_mismatch_invalid.txt");
+            analyzer.analyze(program);
+            fail();
+        } catch (IncompatibleTypesException ignored) {
+
+        }
+    }
+
+    public void testNonConstantArraySize_Invalid() throws IOException, InvalidLexemeException, SemanticAnalysisException {
+        try {
+            var program = tryParseProgram("code_examples/non_constant_array_size_invalid.txt");
+            analyzer.analyze(program);
+            fail();
+        } catch (ExpectedConstantException ignored) {
+
+        }
     }
 }
