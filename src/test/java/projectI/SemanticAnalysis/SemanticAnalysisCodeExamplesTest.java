@@ -10,6 +10,7 @@ import projectI.Parser.Parser;
 import projectI.SemanticAnalysis.Exceptions.ExpectedConstantException;
 import projectI.SemanticAnalysis.Exceptions.IncompatibleTypesException;
 import projectI.SemanticAnalysis.Exceptions.SemanticAnalysisException;
+import projectI.SemanticAnalysis.Exceptions.UndefinedSymbolException;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -160,6 +161,26 @@ public class SemanticAnalysisCodeExamplesTest extends TestCase {
             analyzer.analyze(program);
             fail();
         } catch (IncompatibleTypesException ignored) {
+
+        }
+    }
+
+    public void testUndefinedType1_Invalid() throws IOException, InvalidLexemeException, SemanticAnalysisException {
+        try {
+            var program = tryParseProgram("code_examples/undefined_type_invalid1.txt");
+            analyzer.analyze(program);
+            fail();
+        } catch (UndefinedSymbolException ignored) {
+
+        }
+    }
+
+    public void testUndefinedType2_Invalid() throws IOException, InvalidLexemeException, SemanticAnalysisException {
+        try {
+            var program = tryParseProgram("code_examples/undefined_type_invalid2.txt");
+            analyzer.analyze(program);
+            fail();
+        } catch (UndefinedSymbolException ignored) {
 
         }
     }

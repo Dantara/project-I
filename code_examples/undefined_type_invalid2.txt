@@ -1,0 +1,5 @@
+routine main() is
+    var a : arr
+
+    type arr is array[5] integer
+end

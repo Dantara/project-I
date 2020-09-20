@@ -1,0 +1,3 @@
+routine main() is
+    var a : rec
+end
