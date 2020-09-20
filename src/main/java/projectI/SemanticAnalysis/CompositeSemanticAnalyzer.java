@@ -10,6 +10,9 @@ public final class CompositeSemanticAnalyzer implements SemanticAnalyzer {
 
     @Override
     public void analyze(ProgramNode program, SymbolTable symbolTable) throws SemanticAnalysisException {
+        if (program == null)
+            throw new IllegalArgumentException("Program cannot be null.");
+
         for (var analyzer : analyzers) {
             analyzer.analyze(program, symbolTable);
         }
