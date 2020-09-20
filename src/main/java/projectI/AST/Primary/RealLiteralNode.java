@@ -120,7 +120,14 @@ public class RealLiteralNode implements PrimaryNode {
 
     @Override
     public Object tryEvaluateConstant(SymbolTable symbolTable) {
-        return value;
+        if (sign == null) return value;
+
+        switch (sign) {
+            case PLUS: return value;
+            case MINUS: return -value;
+        };
+
+        return null;
     }
 
     @Override

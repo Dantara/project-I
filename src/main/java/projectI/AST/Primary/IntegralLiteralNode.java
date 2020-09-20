@@ -101,8 +101,20 @@ public class IntegralLiteralNode implements PrimaryNode {
     }
 
     @Override
-    public Object tryEvaluateConstant(SymbolTable symbolTable) {
-        return value;
+    public Object tryEvaluateConstant(SymbolTable symbolTable)
+    {
+        if (sign == null) return value;
+
+        switch (sign) {
+            case MINUS: return -value;
+            case PLUS: return value;
+            case NOT:
+                 if (value == 0) return true;
+                 if (value == 1) return false;
+                 return null;
+        };
+
+        return null;
     }
 
     @Override
