@@ -134,7 +134,7 @@ public class ModifiablePrimaryNode implements PrimaryNode {
             type = accessor.getRuntimeType(type, symbolTable);
         }
 
-        return new InvalidRuntimeType();
+        return type;
     }
 
     /**
