@@ -1,5 +1,7 @@
 # Project-I
 
+![CI](https://github.com/Dantara/project-I/workflows/"Java CI with Maven (Tests)"/badge.svg?branch=master)
+
 Project-I is compiler for generic Pascal-like imperative language 
 with execution on top of Java Virtual Machine. 
 
