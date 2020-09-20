@@ -128,7 +128,7 @@ public class RecordTypeNode extends UserTypeNode {
 
         for (var variable : variables) {
             var type = variable.type != null ? variable.type.getType(symbolTable) : null;
-            var value = variable.expression != null ? variable.expression.tryEvaluateConstant() : null;
+            var value = variable.expression != null ? variable.expression.tryEvaluateConstant(symbolTable) : null;
 
             record.variables.add(new Triplet<>(variable.identifier.name, type, value));
         }

@@ -75,8 +75,8 @@ public class NegatedRelationNode implements RelationNode {
     }
 
     @Override
-    public Object tryEvaluateConstant() {
-        var innerValue = innerRelation.tryEvaluateConstant();
+    public Object tryEvaluateConstant(SymbolTable symbolTable) {
+        var innerValue = innerRelation.tryEvaluateConstant(symbolTable);
         if (innerValue == null) return null;
         if (innerValue instanceof Double) return null;
         if (innerValue instanceof Integer) {

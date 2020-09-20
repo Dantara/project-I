@@ -145,8 +145,11 @@ public class ExpressionNode implements FactorNode {
         return new RuntimePrimitiveType(PrimitiveType.BOOLEAN);
     }
 
-    public Object tryEvaluateConstant() {
-        var value = relation.tryEvaluateConstant();
+    public Object tryEvaluateConstant(SymbolTable symbolTable) {
+        var definedConstant = symbolTable.tryGetConstant(this);
+        if (definedConstant != null) return definedConstant;
+
+        var value = relation.tryEvaluateConstant(symbolTable);
         if (value == null) return null;
         if (otherRelations.size() == 0) return value;
         if (value instanceof Integer) {
@@ -156,7 +159,7 @@ public class ExpressionNode implements FactorNode {
         }
 
         for (var otherRelation : otherRelations) {
-            var otherValue = otherRelation.node.tryEvaluateConstant();
+            var otherValue = otherRelation.node.tryEvaluateConstant(symbolTable);
             if (otherValue == null) return null;
             if (otherValue instanceof Double) return null;
 

@@ -1,6 +1,7 @@
 package projectI.SemanticAnalysis;
 
 import projectI.AST.ASTNode;
+import projectI.AST.Expressions.ExpressionNode;
 import projectI.AST.ProgramNode;
 import projectI.AST.Types.InvalidRuntimeType;
 import projectI.AST.Types.RuntimeType;
@@ -11,7 +12,8 @@ import projectI.SemanticAnalysis.Exceptions.UndefinedSymbolException;
 import java.util.HashMap;
 
 public class SymbolTable {
-    public final HashMap<ASTNode, HashMap<String, RuntimeType>> types = new HashMap<>();
+    private final HashMap<ASTNode, HashMap<String, RuntimeType>> types = new HashMap<>();
+    private final HashMap<ExpressionNode, Object> constants = new HashMap<>();
 
     public void defineType(ASTNode scope, String identifier, RuntimeType runtimeType) throws SemanticAnalysisException {
         if (runtimeType instanceof InvalidRuntimeType)
@@ -29,6 +31,17 @@ public class SymbolTable {
         } else {
             throw new IdentifierAlreadyDefinedException(this, scope, identifier);
         }
+    }
+
+    public void defineConstant(ExpressionNode expression, Object value) {
+        constants.put(expression, value);
+    }
+
+    public Object tryGetConstant(ExpressionNode expression) {
+        if (constants.containsKey(expression))
+            return constants.get(expression);
+
+        return null;
     }
 
     public RuntimeType getType(ASTNode scope, String identifier) {

@@ -106,7 +106,7 @@ public class ArrayTypeNode extends UserTypeNode {
             return new RuntimeArrayType(element, null);
         }
 
-        var size = this.size.tryEvaluateConstant();
+        var size = this.size.tryEvaluateConstant(symbolTable);
         if (size == null) return InvalidRuntimeType.instance;
         if (size instanceof Boolean) {
             size = ((Boolean) size) ? 1 : 0;

@@ -19,7 +19,7 @@ public final class ArraySizesAnalyzer extends ExpressionAnalyzer {
                 throw new SemanticAnalysisException(this, array);
             }
 
-            var value = array.size.tryEvaluateConstant();
+            var value = array.size.tryEvaluateConstant(symbolTable);
             if (value == null) {
                 throw new ExpectedConstantException(this, array, array.size);
             }

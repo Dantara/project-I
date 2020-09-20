@@ -74,12 +74,12 @@ public class BinaryRelationNode implements RelationNode {
     }
 
     @Override
-    public Object tryEvaluateConstant() {
-        var leftValue = simple.tryEvaluateConstant();
+    public Object tryEvaluateConstant(SymbolTable symbolTable) {
+        var leftValue = simple.tryEvaluateConstant(symbolTable);
         if (leftValue == null) return null;
         if (comparison == null) return leftValue;
 
-        var rightValue = simple.tryEvaluateConstant();
+        var rightValue = simple.tryEvaluateConstant(symbolTable);
         if (rightValue == null) return null;
 
         if (leftValue instanceof Boolean && rightValue instanceof Boolean) {

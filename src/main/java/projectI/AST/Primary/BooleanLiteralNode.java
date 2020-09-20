@@ -88,7 +88,7 @@ public class BooleanLiteralNode implements PrimaryNode {
     }
 
     @Override
-    public Object tryEvaluateConstant() {
+    public Object tryEvaluateConstant(SymbolTable symbolTable) {
         return value;
     }
 

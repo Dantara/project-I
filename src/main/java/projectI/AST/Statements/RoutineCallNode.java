@@ -98,7 +98,7 @@ public class RoutineCallNode implements StatementNode, PrimaryNode {
     }
 
     @Override
-    public Object tryEvaluateConstant() {
+    public Object tryEvaluateConstant(SymbolTable symbolTable) {
         return null;
     }
 

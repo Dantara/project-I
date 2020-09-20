@@ -12,7 +12,7 @@ public interface RelationNode extends ASTNode {
      */
     CodePosition getPosition();
 
-    Object tryEvaluateConstant();
+    Object tryEvaluateConstant(SymbolTable symbolTable);
 
     RuntimeType getType(SymbolTable symbolTable);
 }

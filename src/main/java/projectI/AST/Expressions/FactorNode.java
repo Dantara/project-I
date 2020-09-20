@@ -11,6 +11,6 @@ public interface FactorNode extends ASTNode {
      * @return the position
      */
     CodePosition getPosition();
-    Object tryEvaluateConstant();
+    Object tryEvaluateConstant(SymbolTable symbolTable);
     RuntimeType getType(SymbolTable symbolTable);
 }

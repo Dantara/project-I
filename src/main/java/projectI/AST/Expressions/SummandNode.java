@@ -139,14 +139,14 @@ public class SummandNode implements ASTNode {
         return true;
     }
 
-    public Object tryEvaluateConstant() {
-        var value = factor.tryEvaluateConstant();
+    public Object tryEvaluateConstant(SymbolTable symbolTable) {
+        var value = factor.tryEvaluateConstant(symbolTable);
         if (value == null) return null;
         if (otherFactors.size() == 0) return value;
         if (value instanceof Boolean) return null;
 
         for (var otherFactor : otherFactors) {
-            var otherValue = otherFactor.node.tryEvaluateConstant();
+            var otherValue = otherFactor.node.tryEvaluateConstant(symbolTable);
             if (otherValue == null) return null;
             if (otherValue instanceof Boolean) return null;
 

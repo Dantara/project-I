@@ -139,14 +139,14 @@ public class SimpleNode implements ASTNode {
         return true;
     }
 
-    public Object tryEvaluateConstant() {
-        var value = summand.tryEvaluateConstant();
+    public Object tryEvaluateConstant(SymbolTable symbolTable) {
+        var value = summand.tryEvaluateConstant(symbolTable);
         if (value == null) return null;
         if (otherSummands.size() == 0) return value;
         if (value instanceof Boolean) return null;
 
         for (var otherSummand : otherSummands) {
-            var otherValue = otherSummand.node.tryEvaluateConstant();
+            var otherValue = otherSummand.node.tryEvaluateConstant(symbolTable);
             if (otherValue == null) return null;
             if (otherValue instanceof Boolean) return null;
 
