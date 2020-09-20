@@ -115,6 +115,21 @@ public class SemanticAnalysisCodeExamplesTest extends TestCase {
         analyzer.analyze(program);
     }
 
+    public void testArrayWithoutSize() throws IOException, InvalidLexemeException, SemanticAnalysisException {
+        var program = tryParseProgram("code_examples/array_without_size.txt");
+        analyzer.analyze(program);
+    }
+
+    public void testArraySizeMismatch_Invalid() throws IOException, InvalidLexemeException, SemanticAnalysisException {
+        try {
+            var program = tryParseProgram("code_examples/array_size_mismatch_invalid.txt");
+            analyzer.analyze(program);
+            fail();
+        } catch (IncompatibleTypesException ignored) {
+
+        }
+    }
+
     public void testVoidRoutineAssignment_Invalid() throws IOException, InvalidLexemeException, SemanticAnalysisException {
         try {
             var program = tryParseProgram("code_examples/void_routine_assignment_invalid.txt");

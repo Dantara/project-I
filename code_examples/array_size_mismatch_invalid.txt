@@ -1,0 +1,9 @@
+var a: array[10] integer
+
+routine get_sum(arr: array[5] integer): integer is
+    return 0
+end
+
+routine main() is
+    var sum is get_sum(a)
+end

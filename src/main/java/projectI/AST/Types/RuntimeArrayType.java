@@ -10,7 +10,12 @@ public final class RuntimeArrayType implements RuntimeType {
 
     @Override
     public boolean canBeCastedTo(RuntimeType otherType) {
-        return equals(otherType);
+        if (equals(otherType)) return true;
+        if (!(otherType instanceof RuntimeArrayType)) return false;
+        var otherArray = (RuntimeArrayType) otherType;
+
+        return elementType.equals(otherArray.elementType) &&
+                (otherArray.size == null || Objects.equals(size, otherArray.size));
     }
 
     @Override
@@ -18,7 +23,7 @@ public final class RuntimeArrayType implements RuntimeType {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         RuntimeArrayType that = (RuntimeArrayType) o;
-        return size.equals(that.size) &&
+        return Objects.equals(size, that.size) &&
                 Objects.equals(elementType, that.elementType);
     }
 
