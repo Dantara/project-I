@@ -8,27 +8,29 @@ import projectI.AST.Types.RuntimePrimitiveType;
 import projectI.SemanticAnalysis.Exceptions.IncompatibleTypesException;
 import projectI.SemanticAnalysis.Exceptions.SemanticAnalysisException;
 
-public class LoopAnalyzer extends ExpressionAnalyzer {
+public class LoopAnalyzer extends VisitorAnalyzer {
     @Override
-    protected void analyze(ExpressionNode expression, SymbolTable symbolTable) throws SemanticAnalysisException {
-        if (expression.parent == null)
-            throw new IllegalStateException("Expression must have a parent.");
+    protected void analyze(WhileLoopNode whileLoop, SymbolTable symbolTable) throws SemanticAnalysisException {
+        super.analyze(whileLoop, symbolTable);
 
-        if (expression.parent instanceof RangeNode) {
-            var actualType = expression.getType(symbolTable);
-            var expectedType = new RuntimePrimitiveType(PrimitiveType.INTEGER);
-            if (!actualType.canBeCastedTo(expectedType))
-                throw new IncompatibleTypesException(this, expression.parent, expectedType, actualType);
-        }
+        var actualType = whileLoop.condition.getType(symbolTable);
+        var expectedType = new RuntimePrimitiveType(PrimitiveType.BOOLEAN);
+        if (!actualType.canBeCastedTo(expectedType))
+            throw new IncompatibleTypesException(this, whileLoop, expectedType, actualType);
+    }
 
-        if (expression.parent instanceof WhileLoopNode) {
-            var loop = (WhileLoopNode) expression.parent;
-            if (expression == loop.condition) {
-                var actualType = expression.getType(symbolTable);
-                var expectedType = new RuntimePrimitiveType(PrimitiveType.BOOLEAN);
-                if (!actualType.canBeCastedTo(expectedType))
-                    throw new IncompatibleTypesException(this, loop, expectedType, actualType);
-            }
-        }
+    @Override
+    protected void analyze(RangeNode range, SymbolTable symbolTable) throws SemanticAnalysisException {
+        super.analyze(range, symbolTable);
+
+        analyzeRangeLimit(range.from, symbolTable);
+        analyzeRangeLimit(range.to, symbolTable);
+    }
+
+    protected void analyzeRangeLimit(ExpressionNode limit, SymbolTable symbolTable) throws SemanticAnalysisException {
+        var actualType = limit.getType(symbolTable);
+        var expectedType = new RuntimePrimitiveType(PrimitiveType.INTEGER);
+        if (!actualType.canBeCastedTo(expectedType))
+            throw new IncompatibleTypesException(this, limit.parent, expectedType, actualType);
     }
 }
