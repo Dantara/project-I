@@ -216,4 +216,9 @@ public class SemanticAnalysisCodeExamplesTest extends TestCase {
 
         }
     }
+
+    public void testNestedRecord() throws IOException, InvalidLexemeException, SemanticAnalysisException {
+        var program = tryParseProgram("code_examples/nested_record.txt");
+        analyzer.analyze(program);
+    }
 }

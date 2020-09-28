@@ -1,0 +1,10 @@
+var b : record
+    var x is 5
+    var y : record
+        var z is 4
+    end
+end
+
+routine main() is
+
+end

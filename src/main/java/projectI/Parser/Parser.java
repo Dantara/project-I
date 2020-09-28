@@ -123,31 +123,34 @@ public class Parser {
         if (begin + 2 >= endExclusive) return null;
 
         if (tokens[begin + 2].equals(TokenType.Operator, ":")) {
-            var isIndex = getIndexOfLastToken(begin + 3, endExclusive, TokenType.Keyword, "is");
+            var isIndex = getIndexOfFirstToken(begin + 3, endExclusive, TokenType.Keyword, "is");
 
-            if (isIndex == -1) {
-                var type = tryParseType(begin + 3, endExclusive);
-                if (type == null) return null;
+            if (isIndex != -1) {
+                for (isIndex = endExclusive - 1; isIndex >= begin; isIndex--) {
+                    if (!tokens[isIndex].equals(TokenType.Keyword, "is")) continue;
 
-                var variable = new VariableDeclarationNode(identifier, type, null, position);
-                identifier.setParent(variable);
-                type.setParent(variable);
+                    var type = tryParseType(begin + 3, isIndex);
+                    if (type == null) continue;
+                    var expression = tryParseExpression(isIndex + 1, endExclusive);
+                    if (expression == null) continue;
 
-                return variable;
-            } else {
-                var type = tryParseType(begin + 3, isIndex);
-                if (type == null) return null;
-                var expression = tryParseExpression(isIndex + 1, endExclusive);
-                if (expression == null) return null;
+                    var variable = new VariableDeclarationNode(identifier, type, expression, position);
+                    identifier.setParent(variable);
+                    type.setParent(variable);
+                    expression.setParent(variable);
 
-                var variable = new VariableDeclarationNode(identifier, type, expression, position);
-                identifier.setParent(variable);
-                type.setParent(variable);
-                expression.setParent(variable);
-
-                return variable;
+                    return variable;
+                }
             }
 
+            var type = tryParseType(begin + 3, endExclusive);
+            if (type == null) return null;
+
+            var variable = new VariableDeclarationNode(identifier, type, null, position);
+            identifier.setParent(variable);
+            type.setParent(variable);
+
+            return variable;
         } else if (tokens[begin + 2].equals(TokenType.Keyword, "is")) {
             var expression = tryParseExpression(begin + 3, endExclusive);
             if (expression == null) return null;

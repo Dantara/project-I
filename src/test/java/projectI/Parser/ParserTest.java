@@ -1077,4 +1077,10 @@ public class ParserTest extends TestCase {
         assertTrue(booleanLiteral.validate());
         assertEquals(trueLiteral, booleanLiteral);
     }
+
+    public void testNestedRecord() throws InvalidLexemeException {
+        var variable = createParser("var a : record var b : record var a is 1 end end").tryParseVariableDeclaration(0, 14);
+
+        assertNotNull(variable);
+    }
  }

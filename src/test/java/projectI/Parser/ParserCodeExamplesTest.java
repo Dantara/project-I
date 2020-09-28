@@ -3,6 +3,7 @@ package projectI.Parser;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+import org.junit.Ignore;
 import projectI.AST.*;
 import projectI.AST.Declarations.*;
 import projectI.AST.Expressions.*;
@@ -263,12 +264,6 @@ public class ParserCodeExamplesTest extends TestCase {
 
     public void testArraysAndFor_Invalid() throws IOException, InvalidLexemeException {
         var program = tryParseProgram("code_examples/arrays_and_for_invalid.txt");
-
-        assertNull(program);
-    }
-
-    public void testRecords_Invalid() throws IOException, InvalidLexemeException {
-        var program = tryParseProgram("code_examples/records_invalid.txt");
 
         assertNull(program);
     }
