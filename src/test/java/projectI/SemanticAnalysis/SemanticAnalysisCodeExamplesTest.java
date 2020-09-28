@@ -7,10 +7,7 @@ import projectI.AST.*;
 import projectI.Lexer.InvalidLexemeException;
 import projectI.Lexer.Lexer;
 import projectI.Parser.Parser;
-import projectI.SemanticAnalysis.Exceptions.ExpectedConstantException;
-import projectI.SemanticAnalysis.Exceptions.IncompatibleTypesException;
-import projectI.SemanticAnalysis.Exceptions.SemanticAnalysisException;
-import projectI.SemanticAnalysis.Exceptions.UndefinedSymbolException;
+import projectI.SemanticAnalysis.Exceptions.*;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -206,6 +203,16 @@ public class SemanticAnalysisCodeExamplesTest extends TestCase {
             analyzer.analyze(program);
             fail();
         } catch (UndefinedSymbolException ignored) {
+
+        }
+    }
+
+    public void testDuplicateVariable_Invalid() throws IOException, InvalidLexemeException, SemanticAnalysisException {
+        try {
+            var program = tryParseProgram("code_examples/duplicate_variable_invalid.txt");
+            analyzer.analyze(program);
+            fail();
+        } catch (IdentifierAlreadyDefinedException ignored) {
 
         }
     }
