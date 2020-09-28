@@ -1,5 +1,7 @@
 # Project-I
 
+![Java CI with Maven (Tests)](https://github.com/Dantara/project-I/workflows/Java%20CI%20with%20Maven%20(Tests)/badge.svg)
+
 Project-I is compiler for generic Pascal-like imperative language 
 with execution on top of Java Virtual Machine. 
 
@@ -9,7 +11,7 @@ with execution on top of Java Virtual Machine.
 
 This is project build with [Maven](https://maven.apache.org/).
 
-You can download and install Maven form [here](https://maven.apache.org/download.cgi)
+You can download and install Maven fromm [here](https://maven.apache.org/download.cgi)
 or use default package manager of your system.
 
 ## Build
@@ -60,11 +62,16 @@ Project has the following file structure:
     ├── main
     │   └── java
     │       └── projectI
-    │           └── App.java
+    │           └── AST
+    │           └── Lexer
+    │           └── Parser
+    │           └── SemanticAnalysis
     └── test
         └── java
             └── projectI
-                └── AppTest.java
+                └── Lexer
+                └── Parser
+                └── SemanticAnalysis
 ```
 
 All code is placed in `src` folder. There are two subfolders: main and test. 
