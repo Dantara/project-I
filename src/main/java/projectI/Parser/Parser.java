@@ -91,6 +91,11 @@ public class Parser {
     }
 
     private SimpleDeclarationNode tryParseSimpleDeclaration(int begin, int endExclusive) {
+        for (int index = begin; index < endExclusive; index++) {
+            if (tokens[index].getLexeme().equals("routine"))
+                return null;
+        }
+
         var variable = tryParseVariableDeclaration(begin, endExclusive);
         if (variable != null) return variable;
 
@@ -163,15 +168,6 @@ public class Parser {
         }
 
         return null;
-    }
-
-    private int getIndexOfLastToken(int begin, int endExclusive, TokenType type, String lexeme) {
-        for (int index = endExclusive - 1; index >= begin; index--) {
-            if (tokens[index].equals(type, lexeme))
-                return index;
-        }
-
-        return -1;
     }
 
     /**
@@ -614,14 +610,15 @@ public class Parser {
      * @return a Type Node if it can be parsed otherwise null object
      */
     public TypeNode tryParseType(int begin, int endExclusive) {
+        if (begin < endExclusive && tokens[begin].getLexeme().equals("record")) {
+            return tryParseRecordType(begin, endExclusive);
+        }
+
         var primitive = tryParsePrimitiveType(begin, endExclusive);
         if (primitive != null) return primitive;
 
         var array = tryParseArrayType(begin, endExclusive);
         if (array != null) return array;
-
-        var record = tryParseRecordType(begin, endExclusive);
-        if (record != null) return record;
 
         return tryParseIdentifier(begin, endExclusive);
     }
@@ -762,7 +759,7 @@ public class Parser {
      * Parse an Identifier
      * @param begin is an index of toke with which the identifier begins
      * @param endExclusive is an index of toke with which the identifier ends
-     * @return an Idintifier Node if it can be parsed otherwise null object
+     * @return an Identifier Node if it can be parsed otherwise null object
      */
     public IdentifierNode tryParseIdentifier(int begin, int endExclusive) {
         if (begin != endExclusive - 1) return null;
@@ -789,7 +786,7 @@ public class Parser {
 
     /**
      * Parse a Declaration
-     * @param begin is an index of toke with which the declarartion begins
+     * @param begin is an index of toke with which the declaration begins
      * @param endExclusive is an index of toke with which the declaration ends
      * @return a Declaration Node if it can be parsed otherwise null object
      */
@@ -826,7 +823,7 @@ public class Parser {
 
      /**
      * Parse a Routine Declaration
-     * @param begin is an index of toke with which the routine declarartion begins
+     * @param begin is an index of toke with which the routine declaration begins
      * @param endExclusive is an index of toke with which the routine declaration ends
      * @return a Routine Declaration Node if it can be parsed otherwise null object
      */
