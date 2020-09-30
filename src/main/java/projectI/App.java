@@ -1,7 +1,5 @@
 package projectI;
 
-import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.Opcodes;
 import projectI.AST.ProgramNode;
 import projectI.Lexer.InvalidLexemeException;
 import projectI.Lexer.Lexer;
