@@ -2,7 +2,9 @@ package projectI.AST.Declarations;
 
 import projectI.AST.ASTNode;
 import projectI.AST.Expressions.ExpressionNode;
+import projectI.AST.Types.RuntimeType;
 import projectI.CodePosition;
+import projectI.SemanticAnalysis.SymbolTable;
 
 import java.util.Objects;
 
@@ -101,5 +103,12 @@ public class VariableDeclarationNode extends SimpleDeclarationNode {
         return identifier != null && identifier.validate() &&
                 (type != null && type.validate() || expression != null && expression.validate()) &&
                 startPosition != null;
+    }
+
+    public RuntimeType getType(SymbolTable symbolTable) {
+        if (type != null)
+            return type.getType(symbolTable);
+        else
+            return expression.getType(symbolTable);
     }
 }

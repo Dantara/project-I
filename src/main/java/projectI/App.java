@@ -1,13 +1,19 @@
 package projectI;
 
+import projectI.AST.Declarations.PrimitiveType;
 import projectI.AST.ProgramNode;
+import projectI.AST.Types.RuntimePrimitiveType;
+import projectI.AST.Types.RuntimeRoutineType;
+import projectI.CodeGeneration.JVM.JVMCodeGenerator;
 import projectI.Lexer.InvalidLexemeException;
 import projectI.Lexer.Lexer;
 import projectI.Parser.Parser;
 import projectI.SemanticAnalysis.CompositeSemanticAnalyzer;
 import projectI.SemanticAnalysis.Exceptions.SemanticAnalysisException;
+import projectI.SemanticAnalysis.SymbolTable;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Scanner;
@@ -31,7 +37,17 @@ public class App
 
                 if (program != null && program.validate()) {
                     System.out.println(program);
-                    runSemanticAnalysis(program);
+                    var symbolTable = new SymbolTable();
+
+                    if (runSemanticAnalysis(program, symbolTable)) {
+                        var generator = new JVMCodeGenerator(program, symbolTable);
+                        byte[] bytes = generator.generate();
+                        try (FileOutputStream stream = new FileOutputStream("target/Program.class")) {
+                            stream.write(bytes);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
                 } else {
                     printParsingErrors(parser);
                 }
@@ -75,16 +91,21 @@ public class App
         }
     }
 
-    private static void runSemanticAnalysis(ProgramNode program) {
+    private static boolean runSemanticAnalysis(ProgramNode program, SymbolTable symbolTable) {
         try {
-            analyzer.analyze(program);
+            var printIntType = new RuntimeRoutineType(null);
+            printIntType.parameters.add(new RuntimePrimitiveType(PrimitiveType.INTEGER));
+            symbolTable.defineType(program, "printInt", printIntType);
+
+            analyzer.analyze(program, symbolTable);
         } catch (SemanticAnalysisException e) {
             System.err.println("Semantic analysis not passed.");
             System.err.println(e.getMessage());
-            return;
+            return false;
         }
 
         System.out.println("Semantic analysis passed.");
+        return true;
     }
 
     private final static CompositeSemanticAnalyzer analyzer = new CompositeSemanticAnalyzer();
