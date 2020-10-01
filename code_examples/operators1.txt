@@ -1,0 +1,26 @@
+routine main() is
+    var a is 5.0*15
+    printReal(a)
+    var b is 1.0<5.0
+    printBoolean(b)
+    var c is 1 >= 5
+    printBoolean(c)
+    var d is 1 > 5
+    printBoolean(d)
+    var e is 1 <= 5
+    printBoolean(e)
+    var f is true and true
+    printBoolean(f)
+    var g is true xor false
+    printBoolean(g)
+    var h is not false
+    printBoolean(h)
+    var i is true or false
+    printBoolean(i)
+
+    var n1 is 1
+    var n2 is 2
+    printBoolean(n1 < n2)
+    printBoolean(n1 and n2)
+    printBoolean(1 > 2 or n1 = n2)
+end

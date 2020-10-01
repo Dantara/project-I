@@ -1,6 +1,7 @@
 package projectI.CodeGeneration.JVM;
 
 import org.javatuples.Pair;
+import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import projectI.AST.Declarations.PrimitiveType;
@@ -46,8 +47,44 @@ public class ExpressionCodeGenerator {
     public void generate(ExpressionNode expression) {
         generate(expression.relation);
 
-        if (expression.otherRelations.size() > 0)
-            throw new IllegalStateException();
+        if (expression.otherRelations.size() == 0) return;
+
+        var type = ((RuntimePrimitiveType) expression.relation.getType(symbolTable)).type;
+        if (type == REAL) {
+            methodVisitor.visitInsn(D2I);
+        }
+
+        var trueLabel = new Label();
+        var exitLabel = new Label();
+
+        methodVisitor.visitJumpInsn(IFNE, trueLabel);
+
+        methodVisitor.visitInsn(ICONST_0);
+        methodVisitor.visitJumpInsn(GOTO, exitLabel);
+        methodVisitor.visitLabel(trueLabel);
+        methodVisitor.visitInsn(ICONST_1);
+        methodVisitor.visitLabel(exitLabel);
+
+        for (var otherRelation : expression.otherRelations) {
+            generate(otherRelation.node);
+
+            trueLabel = new Label();
+            exitLabel = new Label();
+
+            methodVisitor.visitJumpInsn(IFNE, trueLabel);
+
+            methodVisitor.visitInsn(ICONST_0);
+            methodVisitor.visitJumpInsn(GOTO, exitLabel);
+            methodVisitor.visitLabel(trueLabel);
+            methodVisitor.visitInsn(ICONST_1);
+            methodVisitor.visitLabel(exitLabel);
+
+            switch (otherRelation.operator) {
+                case OR -> methodVisitor.visitInsn(IOR);
+                case AND -> methodVisitor.visitInsn(IAND);
+                case XOR -> methodVisitor.visitInsn(IXOR);
+            }
+        }
     }
 
     private void generate(RelationNode relation) {
@@ -63,8 +100,50 @@ public class ExpressionCodeGenerator {
     private void generate(BinaryRelationNode relation) {
         generate(relation.simple);
 
-        if (relation.otherSimple != null)
-            throw new IllegalStateException();
+        if (relation.otherSimple == null) return;
+        if (relation.comparison == null) return;
+
+        var type = ((RuntimePrimitiveType) relation.simple.getType(symbolTable)).type;
+        if (type == BOOLEAN)
+            type = INTEGER;
+
+        var otherType = ((RuntimePrimitiveType) relation.otherSimple.getType(symbolTable)).type;
+        if (otherType == BOOLEAN)
+            otherType = INTEGER;
+
+        var trueLabel = new Label();
+        var exitLabel = new Label();
+
+        if (type != otherType) {
+            if (type == REAL) {
+                generate(relation.otherSimple);
+                methodVisitor.visitInsn(I2D);
+            } else if (otherType == REAL) {
+                methodVisitor.visitInsn(I2D);
+                generate(relation.otherSimple);
+            }
+        } else {
+            generate(relation.otherSimple);
+        }
+
+        if (type == REAL && otherType == REAL) {
+            methodVisitor.visitInsn(DCMPL);
+        }
+
+        switch (relation.comparison) {
+            case LESS -> methodVisitor.visitJumpInsn(IF_ICMPLT, trueLabel);
+            case LESS_EQUAL -> methodVisitor.visitJumpInsn(IF_ICMPLE, trueLabel);
+            case GREATER -> methodVisitor.visitJumpInsn(IF_ICMPGE, trueLabel);
+            case GREATER_EQUAL -> methodVisitor.visitJumpInsn(IF_ICMPGT, trueLabel);
+            case EQUAL -> methodVisitor.visitJumpInsn(IF_ICMPEQ, trueLabel);
+            case NOT_EQUAL -> methodVisitor.visitJumpInsn(IF_ICMPNE, trueLabel);
+        }
+
+        methodVisitor.visitInsn(ICONST_0);
+        methodVisitor.visitJumpInsn(GOTO, exitLabel);
+        methodVisitor.visitLabel(trueLabel);
+        methodVisitor.visitInsn(ICONST_1);
+        methodVisitor.visitLabel(exitLabel);
     }
 
     private void generate(NegatedRelationNode relation) {

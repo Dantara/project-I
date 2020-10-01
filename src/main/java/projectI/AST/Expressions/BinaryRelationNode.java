@@ -2,6 +2,7 @@ package projectI.AST.Expressions;
 
 import projectI.AST.ASTNode;
 import projectI.AST.Declarations.PrimitiveType;
+import projectI.AST.Types.InvalidRuntimeType;
 import projectI.AST.Types.RuntimePrimitiveType;
 import projectI.AST.Types.RuntimeType;
 import projectI.CodePosition;
@@ -79,13 +80,13 @@ public class BinaryRelationNode implements RelationNode {
         if (leftValue == null) return null;
         if (comparison == null) return leftValue;
 
-        var rightValue = simple.tryEvaluateConstant(symbolTable);
+        var rightValue = otherSimple.tryEvaluateConstant(symbolTable);
         if (rightValue == null) return null;
 
         if (leftValue instanceof Boolean && rightValue instanceof Boolean) {
             return switch (comparison) {
-                case EQUAL -> leftValue == rightValue;
-                case NOT_EQUAL -> leftValue != rightValue;
+                case EQUAL -> leftValue.equals(rightValue);
+                case NOT_EQUAL -> !leftValue.equals(rightValue);
                 default -> null;
             };
         }
@@ -104,8 +105,8 @@ public class BinaryRelationNode implements RelationNode {
                 case LESS_EQUAL -> (Integer) leftValue <= (Integer) rightValue;
                 case GREATER -> (Integer) leftValue > (Integer) rightValue;
                 case GREATER_EQUAL -> (Integer) leftValue >= (Integer) rightValue;
-                case EQUAL -> leftValue == rightValue;
-                case NOT_EQUAL -> leftValue != rightValue;
+                case EQUAL -> leftValue.equals(rightValue);
+                case NOT_EQUAL -> !leftValue.equals(rightValue);
             };
         }
 
@@ -115,8 +116,8 @@ public class BinaryRelationNode implements RelationNode {
                 case LESS_EQUAL -> (Double) leftValue <= (Double) rightValue;
                 case GREATER -> (Double) leftValue > (Double) rightValue;
                 case GREATER_EQUAL -> (Double) leftValue >= (Double) rightValue;
-                case EQUAL -> leftValue == rightValue;
-                case NOT_EQUAL -> leftValue != rightValue;
+                case EQUAL -> leftValue.equals(rightValue);
+                case NOT_EQUAL -> !leftValue.equals(rightValue);
             };
         }
 
@@ -126,6 +127,10 @@ public class BinaryRelationNode implements RelationNode {
     @Override
     public RuntimeType getType(SymbolTable symbolTable) {
         if (comparison == null) return simple.getType(symbolTable);
+
+        if (simple.getType(symbolTable).equals(new RuntimePrimitiveType(PrimitiveType.BOOLEAN)) &&
+                otherSimple.getType(symbolTable).equals(new RuntimePrimitiveType(PrimitiveType.BOOLEAN)))
+            return InvalidRuntimeType.instance;
 
         return new RuntimePrimitiveType(PrimitiveType.BOOLEAN);
     }
