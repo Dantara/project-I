@@ -1,0 +1,11 @@
+routine factorial(n : integer) : integer is
+    if n <= 1 then
+        return 1
+    else
+        return n * factorial(n - 1)
+    end
+end
+
+routine main() is
+    printInt(factorial(5))
+end

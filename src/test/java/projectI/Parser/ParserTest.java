@@ -1083,4 +1083,10 @@ public class ParserTest extends TestCase {
 
         assertNotNull(variable);
     }
+
+    public void testReverseRange() throws InvalidLexemeException {
+        var range = createParser("in reverse 1..5").tryParseRange(0, 5);
+
+        assertNotNull(range);
+    }
  }

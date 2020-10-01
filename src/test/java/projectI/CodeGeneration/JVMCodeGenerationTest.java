@@ -109,4 +109,39 @@ public class JVMCodeGenerationTest extends TestCase {
         expectedOutput.append(1.0).append(System.lineSeparator());
         Assert.assertEquals(expectedOutput.toString(), output);
     }
+
+    public void testForLoop() throws Exception {
+        var output = getOutput("code_examples/for_loop.txt");
+        var expectedOutput = new StringBuilder();
+        expectedOutput.append(1).append(System.lineSeparator());
+        expectedOutput.append(2).append(System.lineSeparator());
+        expectedOutput.append(3).append(System.lineSeparator());
+        expectedOutput.append(4).append(System.lineSeparator());
+        expectedOutput.append(5).append(System.lineSeparator());
+        expectedOutput.append(3).append(System.lineSeparator());
+        expectedOutput.append(2).append(System.lineSeparator());
+        expectedOutput.append(1).append(System.lineSeparator());
+        Assert.assertEquals(expectedOutput.toString(), output);
+    }
+
+    public void testWhileLoop1() throws Exception {
+        var output = getOutput("code_examples/while_loop1.txt");
+        var expectedOutput = new StringBuilder();
+        expectedOutput.append(10).append(System.lineSeparator());
+        Assert.assertEquals(expectedOutput.toString(), output);
+    }
+
+    public void testEvenNumbersSum() throws Exception {
+        var output = getOutput("code_examples/even_numbers_sum.txt");
+        var expectedOutput = new StringBuilder();
+        expectedOutput.append(2 + 4 + 6 + 8 + 10).append(System.lineSeparator());
+        Assert.assertEquals(expectedOutput.toString(), output);
+    }
+
+    public void testFactorial() throws Exception {
+        var output = getOutput("code_examples/factorial.txt");
+        var expectedOutput = new StringBuilder();
+        expectedOutput.append(120).append(System.lineSeparator());
+        Assert.assertEquals(expectedOutput.toString(), output);
+    }
 }

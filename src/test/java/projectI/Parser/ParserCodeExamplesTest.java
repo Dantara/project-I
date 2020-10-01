@@ -273,4 +273,10 @@ public class ParserCodeExamplesTest extends TestCase {
 
         assertNull(program);
     }
+
+    public void testForLoop() throws IOException, InvalidLexemeException {
+        var program = tryParseProgram("code_examples/for_loop.txt");
+
+        assertNotNull(program);
+    }
 }

@@ -5,7 +5,10 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import projectI.AST.Declarations.*;
+import projectI.AST.Flow.ForLoopNode;
 import projectI.AST.Flow.IfStatementNode;
+import projectI.AST.Flow.RangeNode;
+import projectI.AST.Flow.WhileLoopNode;
 import projectI.AST.ProgramNode;
 import projectI.AST.Statements.AssignmentNode;
 import projectI.AST.Statements.ReturnStatementNode;
@@ -123,6 +126,10 @@ public class JVMCodeGenerator implements ICodeGenerator {
             generateRoutineCall(program, methodVisitor, (RoutineCallNode) statement, context, symbolTable);
         else if (statement instanceof IfStatementNode)
             generateIfStatement(methodVisitor, (IfStatementNode) statement, routine, context);
+        else if (statement instanceof ForLoopNode)
+            generateForLoop(methodVisitor, (ForLoopNode) statement, routine, context);
+        else if (statement instanceof WhileLoopNode)
+            generateWhileLoop(methodVisitor, (WhileLoopNode) statement, routine, context);
         else
             throw new IllegalStateException();
     }
@@ -166,6 +173,10 @@ public class JVMCodeGenerator implements ICodeGenerator {
 
     private void generateLocalVariableDefaultInitialization(MethodVisitor methodVisitor, VariableDeclarationNode variable, int variableId) {
         var type = variable.getType(symbolTable);
+        generateLocalVariableDefaultInitialization(methodVisitor, type, variableId);
+    }
+
+    private void generateLocalVariableDefaultInitialization(MethodVisitor methodVisitor, RuntimeType type, int variableId) {
         if (type instanceof RuntimePrimitiveType) {
             switch (((RuntimePrimitiveType) type).type) {
                 case INTEGER, BOOLEAN -> methodVisitor.visitInsn(ICONST_0);
@@ -223,6 +234,49 @@ public class JVMCodeGenerator implements ICodeGenerator {
 
             methodVisitor.visitLabel(exitLabel);
         }
+    }
+
+    private void generateForLoop(MethodVisitor methodVisitor, ForLoopNode forLoop, RoutineDeclarationNode routine, VariableContext context) {
+        var variableId = context.defineVariable(forLoop, forLoop.variable.name);
+        generateLocalVariableDefaultInitialization(methodVisitor, new RuntimePrimitiveType(PrimitiveType.INTEGER), variableId);
+
+        var exitLabel = new Label();
+        var loopLabel = new Label();
+
+        var range = forLoop.range;
+        var initialValue = range.reverse ? range.to : range.from;
+        var finalValue = range.reverse ? range.from : range.to;
+        pushExpression(program, methodVisitor, initialValue, context, symbolTable);
+        storeVariable(methodVisitor, new RuntimePrimitiveType(PrimitiveType.INTEGER), variableId);
+
+        methodVisitor.visitLabel(loopLabel);
+
+        methodVisitor.visitVarInsn(ILOAD, variableId);
+        pushExpression(program, methodVisitor, finalValue, context, symbolTable);
+        var exitOpcode = range.reverse ? IF_ICMPLT : IF_ICMPGT;
+        methodVisitor.visitJumpInsn(exitOpcode, exitLabel);
+
+        generateBody(methodVisitor, forLoop.body, routine, context);
+
+        methodVisitor.visitIincInsn(variableId, range.reverse ? -1 : 1);
+        methodVisitor.visitJumpInsn(GOTO, loopLabel);
+
+        methodVisitor.visitLabel(exitLabel);
+    }
+
+    private void generateWhileLoop(MethodVisitor methodVisitor, WhileLoopNode whileLoop, RoutineDeclarationNode routine, VariableContext context) {
+        var exitLabel = new Label();
+        var loopLabel = new Label();
+
+        methodVisitor.visitLabel(loopLabel);
+        pushExpression(program, methodVisitor, whileLoop.condition, context, symbolTable);
+        generateCastIfNecessary(methodVisitor, whileLoop.condition.getType(symbolTable), new RuntimePrimitiveType(PrimitiveType.BOOLEAN));
+        methodVisitor.visitJumpInsn(IFEQ, exitLabel);
+
+        generateBody(methodVisitor, whileLoop.body, routine, context);
+        methodVisitor.visitJumpInsn(GOTO, loopLabel);
+
+        methodVisitor.visitLabel(exitLabel);
     }
 }
 

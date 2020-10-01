@@ -1,0 +1,9 @@
+routine main() is
+    for i in 1..5 loop
+        printInt(i)
+    end
+
+    for i in reverse 1..3 loop
+        printInt(i)
+    end
+end
