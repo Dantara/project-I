@@ -144,4 +144,11 @@ public class JVMCodeGenerationTest extends TestCase {
         expectedOutput.append(120).append(System.lineSeparator());
         Assert.assertEquals(expectedOutput.toString(), output);
     }
+
+    public void testNaiveSqrt() throws Exception {
+        var output = getOutput("code_examples/naive_sqrt.txt");
+        var expectedOutput = new StringBuilder();
+        expectedOutput.append(5).append(System.lineSeparator());
+        Assert.assertEquals(expectedOutput.toString(), output);
+    }
 }
