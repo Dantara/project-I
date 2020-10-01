@@ -3,5 +3,4 @@ routine main() is
     a := 1
     var b is 2
     var c is a + b
-    printInt(c)
 end

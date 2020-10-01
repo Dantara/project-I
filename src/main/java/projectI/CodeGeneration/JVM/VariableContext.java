@@ -18,7 +18,7 @@ public class VariableContext extends HashMap<Pair<ASTNode, String>, Integer> {
             node = node.getParent();
         }
 
-        return null;
+        throw new IllegalStateException();
     }
 
     public int defineVariable(RoutineDeclarationNode routine, ASTNode context, String identifier) {

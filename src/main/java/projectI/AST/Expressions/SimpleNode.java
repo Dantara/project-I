@@ -191,16 +191,16 @@ public class SimpleNode implements ASTNode {
             var otherPrimitiveType = (RuntimePrimitiveType) otherType;
             if (primitiveType.equals(otherPrimitiveType)) continue;
 
-            if (primitiveType.type == PrimitiveType.INTEGER && otherPrimitiveType.type != PrimitiveType.REAL ||
-                    primitiveType.type == PrimitiveType.REAL && otherPrimitiveType.type != PrimitiveType.INTEGER)
+            if (primitiveType.type == PrimitiveType.INTEGER && otherPrimitiveType.type == PrimitiveType.REAL ||
+                    primitiveType.type == PrimitiveType.REAL && otherPrimitiveType.type == PrimitiveType.INTEGER)
                 primitiveType = new RuntimePrimitiveType(PrimitiveType.REAL);
 
-            if (primitiveType.type == PrimitiveType.INTEGER && otherPrimitiveType.type != PrimitiveType.BOOLEAN ||
-                    primitiveType.type == PrimitiveType.BOOLEAN && otherPrimitiveType.type != PrimitiveType.INTEGER)
+            if (primitiveType.type == PrimitiveType.INTEGER && otherPrimitiveType.type == PrimitiveType.BOOLEAN ||
+                    primitiveType.type == PrimitiveType.BOOLEAN && otherPrimitiveType.type == PrimitiveType.INTEGER)
                 primitiveType = new RuntimePrimitiveType(PrimitiveType.INTEGER);
 
-            if (primitiveType.type == PrimitiveType.REAL && otherPrimitiveType.type != PrimitiveType.BOOLEAN ||
-                    primitiveType.type == PrimitiveType.BOOLEAN && otherPrimitiveType.type != PrimitiveType.REAL)
+            if (primitiveType.type == PrimitiveType.REAL && otherPrimitiveType.type == PrimitiveType.BOOLEAN ||
+                    primitiveType.type == PrimitiveType.BOOLEAN && otherPrimitiveType.type == PrimitiveType.REAL)
                 primitiveType = new RuntimePrimitiveType(PrimitiveType.REAL);
 
         }

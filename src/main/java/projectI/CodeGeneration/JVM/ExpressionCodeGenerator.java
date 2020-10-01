@@ -6,7 +6,10 @@ import org.objectweb.asm.Opcodes;
 import projectI.AST.Declarations.PrimitiveType;
 import projectI.AST.Declarations.PrimitiveTypeNode;
 import projectI.AST.Expressions.*;
+import projectI.AST.Primary.BooleanLiteralNode;
+import projectI.AST.Primary.IntegralLiteralNode;
 import projectI.AST.Primary.ModifiablePrimaryNode;
+import projectI.AST.Primary.RealLiteralNode;
 import projectI.AST.Types.RuntimePrimitiveType;
 import projectI.AST.Types.RuntimeType;
 import projectI.SemanticAnalysis.SymbolTable;
@@ -34,13 +37,17 @@ public class ExpressionCodeGenerator {
         if (constant != null) {
             methodVisitor.visitLdcInsn(constant);
         } else {
-            generate(expression.relation);
-
-            if (expression.otherRelations.size() > 0)
-                throw new IllegalStateException();
+            generate(expression);
         }
 
         return expression.getType(symbolTable);
+    }
+
+    public void generate(ExpressionNode expression) {
+        generate(expression.relation);
+
+        if (expression.otherRelations.size() > 0)
+            throw new IllegalStateException();
     }
 
     private void generate(RelationNode relation) {
@@ -117,12 +124,73 @@ public class ExpressionCodeGenerator {
         generate(summand.factor);
 
         if (summand.otherFactors.size() > 0)
-            throw new IllegalStateException();
+        {
+            var type = ((RuntimePrimitiveType) summand.factor.getType(symbolTable)).type;
+            if (type == BOOLEAN)
+                type = INTEGER;
+
+            for (var factor : summand.otherFactors) {
+                var factorType = ((RuntimePrimitiveType) factor.node.getType(symbolTable)).type;
+                if (factorType == BOOLEAN)
+                    factorType = INTEGER;
+
+                if (type != factorType) {
+                    if (type == INTEGER && factorType == REAL) {
+                        if (factor.operator == MultiplicationOperator.MODULO) {
+                            generate(factor.node);
+                            methodVisitor.visitInsn(D2I);
+                        } else {
+                            type = REAL;
+                            methodVisitor.visitInsn(I2D);
+                            generate(factor.node);
+                        }
+                    } else if (type == REAL && factorType == INTEGER) {
+                        if (factor.operator == MultiplicationOperator.MODULO) {
+                            type = INTEGER;
+                            methodVisitor.visitInsn(D2I);
+                            generate(factor.node);
+                        } else {
+                            generate(factor.node);
+                            methodVisitor.visitInsn(I2D);
+                        }
+                    }
+                } else {
+                    generate(factor.node);
+                }
+
+                switch (factor.operator) {
+                    case MODULO -> methodVisitor.visitInsn(IREM);
+                    case DIVIDE -> {
+                        switch (type) {
+                            case INTEGER -> methodVisitor.visitInsn(IDIV);
+                            case REAL -> methodVisitor.visitInsn(DDIV);
+                        }
+                    }
+                    case MULTIPLY -> {
+                        switch (type) {
+                            case INTEGER -> methodVisitor.visitInsn(IMUL);
+                            case REAL -> methodVisitor.visitInsn(DMUL);
+                        }
+                    }
+                }
+            }
+        }
     }
 
     private void generate(FactorNode factor) {
         if (factor instanceof ModifiablePrimaryNode) {
             generate((ModifiablePrimaryNode) factor);
+        } else if (factor instanceof ExpressionNode) {
+            generate((ExpressionNode) factor);
+        } else if (factor instanceof IntegralLiteralNode) {
+            var literal = (IntegralLiteralNode) factor;
+            methodVisitor.visitLdcInsn(literal.value);
+        } else if (factor instanceof RealLiteralNode) {
+            var literal = (RealLiteralNode) factor;
+            methodVisitor.visitLdcInsn(literal.value);
+        } else if (factor instanceof BooleanLiteralNode) {
+            var literal = (BooleanLiteralNode) factor;
+            methodVisitor.visitLdcInsn(literal.value ? 1 : 0);
         } else {
             throw new IllegalStateException();
         }

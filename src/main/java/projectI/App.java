@@ -97,6 +97,14 @@ public class App
             printIntType.parameters.add(new RuntimePrimitiveType(PrimitiveType.INTEGER));
             symbolTable.defineType(program, "printInt", printIntType);
 
+            var printBoolType = new RuntimeRoutineType(null);
+            printBoolType.parameters.add(new RuntimePrimitiveType(PrimitiveType.BOOLEAN));
+            symbolTable.defineType(program, "printBoolean", printBoolType);
+
+            var printRealType = new RuntimeRoutineType(null);
+            printRealType.parameters.add(new RuntimePrimitiveType(PrimitiveType.REAL));
+            symbolTable.defineType(program, "printReal", printRealType);
+
             analyzer.analyze(program, symbolTable);
         } catch (SemanticAnalysisException e) {
             System.err.println("Semantic analysis not passed.");

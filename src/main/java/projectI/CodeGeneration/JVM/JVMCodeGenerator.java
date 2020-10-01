@@ -3,9 +3,11 @@ package projectI.CodeGeneration.JVM;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
+import projectI.AST.Declarations.PrimitiveType;
 import projectI.AST.Declarations.RoutineDeclarationNode;
 import projectI.AST.Declarations.VariableDeclarationNode;
 import projectI.AST.Expressions.ExpressionNode;
+import projectI.AST.Flow.IfStatementNode;
 import projectI.AST.ProgramNode;
 import projectI.AST.Statements.AssignmentNode;
 import projectI.AST.Statements.ReturnStatementNode;
@@ -18,6 +20,7 @@ import projectI.CodeGeneration.ICodeGenerator;
 import projectI.SemanticAnalysis.SymbolTable;
 
 import static org.objectweb.asm.Opcodes.*;
+import static projectI.CodeGeneration.JVM.JVMUtils.generateCastIfNecessary;
 
 public class JVMCodeGenerator implements ICodeGenerator {
     public static final String className = "Program";
@@ -46,16 +49,38 @@ public class JVMCodeGenerator implements ICodeGenerator {
     }
 
     private void generateBuiltIns(ClassWriter classWriter) {
-        MethodVisitor methodVisitor = classWriter.visitMethod(ACC_PUBLIC + ACC_STATIC, "printInt", "(I)V", null, null);
-        methodVisitor.visitCode();
+        MethodVisitor methodVisitor1 = classWriter.visitMethod(ACC_PUBLIC + ACC_STATIC, "printInt", "(I)V", null, null);
+        methodVisitor1.visitCode();
 
-        methodVisitor.visitFieldInsn(Opcodes.GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
-        methodVisitor.visitVarInsn(Opcodes.ILOAD, 0);
-        methodVisitor.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/io/PrintStream", "println", "(I)V", false);
-        methodVisitor.visitInsn(RETURN);
+        methodVisitor1.visitFieldInsn(Opcodes.GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
+        methodVisitor1.visitVarInsn(Opcodes.ILOAD, 0);
+        methodVisitor1.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/io/PrintStream", "println", "(I)V", false);
+        methodVisitor1.visitInsn(RETURN);
 
-        methodVisitor.visitMaxs(0, 0);
-        methodVisitor.visitEnd();
+        methodVisitor1.visitMaxs(0, 0);
+        methodVisitor1.visitEnd();
+
+        MethodVisitor methodVisitor2 = classWriter.visitMethod(ACC_PUBLIC + ACC_STATIC, "printBoolean", "(I)V", null, null);
+        methodVisitor2.visitCode();
+
+        methodVisitor2.visitFieldInsn(Opcodes.GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
+        methodVisitor2.visitVarInsn(ILOAD, 0);
+        methodVisitor2.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/io/PrintStream", "println", "(Z)V", false);
+        methodVisitor2.visitInsn(RETURN);
+
+        methodVisitor2.visitMaxs(0, 0);
+        methodVisitor2.visitEnd();
+
+        MethodVisitor methodVisitor3 = classWriter.visitMethod(ACC_PUBLIC + ACC_STATIC, "printReal", "(D)V", null, null);
+        methodVisitor3.visitCode();
+
+        methodVisitor3.visitFieldInsn(Opcodes.GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
+        methodVisitor3.visitVarInsn(DLOAD, 0);
+        methodVisitor3.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/io/PrintStream", "println", "(D)V", false);
+        methodVisitor3.visitInsn(RETURN);
+
+        methodVisitor3.visitMaxs(0, 0);
+        methodVisitor3.visitEnd();
     }
 
     private void generateMethod(ClassWriter classWriter, RoutineDeclarationNode routine) {
@@ -80,6 +105,8 @@ public class JVMCodeGenerator implements ICodeGenerator {
             generateAssignment(methodVisitor, (AssignmentNode) statement, context);
         else if (statement instanceof RoutineCallNode)
             generateRoutineCall(methodVisitor, (RoutineCallNode) statement, context);
+        else if (statement instanceof IfStatementNode)
+            generateIfStatement(methodVisitor, (IfStatementNode) statement, context);
         else
             throw new IllegalStateException();
     }
@@ -117,7 +144,11 @@ public class JVMCodeGenerator implements ICodeGenerator {
         if (variableDeclaration.expression == null) {
             generateLocalVariableDefaultInitialization(methodVisitor, variableDeclaration, variableId);
         } else {
-            pushExpression(methodVisitor, variableDeclaration.expression, context);
+            var expressionType = pushExpression(methodVisitor, variableDeclaration.expression, context);
+
+            if (variableDeclaration.type != null)
+                generateCastIfNecessary(methodVisitor, expressionType, variableDeclaration.type.getType(symbolTable));
+
             storeVariable(methodVisitor, variableDeclaration.getType(symbolTable), variableId);
         }
     }
@@ -126,8 +157,8 @@ public class JVMCodeGenerator implements ICodeGenerator {
         var type = variable.getType(symbolTable);
         if (type instanceof RuntimePrimitiveType) {
             switch (((RuntimePrimitiveType) type).type) {
-                case INTEGER, BOOLEAN -> methodVisitor.visitLdcInsn(0);
-                case REAL -> methodVisitor.visitLdcInsn(0.0);
+                case INTEGER, BOOLEAN -> methodVisitor.visitInsn(ICONST_0);
+                case REAL -> methodVisitor.visitInsn(DCONST_0);
             }
 
             storeVariable(methodVisitor, type, variableId);
@@ -151,21 +182,26 @@ public class JVMCodeGenerator implements ICodeGenerator {
         if (assignment.modifiable.accessors.size() > 0) {
             throw new IllegalStateException();
         } else {
-            pushExpression(methodVisitor, assignment.assignedValue, context);
+            var expressionType = pushExpression(methodVisitor, assignment.assignedValue, context);
+            var variableType = assignment.modifiable.identifier.getType(symbolTable);
+            generateCastIfNecessary(methodVisitor, expressionType, variableType);
 
             var variableName = assignment.modifiable.identifier.name;
-            var variableType = assignment.modifiable.identifier.getType(symbolTable);
             var variableIndex = context.tryGetIndexOf(assignment, variableName);
             storeVariable(methodVisitor, variableType, variableIndex);
         }
     }
 
     private void generateRoutineCall(MethodVisitor methodVisitor, RoutineCallNode routineCall, VariableContext context) {
-        for (var argument : routineCall.arguments) {
-            pushExpression(methodVisitor, argument, context);
+        var routineType = (RuntimeRoutineType) symbolTable.getType(routineCall, routineCall.name.name);
+
+        for (var index = 0; index < routineCall.arguments.size(); index++) {
+            var argument = routineCall.arguments.get(index);
+            var parameterType = routineType.parameters.get(index);
+            var argumentType = pushExpression(methodVisitor, argument, context);
+            generateCastIfNecessary(methodVisitor, argumentType, parameterType);
         }
 
-        var routineType = (RuntimeRoutineType) symbolTable.getType(routineCall, routineCall.name.name);
         var descriptor = new StringBuilder().append('(');
 
         for (var parameter : routineType.parameters) {
@@ -176,6 +212,10 @@ public class JVMCodeGenerator implements ICodeGenerator {
         descriptor.append(getJavaTypeName(routineType.returnType));
 
         methodVisitor.visitMethodInsn(INVOKESTATIC, className, routineCall.name.name, descriptor.toString(), false);
+    }
+
+    private void generateIfStatement(MethodVisitor methodVisitor, IfStatementNode ifStatement, VariableContext context) {
+
     }
 
     private String getJavaTypeName(RuntimeType runtimeType) {
