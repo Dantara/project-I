@@ -51,45 +51,6 @@ public class JVMCodeGenerator implements ICodeGenerator {
         return classWriter.toByteArray();
     }
 
-    private void generateBuiltIns(ClassWriter classWriter) {
-        MethodVisitor methodVisitor1 = classWriter.visitMethod(ACC_PUBLIC + ACC_STATIC, "printInt", "(I)V", null, null);
-        methodVisitor1.visitCode();
-
-        methodVisitor1.visitFieldInsn(Opcodes.GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
-        methodVisitor1.visitVarInsn(Opcodes.ILOAD, 0);
-        methodVisitor1.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/io/PrintStream", "println", "(I)V", false);
-        methodVisitor1.visitInsn(RETURN);
-
-        methodVisitor1.visitMaxs(0, 0);
-        methodVisitor1.visitEnd();
-
-        MethodVisitor methodVisitor2 = classWriter.visitMethod(ACC_PUBLIC + ACC_STATIC, "printBoolean", "(I)V", null, null);
-        methodVisitor2.visitCode();
-
-        methodVisitor2.visitFieldInsn(Opcodes.GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
-        methodVisitor2.visitVarInsn(ILOAD, 0);
-        methodVisitor2.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/io/PrintStream", "println", "(Z)V", false);
-        methodVisitor2.visitInsn(RETURN);
-
-        methodVisitor2.visitMaxs(0, 0);
-        methodVisitor2.visitEnd();
-
-        MethodVisitor methodVisitor3 = classWriter.visitMethod(ACC_PUBLIC + ACC_STATIC, "printReal", "(D)V", null, null);
-        methodVisitor3.visitCode();
-
-        methodVisitor3.visitFieldInsn(Opcodes.GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
-        methodVisitor3.visitVarInsn(DLOAD, 0);
-        methodVisitor3.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/io/PrintStream", "println", "(D)V", false);
-        methodVisitor3.visitInsn(RETURN);
-        methodVisitor3.visitMaxs(0, 0);
-        methodVisitor3.visitEnd();
-
-        MethodVisitor mainVisitor = classWriter.visitMethod(ACC_PUBLIC + ACC_STATIC, "main", "([Ljava/lang/String;)V", null, null);
-        mainVisitor.visitMethodInsn(INVOKESTATIC, "Program", "main", "()V", false);
-        mainVisitor.visitInsn(RETURN);
-        mainVisitor.visitEnd();
-    }
-
     private void generateMethod(ClassWriter classWriter, RoutineDeclarationNode routine) {
         var context = new VariableContext(routine);
         var descriptor = getDescriptor((RuntimeRoutineType) symbolTable.getType(routine, routine.name.name));

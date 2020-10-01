@@ -1,7 +1,9 @@
 package projectI.CodeGeneration.JVM;
 
 import org.javatuples.Pair;
+import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
 import projectI.AST.Declarations.IdentifierNode;
 import projectI.AST.Declarations.PrimitiveType;
 import projectI.AST.Declarations.TypeNode;
@@ -20,6 +22,41 @@ import java.util.List;
 import static org.objectweb.asm.Opcodes.*;
 
 public class JVMUtils {
+    public static void generateBuiltIns(ClassWriter classWriter) {
+        generatePrint(classWriter, PrimitiveType.INTEGER, "printInt", "(I)V");
+        generatePrint(classWriter, PrimitiveType.BOOLEAN, "printBoolean", "(I)V");
+        generatePrint(classWriter, PrimitiveType.REAL, "printReal", "(D)V");
+
+        MethodVisitor mainVisitor = classWriter.visitMethod(ACC_PUBLIC + ACC_STATIC, "main", "([Ljava/lang/String;)V", null, null);
+        mainVisitor.visitMethodInsn(INVOKESTATIC, "Program", "main", "()V", false);
+        mainVisitor.visitInsn(RETURN);
+        mainVisitor.visitEnd();
+    }
+
+    public static void generatePrint(ClassWriter classWriter, PrimitiveType primitive, String name, String descriptor) {
+        MethodVisitor methodVisitor3 = classWriter.visitMethod(ACC_PUBLIC + ACC_STATIC, name, descriptor, null, null);
+        methodVisitor3.visitCode();
+
+        methodVisitor3.visitFieldInsn(Opcodes.GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
+
+        var opcode = switch (primitive) {
+            case INTEGER, BOOLEAN -> ILOAD;
+            case REAL -> DLOAD;
+        };
+
+        var printArg = switch (primitive) {
+            case INTEGER -> "I";
+            case REAL -> "D";
+            case BOOLEAN -> "Z";
+        };
+
+        methodVisitor3.visitVarInsn(opcode, 0);
+        methodVisitor3.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/io/PrintStream", "println", "(" + printArg + ")V", false);
+        methodVisitor3.visitInsn(RETURN);
+        methodVisitor3.visitMaxs(0, 0);
+        methodVisitor3.visitEnd();
+    }
+
     public static void generateCastIfNecessary(MethodVisitor methodVisitor, RuntimeType from, RuntimeType to) {
         if (from.equals(to)) return;
         if (!(from instanceof RuntimePrimitiveType)) return;
