@@ -7,6 +7,13 @@ import projectI.AST.Declarations.RoutineDeclarationNode;
 import java.util.HashMap;
 
 public class VariableContext extends HashMap<Pair<ASTNode, String>, Integer> {
+    public final RoutineDeclarationNode routine;
+
+    public VariableContext(RoutineDeclarationNode routine) {
+        this.routine = routine;
+        localVariablesCount = routine.parameters.parameters.size();
+    }
+
     public Integer tryGetIndexOf(ASTNode context, String identifier) {
         var node = context;
 
@@ -21,15 +28,12 @@ public class VariableContext extends HashMap<Pair<ASTNode, String>, Integer> {
         throw new IllegalStateException();
     }
 
-    public int defineVariable(RoutineDeclarationNode routine, ASTNode context, String identifier) {
-        var count = (int) localVariablesCount.getOrDefault(routine, 0);
-        var id = count;
+    public int defineVariable(ASTNode context, String identifier) {
+        var id = localVariablesCount;
         this.put(new Pair<>(context, identifier), id);
-
-        count++;
-        localVariablesCount.put(routine, count);
+        localVariablesCount++;
         return id;
     }
 
-    private final HashMap<RoutineDeclarationNode, Integer> localVariablesCount = new HashMap<>();
+    private int localVariablesCount = 0;
 }

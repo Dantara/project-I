@@ -95,4 +95,18 @@ public class JVMCodeGenerationTest extends TestCase {
         expectedOutput.append(false).append(System.lineSeparator());
         Assert.assertEquals(expectedOutput.toString(), output);
     }
+
+    public void testRoutineCall1() throws Exception {
+        var output = getOutput("code_examples/routine_call1.txt");
+        var expectedOutput = new StringBuilder();
+        expectedOutput.append(3).append(System.lineSeparator());
+        Assert.assertEquals(expectedOutput.toString(), output);
+    }
+
+    public void testConditional1() throws Exception {
+        var output = getOutput("code_examples/conditional1.txt");
+        var expectedOutput = new StringBuilder();
+        expectedOutput.append(1.0).append(System.lineSeparator());
+        Assert.assertEquals(expectedOutput.toString(), output);
+    }
 }

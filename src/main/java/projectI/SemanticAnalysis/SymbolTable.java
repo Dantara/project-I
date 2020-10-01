@@ -27,6 +27,11 @@ public class SymbolTable {
         }
     }
 
+    public boolean isDefinedAt(ASTNode scope, String identifier) {
+        var types = getTypesDefinedAt(scope);
+        return types.containsKey(identifier);
+    }
+
     private HashMap<String, RuntimeType> getTypesDefinedAt(ASTNode scope) {
         if (types.containsKey(scope)) return types.get(scope);
 

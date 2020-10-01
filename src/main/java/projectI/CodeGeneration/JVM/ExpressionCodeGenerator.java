@@ -3,29 +3,35 @@ package projectI.CodeGeneration.JVM;
 import org.javatuples.Pair;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Opcodes;
-import projectI.AST.Declarations.PrimitiveType;
-import projectI.AST.Declarations.PrimitiveTypeNode;
+import projectI.AST.Declarations.IdentifierNode;
+import projectI.AST.Declarations.TypeNode;
 import projectI.AST.Expressions.*;
 import projectI.AST.Primary.BooleanLiteralNode;
 import projectI.AST.Primary.IntegralLiteralNode;
 import projectI.AST.Primary.ModifiablePrimaryNode;
 import projectI.AST.Primary.RealLiteralNode;
+import projectI.AST.ProgramNode;
+import projectI.AST.Statements.RoutineCallNode;
 import projectI.AST.Types.RuntimePrimitiveType;
 import projectI.AST.Types.RuntimeType;
 import projectI.SemanticAnalysis.SymbolTable;
 
+import java.util.List;
+
 import static org.objectweb.asm.Opcodes.*;
 import static projectI.AST.Declarations.PrimitiveType.*;
 import static projectI.AST.Declarations.PrimitiveType.INTEGER;
+import static projectI.CodeGeneration.JVM.JVMUtils.*;
 
 public class ExpressionCodeGenerator {
+    private final ProgramNode program;
     private final MethodVisitor methodVisitor;
     private final ExpressionNode expression;
     private final VariableContext variableContext;
     private final SymbolTable symbolTable;
 
-    public ExpressionCodeGenerator(MethodVisitor methodVisitor, ExpressionNode expression, VariableContext variableContext, SymbolTable symbolTable) {
+    public ExpressionCodeGenerator(ProgramNode program, MethodVisitor methodVisitor, ExpressionNode expression, VariableContext variableContext, SymbolTable symbolTable) {
+        this.program = program;
         this.methodVisitor = methodVisitor;
         this.expression = expression;
         this.variableContext = variableContext;
@@ -258,7 +264,7 @@ public class ExpressionCodeGenerator {
 
     private void generate(FactorNode factor) {
         if (factor instanceof ModifiablePrimaryNode) {
-            generate((ModifiablePrimaryNode) factor);
+            generateGet(methodVisitor, (ModifiablePrimaryNode) factor, symbolTable, program, variableContext);
         } else if (factor instanceof ExpressionNode) {
             generate((ExpressionNode) factor);
         } else if (factor instanceof IntegralLiteralNode) {
@@ -270,28 +276,10 @@ public class ExpressionCodeGenerator {
         } else if (factor instanceof BooleanLiteralNode) {
             var literal = (BooleanLiteralNode) factor;
             methodVisitor.visitLdcInsn(literal.value ? 1 : 0);
+        } else if (factor instanceof RoutineCallNode){
+            generateRoutineCall(program, methodVisitor, (RoutineCallNode) factor, variableContext, symbolTable);
         } else {
             throw new IllegalStateException();
         }
-    }
-
-    private void generate(ModifiablePrimaryNode modifiablePrimary) {
-        var variableIndex = variableContext.tryGetIndexOf(modifiablePrimary, modifiablePrimary.identifier.name);
-        var type = symbolTable.getType(modifiablePrimary, modifiablePrimary.identifier.name);
-        int opcode = 0;
-
-        if (type instanceof RuntimePrimitiveType) {
-            opcode = switch (((RuntimePrimitiveType) type).type) {
-                case INTEGER, BOOLEAN -> ILOAD;
-                case REAL -> DLOAD;
-            };
-        } else {
-            opcode = ALOAD;
-        }
-
-        methodVisitor.visitVarInsn(opcode, variableIndex);
-
-        if (modifiablePrimary.accessors.size() > 0)
-            throw new IllegalStateException();
     }
 }
