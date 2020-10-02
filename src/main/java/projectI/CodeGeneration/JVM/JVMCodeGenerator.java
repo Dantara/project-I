@@ -36,10 +36,12 @@ public class JVMCodeGenerator implements ICodeGenerator {
     @Override
     public byte[] generate() {
         ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS);
+        // define a class
         classWriter.visit(V1_7, ACC_PUBLIC, className, null, "java/lang/Object", null);
-
+        // generate built-in functions
         generateBuiltIns(classWriter);
 
+        // generate code for declarations
         for (var declaration : program.declarations) {
             if (declaration instanceof RoutineDeclarationNode)
                 generateMethod(classWriter, (RoutineDeclarationNode) declaration);
@@ -54,11 +56,14 @@ public class JVMCodeGenerator implements ICodeGenerator {
     private void generateMethod(ClassWriter classWriter, RoutineDeclarationNode routine) {
         var context = new VariableContext(routine);
         var descriptor = getDescriptor((RuntimeRoutineType) symbolTable.getType(routine, routine.name.name));
+        // generate method
         MethodVisitor methodVisitor = classWriter.visitMethod(ACC_PUBLIC + ACC_STATIC, routine.name.name, descriptor, null, null);
         methodVisitor.visitCode();
 
+        // generate code for method's body
         generateBody(methodVisitor, routine.body, routine, context);
 
+        // return in case there is no other returns in the method's code
         methodVisitor.visitInsn(RETURN);
         methodVisitor.visitMaxs(0, 0);
         methodVisitor.visitEnd();
@@ -73,6 +78,7 @@ public class JVMCodeGenerator implements ICodeGenerator {
         var value = variable.expression.tryEvaluateConstant(symbolTable);
         var type = variable.type != null  ? variable.type.getType(symbolTable) : variable.expression.getType(symbolTable);
         var typeName = getJavaTypeName(type);
+        // create a static field
         classWriter.visitField(ACC_STATIC + ACC_PUBLIC, variable.identifier.name, typeName, null, value);
     }
 
@@ -165,29 +171,39 @@ public class JVMCodeGenerator implements ICodeGenerator {
         if (assignment.modifiable.accessors.size() > 0) {
             throw new IllegalStateException();
         } else {
+            // evaluate assigned expression
             var expressionType = pushExpression(program, methodVisitor, assignment.assignedValue, context, symbolTable);
             var variableType = assignment.modifiable.identifier.getType(symbolTable);
+            // cast it to the type of the variable
             generateCastIfNecessary(methodVisitor, expressionType, variableType);
 
+            // assign the value
             generateSet(methodVisitor, assignment.modifiable, symbolTable, program, context);
         }
     }
 
     private void generateIfStatement(MethodVisitor methodVisitor, IfStatementNode ifStatement, RoutineDeclarationNode routine, VariableContext context) {
+        // evaluate the condition
         var conditionType = pushExpression(program, methodVisitor, ifStatement.condition, context, symbolTable);
+        // cast it to boolean
         generateCastIfNecessary(methodVisitor, conditionType, new RuntimePrimitiveType(PrimitiveType.BOOLEAN));
 
-        if (ifStatement.elseBody == null) {
+        if (ifStatement.elseBody == null) { // if there is not else
             var exitLabel = new Label();
+            // exit if condition is not met
             methodVisitor.visitJumpInsn(IFEQ, exitLabel);
+            // otherwise, if condition is met, execute the body
             generateBody(methodVisitor, ifStatement.body, routine, context);
             methodVisitor.visitLabel(exitLabel);
         } else {
             var elseLabel = new Label();
             var exitLabel = new Label();
 
+            // if false, execute else body
             methodVisitor.visitJumpInsn(IFEQ, elseLabel);
+            // if true, execute the body
             generateBody(methodVisitor, ifStatement.body, routine, context);
+            // exit
             methodVisitor.visitJumpInsn(GOTO, exitLabel);
 
             methodVisitor.visitLabel(elseLabel);
@@ -198,6 +214,7 @@ public class JVMCodeGenerator implements ICodeGenerator {
     }
 
     private void generateForLoop(MethodVisitor methodVisitor, ForLoopNode forLoop, RoutineDeclarationNode routine, VariableContext context) {
+        // define the iterator variable
         var variableId = context.defineVariable(forLoop, forLoop.variable.name);
         generateLocalVariableDefaultInitialization(methodVisitor, new RuntimePrimitiveType(PrimitiveType.INTEGER), variableId);
 
@@ -207,16 +224,21 @@ public class JVMCodeGenerator implements ICodeGenerator {
         var range = forLoop.range;
         var initialValue = range.reverse ? range.to : range.from;
         var finalValue = range.reverse ? range.from : range.to;
+        // evaluate initial value
         pushExpression(program, methodVisitor, initialValue, context, symbolTable);
+        // store the initial value in the iterator
         storeVariable(methodVisitor, new RuntimePrimitiveType(PrimitiveType.INTEGER), variableId);
 
         methodVisitor.visitLabel(loopLabel);
 
+        // check range
         methodVisitor.visitVarInsn(ILOAD, variableId);
         pushExpression(program, methodVisitor, finalValue, context, symbolTable);
         var exitOpcode = range.reverse ? IF_ICMPLT : IF_ICMPGT;
+        // if iterator is outside the range, exit
         methodVisitor.visitJumpInsn(exitOpcode, exitLabel);
 
+        // otherwise, execute loop body
         generateBody(methodVisitor, forLoop.body, routine, context);
 
         methodVisitor.visitIincInsn(variableId, range.reverse ? -1 : 1);
@@ -229,11 +251,14 @@ public class JVMCodeGenerator implements ICodeGenerator {
         var exitLabel = new Label();
         var loopLabel = new Label();
 
+        // check condition
         methodVisitor.visitLabel(loopLabel);
         pushExpression(program, methodVisitor, whileLoop.condition, context, symbolTable);
         generateCastIfNecessary(methodVisitor, whileLoop.condition.getType(symbolTable), new RuntimePrimitiveType(PrimitiveType.BOOLEAN));
+        // if false, exit
         methodVisitor.visitJumpInsn(IFEQ, exitLabel);
 
+        // otherwise, generate body
         generateBody(methodVisitor, whileLoop.body, routine, context);
         methodVisitor.visitJumpInsn(GOTO, loopLabel);
 

@@ -57,9 +57,6 @@ public class JVMUtils {
         mv.visitMethodInsn(INVOKEVIRTUAL, "java/util/Scanner", "nextInt", "()I", false);
         mv.visitVarInsn(ISTORE, 1);
 
-//        mv.visitVarInsn(ALOAD, 0);
-//        mv.visitMethodInsn(INVOKEVIRTUAL, "java/util/Scanner", "close", "()V", false);
-
         mv.visitVarInsn(ILOAD, 1);
         mv.visitInsn(IRETURN);
 
