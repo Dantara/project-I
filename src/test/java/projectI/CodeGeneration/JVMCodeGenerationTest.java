@@ -10,6 +10,9 @@ import projectI.Parser.Parser;
 import projectI.SemanticAnalysis.CompositeSemanticAnalyzer;
 import projectI.SemanticAnalysis.SymbolTable;
 
+import java.io.BufferedWriter;
+import java.io.InputStream;
+import java.io.OutputStreamWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
@@ -25,10 +28,10 @@ public class JVMCodeGenerationTest extends TestCase {
     }
 
     private static String getOutput(String sourceFileName) throws Exception {
-        return getOutput(sourceFileName, "");
+        return getOutput(sourceFileName, new String[0]);
     }
 
-    private static String getOutput(String sourceFileName, String input) throws Exception {
+    private static String getOutput(String sourceFileName, String... input) throws Exception {
         var sourceCode = Files.readString(Path.of(sourceFileName));
         var lexer = new Lexer();
         var parser = new Parser(lexer.scan(sourceCode), lexer.getLexemesWithLocations());
@@ -47,15 +50,18 @@ public class JVMCodeGenerationTest extends TestCase {
 
         var process = Runtime.getRuntime().exec("java -cp target/tests -noverify Program");
 
-        if (input.length() > 0) {
-            var processInput = process.getOutputStream();
-            processInput.write(input.getBytes());
+        if (input.length > 0) {
+            var processInput = new BufferedWriter(new OutputStreamWriter(process.getOutputStream()));
+            processInput.write(String.join(System.lineSeparator(), input));
+            processInput.flush();
             processInput.close();
         }
 
-        var processOutput = process.getInputStream();
+        process.waitFor();
 
-        try (var scanner = new Scanner(processOutput).useDelimiter("\\A")) {
+        InputStream stream = process.exitValue() == 0 ? process.getInputStream() : process.getErrorStream();
+
+        try (var scanner = new Scanner(stream).useDelimiter("\\A")) {
             return scanner.hasNext() ? scanner.next() : "";
         }
     }

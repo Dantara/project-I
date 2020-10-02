@@ -1,0 +1,5 @@
+routine main() is
+    var a is readInt()
+    var b is readInt()
+    printInt(a + b)
+end

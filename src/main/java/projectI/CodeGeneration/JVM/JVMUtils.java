@@ -2,6 +2,7 @@ package projectI.CodeGeneration.JVM;
 
 import org.javatuples.Pair;
 import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import projectI.AST.Declarations.IdentifierNode;
@@ -42,14 +43,22 @@ public class JVMUtils {
         mv.visitInsn(DUP);
         mv.visitFieldInsn(Opcodes.GETSTATIC, "java/lang/System", "in", "Ljava/io/InputStream;");
         mv.visitMethodInsn(INVOKESPECIAL, "java/util/Scanner", "<init>", "(Ljava/io/InputStream;)V", false);
-
         mv.visitVarInsn(ASTORE, 0);
+
+        var loopLabel = new Label();
+        mv.visitLabel(loopLabel);
+
+        mv.visitVarInsn(ALOAD, 0);
+        mv.visitMethodInsn(INVOKEVIRTUAL, "java/util/Scanner", "hasNextInt", "()Z", false);
+        mv.visitJumpInsn(IFEQ, loopLabel);
+
+
         mv.visitVarInsn(ALOAD, 0);
         mv.visitMethodInsn(INVOKEVIRTUAL, "java/util/Scanner", "nextInt", "()I", false);
         mv.visitVarInsn(ISTORE, 1);
 
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitMethodInsn(INVOKEVIRTUAL, "java/util/Scanner", "close", "()V", false);
+//        mv.visitVarInsn(ALOAD, 0);
+//        mv.visitMethodInsn(INVOKEVIRTUAL, "java/util/Scanner", "close", "()V", false);
 
         mv.visitVarInsn(ILOAD, 1);
         mv.visitInsn(IRETURN);
