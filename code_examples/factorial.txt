@@ -7,5 +7,5 @@ routine factorial(n : integer) : integer is
 end
 
 routine main() is
-    printInt(factorial(5))
+    printInt(factorial(readInt()))
 end

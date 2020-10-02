@@ -137,9 +137,14 @@ public class JVMCodeGenerationTest extends TestCase {
     }
 
     public void testFactorial() throws Exception {
-        var output = getOutput("code_examples/factorial.txt");
+        var output = getOutput("code_examples/factorial.txt", "5");
         var expectedOutput = new StringBuilder();
         expectedOutput.append(120).append(System.lineSeparator());
+        Assert.assertEquals(expectedOutput.toString(), output);
+
+        output = getOutput("code_examples/factorial.txt", "3");
+        expectedOutput = new StringBuilder();
+        expectedOutput.append(6).append(System.lineSeparator());
         Assert.assertEquals(expectedOutput.toString(), output);
     }
 
@@ -151,8 +156,13 @@ public class JVMCodeGenerationTest extends TestCase {
     }
 
     public void testSquareInput() throws Exception {
-        var output = getOutput("code_examples/square_input.txt", "25");
+        var output = getOutput("code_examples/square_input.txt", "3");
         var expectedOutput = new StringBuilder();
+        expectedOutput.append(9).append(System.lineSeparator());
+        Assert.assertEquals(expectedOutput.toString(), output);
+
+        output = getOutput("code_examples/square_input.txt", "25");
+        expectedOutput = new StringBuilder();
         expectedOutput.append(625).append(System.lineSeparator());
         Assert.assertEquals(expectedOutput.toString(), output);
     }
