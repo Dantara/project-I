@@ -26,6 +26,7 @@ public class JVMUtils {
         generatePrint(classWriter, PrimitiveType.INTEGER, "printInt", "(I)V");
         generatePrint(classWriter, PrimitiveType.BOOLEAN, "printBoolean", "(I)V");
         generatePrint(classWriter, PrimitiveType.REAL, "printReal", "(D)V");
+        generateReadInt(classWriter);
 
         MethodVisitor mainVisitor = classWriter.visitMethod(ACC_PUBLIC + ACC_STATIC, "main", "([Ljava/lang/String;)V", null, null);
         mainVisitor.visitMethodInsn(INVOKESTATIC, "Program", "main", "()V", false);
@@ -33,11 +34,35 @@ public class JVMUtils {
         mainVisitor.visitEnd();
     }
 
-    public static void generatePrint(ClassWriter classWriter, PrimitiveType primitive, String name, String descriptor) {
-        MethodVisitor methodVisitor3 = classWriter.visitMethod(ACC_PUBLIC + ACC_STATIC, name, descriptor, null, null);
-        methodVisitor3.visitCode();
+    public static void generateReadInt(ClassWriter classWriter) {
+        MethodVisitor mv = classWriter.visitMethod(ACC_PUBLIC + ACC_STATIC, "readInt", "()I", null, null);
+        mv.visitCode();
 
-        methodVisitor3.visitFieldInsn(Opcodes.GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
+        mv.visitTypeInsn(NEW, "java/util/Scanner");
+        mv.visitInsn(DUP);
+        mv.visitFieldInsn(Opcodes.GETSTATIC, "java/lang/System", "in", "Ljava/io/InputStream;");
+        mv.visitMethodInsn(INVOKESPECIAL, "java/util/Scanner", "<init>", "(Ljava/io/InputStream;)V", false);
+
+        mv.visitVarInsn(ASTORE, 0);
+        mv.visitVarInsn(ALOAD, 0);
+        mv.visitMethodInsn(INVOKEVIRTUAL, "java/util/Scanner", "nextInt", "()I", false);
+        mv.visitVarInsn(ISTORE, 1);
+
+        mv.visitVarInsn(ALOAD, 0);
+        mv.visitMethodInsn(INVOKEVIRTUAL, "java/util/Scanner", "close", "()V", false);
+
+        mv.visitVarInsn(ILOAD, 1);
+        mv.visitInsn(IRETURN);
+
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
+    }
+
+    public static void generatePrint(ClassWriter classWriter, PrimitiveType primitive, String name, String descriptor) {
+        MethodVisitor mv = classWriter.visitMethod(ACC_PUBLIC + ACC_STATIC, name, descriptor, null, null);
+        mv.visitCode();
+
+        mv.visitFieldInsn(Opcodes.GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
 
         var opcode = switch (primitive) {
             case INTEGER, BOOLEAN -> ILOAD;
@@ -50,11 +75,11 @@ public class JVMUtils {
             case BOOLEAN -> "Z";
         };
 
-        methodVisitor3.visitVarInsn(opcode, 0);
-        methodVisitor3.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/io/PrintStream", "println", "(" + printArg + ")V", false);
-        methodVisitor3.visitInsn(RETURN);
-        methodVisitor3.visitMaxs(0, 0);
-        methodVisitor3.visitEnd();
+        mv.visitVarInsn(opcode, 0);
+        mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/io/PrintStream", "println", "(" + printArg + ")V", false);
+        mv.visitInsn(RETURN);
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
     }
 
     public static void generateCastIfNecessary(MethodVisitor methodVisitor, RuntimeType from, RuntimeType to) {

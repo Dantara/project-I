@@ -139,4 +139,9 @@ public class RoutineCallNode implements StatementNode, PrimaryNode {
 
         return true;
     }
+
+    @Override
+    public String toString() {
+        return name + "()";
+    }
 }

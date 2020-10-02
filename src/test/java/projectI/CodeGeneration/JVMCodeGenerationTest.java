@@ -4,15 +4,12 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import org.junit.Assert;
-import projectI.AST.ProgramNode;
 import projectI.CodeGeneration.JVM.JVMCodeGenerator;
-import projectI.Lexer.InvalidLexemeException;
 import projectI.Lexer.Lexer;
 import projectI.Parser.Parser;
 import projectI.SemanticAnalysis.CompositeSemanticAnalyzer;
 import projectI.SemanticAnalysis.SymbolTable;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
@@ -27,17 +24,11 @@ public class JVMCodeGenerationTest extends TestCase {
         return new TestSuite(JVMCodeGenerationTest.class);
     }
 
-    public static ProgramNode tryParseProgram(String path) throws IOException, InvalidLexemeException {
-        var programText = Files.readString(Path.of(path));
-        var lexer = new Lexer();
-        var tokens = lexer.scan(programText);
-
-        return new Parser(tokens, lexer.getLexemesWithLocations()).tryParseProgram();
+    private static String getOutput(String sourceFileName) throws Exception {
+        return getOutput(sourceFileName, "");
     }
 
-    private CompositeSemanticAnalyzer analyzer;
-
-    private static String getOutput(String sourceFileName) throws Exception {
+    private static String getOutput(String sourceFileName, String input) throws Exception {
         var sourceCode = Files.readString(Path.of(sourceFileName));
         var lexer = new Lexer();
         var parser = new Parser(lexer.scan(sourceCode), lexer.getLexemesWithLocations());
@@ -54,10 +45,17 @@ public class JVMCodeGenerationTest extends TestCase {
             Files.delete(classFile);
         Files.write(classFile, bytes, StandardOpenOption.CREATE_NEW);
 
-        var process = Runtime.getRuntime().exec("java -cp target/tests -noverify Program >> target/tests/result.txt");
-        var inputStream = process.getInputStream();
+        var process = Runtime.getRuntime().exec("java -cp target/tests -noverify Program");
 
-        try (var scanner = new Scanner(inputStream).useDelimiter("\\A")) {
+        if (input.length() > 0) {
+            var processInput = process.getOutputStream();
+            processInput.write(input.getBytes());
+            processInput.close();
+        }
+
+        var processOutput = process.getInputStream();
+
+        try (var scanner = new Scanner(processOutput).useDelimiter("\\A")) {
             return scanner.hasNext() ? scanner.next() : "";
         }
     }
@@ -149,6 +147,13 @@ public class JVMCodeGenerationTest extends TestCase {
         var output = getOutput("code_examples/naive_sqrt.txt");
         var expectedOutput = new StringBuilder();
         expectedOutput.append(5).append(System.lineSeparator());
+        Assert.assertEquals(expectedOutput.toString(), output);
+    }
+
+    public void testSquareInput() throws Exception {
+        var output = getOutput("code_examples/square_input.txt", "25");
+        var expectedOutput = new StringBuilder();
+        expectedOutput.append(625).append(System.lineSeparator());
         Assert.assertEquals(expectedOutput.toString(), output);
     }
 }

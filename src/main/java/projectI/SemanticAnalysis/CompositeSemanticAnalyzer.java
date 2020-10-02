@@ -25,6 +25,9 @@ public final class CompositeSemanticAnalyzer implements SemanticAnalyzer {
         printRealType.parameters.add(new RuntimePrimitiveType(PrimitiveType.REAL));
         symbolTable.defineType(program, "printReal", printRealType);
 
+        var readInt = new RuntimeRoutineType(new RuntimePrimitiveType(PrimitiveType.INTEGER));
+        symbolTable.defineType(program, "readInt", readInt);
+
         if (program == null)
             throw new IllegalArgumentException("Program cannot be null.");
 
