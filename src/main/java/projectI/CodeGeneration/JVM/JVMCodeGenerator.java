@@ -226,11 +226,16 @@ public class JVMCodeGenerator implements ICodeGenerator {
                 case INTEGER, BOOLEAN -> methodVisitor.visitInsn(ICONST_0);
                 case REAL -> methodVisitor.visitInsn(DCONST_0);
             }
-
-            storeVariable(methodVisitor, type, variableId);
+        } else if (type instanceof RuntimeRecordType){
+            var recordClassName = recordClassNames.get(type);
+            methodVisitor.visitTypeInsn(NEW, recordClassName);
+            methodVisitor.visitInsn(DUP);
+            methodVisitor.visitMethodInsn(INVOKESPECIAL, recordClassName, "<init>", "()V", false);
         } else {
             throw new IllegalStateException();
         }
+
+        storeVariable(methodVisitor, type, variableId);
     }
 
     private void storeVariable(MethodVisitor methodVisitor, RuntimeType variableType, int variableId) {
@@ -240,23 +245,19 @@ public class JVMCodeGenerator implements ICodeGenerator {
                 case REAL -> methodVisitor.visitVarInsn(DSTORE, variableId);
             }
         } else {
-            throw new IllegalStateException();
+            methodVisitor.visitVarInsn(ASTORE, variableId);
         }
     }
 
     private void generateAssignment(MethodVisitor methodVisitor, AssignmentNode assignment, VariableContext context) {
-        if (assignment.modifiable.accessors.size() > 0) {
-            throw new IllegalStateException();
-        } else {
-            // evaluate assigned expression
-            var expressionType = pushExpression(program, methodVisitor, assignment.assignedValue, context, symbolTable, this);
-            var variableType = assignment.modifiable.identifier.getType(symbolTable);
-            // cast it to the type of the variable
-            generateCastIfNecessary(methodVisitor, expressionType, variableType);
+//        // evaluate assigned expression
+//        var expressionType = pushExpression(program, methodVisitor, assignment.assignedValue, context, symbolTable, this);
+//        var variableType = assignment.modifiable.identifier.getType(symbolTable);
+//        // cast it to the type of the variable
+//        generateCastIfNecessary(methodVisitor, expressionType, variableType);
 
-            // assign the value
-            generateSet(methodVisitor, assignment.modifiable, context, this, assignment.assignedValue);
-        }
+        // assign the value
+        generateSet(methodVisitor, assignment.modifiable, context, this, assignment.assignedValue);
     }
 
     private void generateIfStatement(MethodVisitor methodVisitor, IfStatementNode ifStatement, RoutineDeclarationNode routine, VariableContext context) {

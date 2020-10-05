@@ -197,6 +197,11 @@ public class JVMUtils {
         var program = codeGenerator.program;
 
         if (modifiablePrimary.accessors.size() == 0) {
+            var expressionType = pushExpression(program, methodVisitor, expression, variableContext, symbolTable, codeGenerator);
+            var variableType = modifiablePrimary.getType(symbolTable);
+            // cast it to the type of the variable
+            generateCastIfNecessary(methodVisitor, expressionType, variableType);
+
             if (symbolTable.isDefinedAt(program, name)) {
                 methodVisitor.visitFieldInsn(PUTSTATIC, "Program", name, JVMUtils.getJavaTypeName(symbolTable.getType(modifiablePrimary, name), codeGenerator));
             } else {
@@ -228,26 +233,30 @@ public class JVMUtils {
             var accessors = modifiablePrimary.accessors.size() - 1;
             generateGet(methodVisitor, modifiablePrimary, variableContext, codeGenerator, accessors);
 
+            var preLastType = modifiablePrimary.identifier.getType(symbolTable);
+
+            for (var index = 0; index < accessors; index++) {
+                preLastType = modifiablePrimary.accessors.get(index).getRuntimeType(preLastType, symbolTable);
+            }
+
+            var variableType = modifiablePrimary.getType(symbolTable);
             // evaluate assigned expression
             var expressionType = pushExpression(program, methodVisitor, expression, variableContext, symbolTable, codeGenerator);
-            var variableType = modifiablePrimary.getType(symbolTable);
             // cast it to the type of the variable
             generateCastIfNecessary(methodVisitor, expressionType, variableType);
-            var lastAccessor = (ModifiablePrimaryNode.Member) modifiablePrimary.accessors.get(accessors);
+            var lastAccessor = modifiablePrimary.accessors.get(accessors);
 
-            if (variableType instanceof RuntimeRecordType) {
-                var recordName = codeGenerator.recordClassNames.get(variableType);
+            if (lastAccessor instanceof ModifiablePrimaryNode.Member) {
+                var lastMemberAccessor = (ModifiablePrimaryNode.Member) lastAccessor;
+                var recordName = codeGenerator.recordClassNames.get(preLastType);
                 var descriptor = getJavaTypeName(variableType, codeGenerator);
-                methodVisitor.visitFieldInsn(PUTFIELD, recordName, lastAccessor.name.name, descriptor);
+                methodVisitor.visitFieldInsn(PUTFIELD, recordName, lastMemberAccessor.name.name, descriptor);
             } else if (variableType instanceof RuntimeArrayType) {
+                throw new IllegalStateException();
+            } else {
                 throw new IllegalStateException();
             }
         }
-
-
-
-        if (modifiablePrimary.accessors.size() > 0)
-            throw new IllegalStateException();
     }
 
     public static void generateRoutineCall(ProgramNode program, MethodVisitor methodVisitor, RoutineCallNode routineCall, VariableContext context, SymbolTable symbolTable, JVMCodeGenerator codeGenerator) {

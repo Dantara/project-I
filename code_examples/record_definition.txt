@@ -6,4 +6,9 @@ end
 routine main() is
     printInt(a.b)
     printInt(a.c)
+
+    var d : record
+        var f is 5
+    end
+    printInt(d.f)
 end

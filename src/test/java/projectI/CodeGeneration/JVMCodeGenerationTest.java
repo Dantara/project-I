@@ -184,6 +184,7 @@ public class JVMCodeGenerationTest extends TestCase {
         var expectedOutput = new StringBuilder();
         expectedOutput.append(1).append(System.lineSeparator());
         expectedOutput.append(2).append(System.lineSeparator());
+        expectedOutput.append(5).append(System.lineSeparator());
         Assert.assertEquals(expectedOutput.toString(), output);
     }
 
@@ -191,6 +192,17 @@ public class JVMCodeGenerationTest extends TestCase {
         var output = getOutput("code_examples/nested_record.txt");
         var expectedOutput = new StringBuilder();
         expectedOutput.append(4).append(System.lineSeparator());
+        expectedOutput.append(1).append(System.lineSeparator());
+        expectedOutput.append(2).append(System.lineSeparator());
+        Assert.assertEquals(expectedOutput.toString(), output);
+    }
+
+    public void testRecords1() throws Exception {
+        var output = getOutput("code_examples/records1.txt");
+        var expectedOutput = new StringBuilder();
+        expectedOutput.append(-2.0).append(System.lineSeparator());
+        expectedOutput.append(1.0).append(System.lineSeparator());
+        expectedOutput.append(2.0).append(System.lineSeparator());
         Assert.assertEquals(expectedOutput.toString(), output);
     }
 }
