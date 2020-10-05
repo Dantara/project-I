@@ -1,9 +1,6 @@
 package projectI;
 
-import projectI.AST.Declarations.PrimitiveType;
 import projectI.AST.ProgramNode;
-import projectI.AST.Types.RuntimePrimitiveType;
-import projectI.AST.Types.RuntimeRoutineType;
 import projectI.CodeGeneration.JVM.JVMCodeGenerator;
 import projectI.Lexer.InvalidLexemeException;
 import projectI.Lexer.Lexer;
@@ -41,11 +38,15 @@ public class App
 
                     if (runSemanticAnalysis(program, symbolTable)) {
                         var generator = new JVMCodeGenerator(program, symbolTable);
-                        byte[] bytes = generator.generate();
-                        try (FileOutputStream stream = new FileOutputStream("target/Program.class")) {
-                            stream.write(bytes);
-                        } catch (Exception e) {
-                            e.printStackTrace();
+                        var files = generator.generate();
+
+
+                        for (var className : files.keySet()) {
+                            try (FileOutputStream stream = new FileOutputStream("target/" + className + ".class")) {
+                                stream.write(files.get(className));
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
                         }
                     }
                 } else {

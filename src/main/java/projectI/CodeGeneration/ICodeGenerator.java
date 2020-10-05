@@ -1,5 +1,7 @@
 package projectI.CodeGeneration;
 
+import java.util.HashMap;
+
 public interface ICodeGenerator {
-    byte[] generate();
+    HashMap<String, byte[]> generate();
 }

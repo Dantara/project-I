@@ -12,10 +12,7 @@ import projectI.AST.Expressions.ExpressionNode;
 import projectI.AST.Primary.ModifiablePrimaryNode;
 import projectI.AST.ProgramNode;
 import projectI.AST.Statements.RoutineCallNode;
-import projectI.AST.Types.RuntimePrimitiveType;
-import projectI.AST.Types.RuntimeRoutineType;
-import projectI.AST.Types.RuntimeType;
-import projectI.AST.Types.VoidRuntimeType;
+import projectI.AST.Types.*;
 import projectI.SemanticAnalysis.SymbolTable;
 
 import java.util.List;
@@ -107,7 +104,7 @@ public class JVMUtils {
             methodVisitor.visitInsn(D2I);
     }
 
-    public static String getJavaTypeName(RuntimeType runtimeType) {
+    public static String getJavaTypeName(RuntimeType runtimeType, JVMCodeGenerator codeGenerator) {
         if (runtimeType == null || runtimeType.equals(VoidRuntimeType.instance))
             return "V";
 
@@ -116,16 +113,24 @@ public class JVMUtils {
                 case BOOLEAN, INTEGER -> "I";
                 case REAL -> "D";
             };
+        } else if (runtimeType instanceof RuntimeArrayType) {
+            return "[" + getJavaTypeName(((RuntimeArrayType) runtimeType).elementType, codeGenerator);
+        } else if (runtimeType instanceof RuntimeRecordType){
+            return "L" + codeGenerator.recordClassNames.get(runtimeType) + ";";
         } else {
             throw new IllegalStateException();
         }
     }
 
-    public static void generateGet(MethodVisitor methodVisitor, ModifiablePrimaryNode modifiablePrimary, SymbolTable symbolTable, ProgramNode program, VariableContext variableContext) {
+    public static void generateGet(MethodVisitor methodVisitor, ModifiablePrimaryNode modifiablePrimary, VariableContext variableContext, JVMCodeGenerator codeGenerator) {
+        generateGet(methodVisitor, modifiablePrimary, variableContext, codeGenerator, modifiablePrimary.accessors.size());
+    }
+
+    public static void generateGet(MethodVisitor methodVisitor, ModifiablePrimaryNode modifiablePrimary, VariableContext variableContext, JVMCodeGenerator codeGenerator, int accessors) {
         var name = modifiablePrimary.identifier.name;
 
-        if (symbolTable.isDefinedAt(program, name)) {
-            methodVisitor.visitFieldInsn(GETSTATIC, "Program", name, JVMUtils.getJavaTypeName(symbolTable.getType(modifiablePrimary, name)));
+        if (codeGenerator.symbolTable.isDefinedAt(codeGenerator.program, name)) {
+            methodVisitor.visitFieldInsn(GETSTATIC, "Program", name, getJavaTypeName(codeGenerator.symbolTable.getType(modifiablePrimary, name), codeGenerator));
         } else {
             var parameterIndex = tryGetParameterIndex(variableContext, name);
             int variableIndex;
@@ -136,7 +141,7 @@ public class JVMUtils {
                 variableIndex = parameterIndex;
             }
 
-            var type = symbolTable.getType(modifiablePrimary, name);
+            var type = codeGenerator.symbolTable.getType(modifiablePrimary, name);
 
             int opcode = 0;
 
@@ -152,8 +157,24 @@ public class JVMUtils {
             methodVisitor.visitVarInsn(opcode, variableIndex);
         }
 
-        if (modifiablePrimary.accessors.size() > 0)
-            throw new IllegalStateException();
+        var type = codeGenerator.symbolTable.getType(modifiablePrimary, modifiablePrimary.identifier.name);
+
+        for (var index = 0; index < accessors && index < modifiablePrimary.accessors.size(); index++) {
+            var accessor = modifiablePrimary.accessors.get(index);
+
+            if (accessor instanceof ModifiablePrimaryNode.Member && type instanceof RuntimeRecordType) {
+                var memberAccessor = (ModifiablePrimaryNode.Member) accessor;
+                var outerRecordTypeName = codeGenerator.recordClassNames.get(type);
+                var fieldType = memberAccessor.getRuntimeType(type, codeGenerator.symbolTable);
+                var descriptor = getJavaTypeName(fieldType, codeGenerator);
+                methodVisitor.visitFieldInsn(GETFIELD, outerRecordTypeName, memberAccessor.name.name, descriptor);
+                type = fieldType;
+            } else if (accessor instanceof ModifiablePrimaryNode.ArraySize && type instanceof RuntimeArrayType) {
+                throw new IllegalStateException();
+            } else if (accessor instanceof ModifiablePrimaryNode.Indexer && type instanceof RuntimeArrayType) {
+                throw new IllegalStateException();
+            }
+        }
     }
 
     private static int tryGetParameterIndex(VariableContext variableContext, String name) {
@@ -170,69 +191,93 @@ public class JVMUtils {
         return -1;
     }
 
-    public static void generateSet(MethodVisitor methodVisitor, ModifiablePrimaryNode modifiablePrimary, SymbolTable symbolTable, ProgramNode program, VariableContext variableContext) {
+    public static void generateSet(MethodVisitor methodVisitor, ModifiablePrimaryNode modifiablePrimary, VariableContext variableContext, JVMCodeGenerator codeGenerator, ExpressionNode expression) {
         var name = modifiablePrimary.identifier.name;
+        var symbolTable = codeGenerator.symbolTable;
+        var program = codeGenerator.program;
 
-        if (symbolTable.isDefinedAt(program, name)) {
-            methodVisitor.visitFieldInsn(PUTSTATIC, "Program", name, JVMUtils.getJavaTypeName(symbolTable.getType(modifiablePrimary, name)));
+        if (modifiablePrimary.accessors.size() == 0) {
+            if (symbolTable.isDefinedAt(program, name)) {
+                methodVisitor.visitFieldInsn(PUTSTATIC, "Program", name, JVMUtils.getJavaTypeName(symbolTable.getType(modifiablePrimary, name), codeGenerator));
+            } else {
+                var parameterIndex = tryGetParameterIndex(variableContext, name);
+                int variableIndex;
+
+                if (parameterIndex == -1) {
+                    variableIndex = variableContext.tryGetIndexOf(modifiablePrimary, name);
+                } else {
+                    variableIndex = parameterIndex;
+                }
+
+                var type = symbolTable.getType(modifiablePrimary, name);
+
+                int opcode = 0;
+
+                if (type instanceof RuntimePrimitiveType) {
+                    opcode = switch (((RuntimePrimitiveType) type).type) {
+                        case INTEGER, BOOLEAN -> ISTORE;
+                        case REAL -> DSTORE;
+                    };
+                } else {
+                    opcode = ASTORE;
+                }
+
+                methodVisitor.visitVarInsn(opcode, variableIndex);
+            }
         } else {
-            var parameterIndex = tryGetParameterIndex(variableContext, name);
-            int variableIndex;
+            var accessors = modifiablePrimary.accessors.size() - 1;
+            generateGet(methodVisitor, modifiablePrimary, variableContext, codeGenerator, accessors);
 
-            if (parameterIndex == -1) {
-                variableIndex = variableContext.tryGetIndexOf(modifiablePrimary, name);
-            } else {
-                variableIndex = parameterIndex;
+            // evaluate assigned expression
+            var expressionType = pushExpression(program, methodVisitor, expression, variableContext, symbolTable, codeGenerator);
+            var variableType = modifiablePrimary.getType(symbolTable);
+            // cast it to the type of the variable
+            generateCastIfNecessary(methodVisitor, expressionType, variableType);
+            var lastAccessor = (ModifiablePrimaryNode.Member) modifiablePrimary.accessors.get(accessors);
+
+            if (variableType instanceof RuntimeRecordType) {
+                var recordName = codeGenerator.recordClassNames.get(variableType);
+                var descriptor = getJavaTypeName(variableType, codeGenerator);
+                methodVisitor.visitFieldInsn(PUTFIELD, recordName, lastAccessor.name.name, descriptor);
+            } else if (variableType instanceof RuntimeArrayType) {
+                throw new IllegalStateException();
             }
-
-            var type = symbolTable.getType(modifiablePrimary, name);
-
-            int opcode = 0;
-
-            if (type instanceof RuntimePrimitiveType) {
-                opcode = switch (((RuntimePrimitiveType) type).type) {
-                    case INTEGER, BOOLEAN -> ISTORE;
-                    case REAL -> DSTORE;
-                };
-            } else {
-                opcode = ASTORE;
-            }
-
-            methodVisitor.visitVarInsn(opcode, variableIndex);
         }
+
+
 
         if (modifiablePrimary.accessors.size() > 0)
             throw new IllegalStateException();
     }
 
-    public static void generateRoutineCall(ProgramNode program, MethodVisitor methodVisitor, RoutineCallNode routineCall, VariableContext context, SymbolTable symbolTable) {
+    public static void generateRoutineCall(ProgramNode program, MethodVisitor methodVisitor, RoutineCallNode routineCall, VariableContext context, SymbolTable symbolTable, JVMCodeGenerator codeGenerator) {
         var routineType = (RuntimeRoutineType) symbolTable.getType(routineCall, routineCall.name.name);
 
         for (var index = 0; index < routineCall.arguments.size(); index++) {
             var argument = routineCall.arguments.get(index);
             var parameterType = routineType.parameters.get(index);
-            var argumentType = pushExpression(program, methodVisitor, argument, context, symbolTable);
+            var argumentType = pushExpression(program, methodVisitor, argument, context, symbolTable, codeGenerator);
             generateCastIfNecessary(methodVisitor, argumentType, parameterType);
         }
 
-        var descriptor = getDescriptor(routineType);
+        var descriptor = getDescriptor(routineType, codeGenerator);
         methodVisitor.visitMethodInsn(INVOKESTATIC, JVMCodeGenerator.className, routineCall.name.name, descriptor, false);
     }
 
-    public static RuntimeType pushExpression(ProgramNode program, MethodVisitor methodVisitor, ExpressionNode expression, VariableContext context, SymbolTable symbolTable) {
-        var generator = new ExpressionCodeGenerator(program, methodVisitor, expression, context, symbolTable);
+    public static RuntimeType pushExpression(ProgramNode program, MethodVisitor methodVisitor, ExpressionNode expression, VariableContext context, SymbolTable symbolTable, JVMCodeGenerator codeGenerator) {
+        var generator = new ExpressionCodeGenerator(methodVisitor, expression, context, codeGenerator);
         return generator.generate();
     }
 
-    public static String getDescriptor(RuntimeRoutineType routineType) {
+    public static String getDescriptor(RuntimeRoutineType routineType, JVMCodeGenerator codeGenerator) {
         var descriptor = new StringBuilder().append('(');
 
         for (var parameter : routineType.parameters) {
-            descriptor.append(getJavaTypeName(parameter));
+            descriptor.append(getJavaTypeName(parameter, codeGenerator));
         }
 
         descriptor.append(')');
-        descriptor.append(getJavaTypeName(routineType.returnType));
+        descriptor.append(getJavaTypeName(routineType.returnType, codeGenerator));
         return descriptor.toString();
     }
 }

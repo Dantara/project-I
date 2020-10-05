@@ -14,19 +14,20 @@ import projectI.AST.Statements.AssignmentNode;
 import projectI.AST.Statements.ReturnStatementNode;
 import projectI.AST.Statements.RoutineCallNode;
 import projectI.AST.Statements.StatementNode;
-import projectI.AST.Types.RuntimePrimitiveType;
-import projectI.AST.Types.RuntimeRoutineType;
-import projectI.AST.Types.RuntimeType;
+import projectI.AST.Types.*;
 import projectI.CodeGeneration.ICodeGenerator;
 import projectI.SemanticAnalysis.SymbolTable;
+
+import java.util.HashMap;
 
 import static org.objectweb.asm.Opcodes.*;
 import static projectI.CodeGeneration.JVM.JVMUtils.*;
 
 public class JVMCodeGenerator implements ICodeGenerator {
     public static final String className = "Program";
-    private final ProgramNode program;
-    private final SymbolTable symbolTable;
+    public final ProgramNode program;
+    public final SymbolTable symbolTable;
+    public final HashMap<RuntimeRecordType, String> recordClassNames = new HashMap<>();
 
     public JVMCodeGenerator(ProgramNode program, SymbolTable symbolTable) {
         this.program = program;
@@ -34,10 +35,14 @@ public class JVMCodeGenerator implements ICodeGenerator {
     }
 
     @Override
-    public byte[] generate() {
+    public HashMap<String, byte[]> generate() {
+        var files = new HashMap<String, byte[]>();
+        generateRecordClasses(files);
         ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS);
+
         // define a class
         classWriter.visit(V1_7, ACC_PUBLIC, className, null, "java/lang/Object", null);
+        var cctorVisitor = classWriter.visitMethod(ACC_STATIC, "<clinit>", "()V", null, null);
         // generate built-in functions
         generateBuiltIns(classWriter);
 
@@ -46,16 +51,76 @@ public class JVMCodeGenerator implements ICodeGenerator {
             if (declaration instanceof RoutineDeclarationNode)
                 generateMethod(classWriter, (RoutineDeclarationNode) declaration);
             else if (declaration instanceof VariableDeclarationNode)
-                generateField(classWriter, (VariableDeclarationNode) declaration);
+                generateField(classWriter, cctorVisitor, (VariableDeclarationNode) declaration);
         }
 
+        cctorVisitor.visitInsn(RETURN);
+        cctorVisitor.visitEnd();
         classWriter.visitEnd();
-        return classWriter.toByteArray();
+        files.put(className, classWriter.toByteArray());
+        return files;
+    }
+
+    private void generateRecordClasses(HashMap<String, byte[]> files) {
+        var allTypes = symbolTable.getAllDefinedTypes();
+
+        for (RuntimeType type : allTypes) {
+            if (type instanceof RuntimeRecordType)
+                generateRecordClass(files, (RuntimeRecordType) type);
+        }
+    }
+
+    private void generateRecordClass(HashMap<String, byte[]> files, RuntimeRecordType recordType) {
+        if (recordClassNames.containsKey(recordType)) return;
+
+        var index = recordClassNames.size();
+        var name = "Record" + index;
+        recordClassNames.put(recordType, name);
+
+        for (var variable : recordType.variables) {
+            var variableType = variable.getValue1();
+
+            if (variableType instanceof RuntimeRecordType) {
+                generateRecordClass(files, (RuntimeRecordType) variableType);
+            }
+        }
+
+        ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS);
+
+        classWriter.visit(V1_7, ACC_PUBLIC, name, null, "java/lang/Object", null);
+        var ctorVisitor = classWriter.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);
+
+        for (var variable : recordType.variables) {
+            var variableType = variable.getValue1();
+            String descriptor = getJavaTypeName(variableType, this);
+            classWriter.visitField(ACC_PUBLIC, variable.getValue0(), descriptor, null, null);
+
+            if (variableType instanceof RuntimePrimitiveType && variable.getValue2() != null) {
+                ctorVisitor.visitVarInsn(ALOAD, 0);
+                ctorVisitor.visitLdcInsn(variable.getValue2());
+                ctorVisitor.visitFieldInsn(PUTFIELD, name, variable.getValue0(), descriptor);
+            } if (variableType instanceof RuntimeRecordType) {
+                var variableRecordName = recordClassNames.get(variableType);
+
+                ctorVisitor.visitVarInsn(ALOAD, 0);
+                ctorVisitor.visitTypeInsn(NEW, variableRecordName);
+                ctorVisitor.visitInsn(DUP);
+                ctorVisitor.visitMethodInsn(INVOKESPECIAL, variableRecordName, "<init>", "()V", false);
+                ctorVisitor.visitFieldInsn(PUTFIELD, name, variable.getValue0(), descriptor);
+            } else if (variableType instanceof RuntimeArrayType) {
+                throw new IllegalStateException();
+            }
+        }
+
+        ctorVisitor.visitInsn(RETURN);
+        ctorVisitor.visitEnd();
+        classWriter.visitEnd();
+        files.put(name, classWriter.toByteArray());
     }
 
     private void generateMethod(ClassWriter classWriter, RoutineDeclarationNode routine) {
         var context = new VariableContext(routine);
-        var descriptor = getDescriptor((RuntimeRoutineType) symbolTable.getType(routine, routine.name.name));
+        var descriptor = getDescriptor((RuntimeRoutineType) symbolTable.getType(routine, routine.name.name), this);
         // generate method
         MethodVisitor methodVisitor = classWriter.visitMethod(ACC_PUBLIC + ACC_STATIC, routine.name.name, descriptor, null, null);
         methodVisitor.visitCode();
@@ -74,12 +139,24 @@ public class JVMCodeGenerator implements ICodeGenerator {
             generate(methodVisitor, statement, routine, context);
     }
 
-    private void generateField(ClassWriter classWriter, VariableDeclarationNode variable) {
-        var value = variable.expression.tryEvaluateConstant(symbolTable);
+    private void generateField(ClassWriter classWriter, MethodVisitor cctorVisitor, VariableDeclarationNode variable) {
+        var value = variable.expression != null ? variable.expression.tryEvaluateConstant(symbolTable) : null;
         var type = variable.type != null  ? variable.type.getType(symbolTable) : variable.expression.getType(symbolTable);
-        var typeName = getJavaTypeName(type);
+        var typeName = getJavaTypeName(type, this);
         // create a static field
         classWriter.visitField(ACC_STATIC + ACC_PUBLIC, variable.identifier.name, typeName, null, value);
+
+        if (type instanceof RuntimePrimitiveType && value != null) {
+            cctorVisitor.visitLdcInsn(value);
+            cctorVisitor.visitFieldInsn(PUTSTATIC, className, variable.identifier.name, typeName);
+        } else if (type instanceof RuntimeRecordType) {
+            cctorVisitor.visitTypeInsn(NEW, typeName);
+            cctorVisitor.visitInsn(DUP);
+            cctorVisitor.visitMethodInsn(INVOKESPECIAL, typeName, "<init>", "()V", false);
+            cctorVisitor.visitFieldInsn(PUTSTATIC, className, variable.identifier.name, typeName);
+        } else if (type instanceof RuntimeArrayType) {
+            throw new IllegalStateException();
+        }
     }
 
     private void generate(MethodVisitor methodVisitor, StatementNode statement, RoutineDeclarationNode routine, VariableContext context) {
@@ -90,7 +167,7 @@ public class JVMCodeGenerator implements ICodeGenerator {
         else if (statement instanceof AssignmentNode)
             generateAssignment(methodVisitor, (AssignmentNode) statement, context);
         else if (statement instanceof RoutineCallNode)
-            generateRoutineCall(program, methodVisitor, (RoutineCallNode) statement, context, symbolTable);
+            generateRoutineCall(program, methodVisitor, (RoutineCallNode) statement, context, symbolTable, this);
         else if (statement instanceof IfStatementNode)
             generateIfStatement(methodVisitor, (IfStatementNode) statement, routine, context);
         else if (statement instanceof ForLoopNode)
@@ -105,7 +182,7 @@ public class JVMCodeGenerator implements ICodeGenerator {
         if (returnStatement.expression == null) {
             methodVisitor.visitInsn(RETURN);
         } else {
-            var expressionType = pushExpression(program, methodVisitor, returnStatement.expression, context, symbolTable);
+            var expressionType = pushExpression(program, methodVisitor, returnStatement.expression, context, symbolTable, this);
 
             if (expressionType instanceof RuntimePrimitiveType) {
                 var primitiveType = (RuntimePrimitiveType) expressionType;
@@ -129,7 +206,7 @@ public class JVMCodeGenerator implements ICodeGenerator {
         if (variableDeclaration.expression == null) {
             generateLocalVariableDefaultInitialization(methodVisitor, variableDeclaration, variableId);
         } else {
-            var expressionType = pushExpression(program, methodVisitor, variableDeclaration.expression, context, symbolTable);
+            var expressionType = pushExpression(program, methodVisitor, variableDeclaration.expression, context, symbolTable, this);
 
             if (variableDeclaration.type != null)
                 generateCastIfNecessary(methodVisitor, expressionType, variableDeclaration.type.getType(symbolTable));
@@ -172,19 +249,19 @@ public class JVMCodeGenerator implements ICodeGenerator {
             throw new IllegalStateException();
         } else {
             // evaluate assigned expression
-            var expressionType = pushExpression(program, methodVisitor, assignment.assignedValue, context, symbolTable);
+            var expressionType = pushExpression(program, methodVisitor, assignment.assignedValue, context, symbolTable, this);
             var variableType = assignment.modifiable.identifier.getType(symbolTable);
             // cast it to the type of the variable
             generateCastIfNecessary(methodVisitor, expressionType, variableType);
 
             // assign the value
-            generateSet(methodVisitor, assignment.modifiable, symbolTable, program, context);
+            generateSet(methodVisitor, assignment.modifiable, context, this, assignment.assignedValue);
         }
     }
 
     private void generateIfStatement(MethodVisitor methodVisitor, IfStatementNode ifStatement, RoutineDeclarationNode routine, VariableContext context) {
         // evaluate the condition
-        var conditionType = pushExpression(program, methodVisitor, ifStatement.condition, context, symbolTable);
+        var conditionType = pushExpression(program, methodVisitor, ifStatement.condition, context, symbolTable, this);
         // cast it to boolean
         generateCastIfNecessary(methodVisitor, conditionType, new RuntimePrimitiveType(PrimitiveType.BOOLEAN));
 
@@ -225,7 +302,7 @@ public class JVMCodeGenerator implements ICodeGenerator {
         var initialValue = range.reverse ? range.to : range.from;
         var finalValue = range.reverse ? range.from : range.to;
         // evaluate initial value
-        pushExpression(program, methodVisitor, initialValue, context, symbolTable);
+        pushExpression(program, methodVisitor, initialValue, context, symbolTable, this);
         // store the initial value in the iterator
         storeVariable(methodVisitor, new RuntimePrimitiveType(PrimitiveType.INTEGER), variableId);
 
@@ -233,7 +310,7 @@ public class JVMCodeGenerator implements ICodeGenerator {
 
         // check range
         methodVisitor.visitVarInsn(ILOAD, variableId);
-        pushExpression(program, methodVisitor, finalValue, context, symbolTable);
+        pushExpression(program, methodVisitor, finalValue, context, symbolTable, this);
         var exitOpcode = range.reverse ? IF_ICMPLT : IF_ICMPGT;
         // if iterator is outside the range, exit
         methodVisitor.visitJumpInsn(exitOpcode, exitLabel);
@@ -253,7 +330,7 @@ public class JVMCodeGenerator implements ICodeGenerator {
 
         // check condition
         methodVisitor.visitLabel(loopLabel);
-        pushExpression(program, methodVisitor, whileLoop.condition, context, symbolTable);
+        pushExpression(program, methodVisitor, whileLoop.condition, context, symbolTable, this);
         generateCastIfNecessary(methodVisitor, whileLoop.condition.getType(symbolTable), new RuntimePrimitiveType(PrimitiveType.BOOLEAN));
         // if false, exit
         methodVisitor.visitJumpInsn(IFEQ, exitLabel);

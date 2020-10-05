@@ -1,0 +1,9 @@
+var a : record
+    var b is 1
+    var c is 2
+end
+
+routine main() is
+    printInt(a.b)
+    printInt(a.c)
+end

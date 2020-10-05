@@ -1,22 +1,15 @@
 package projectI.CodeGeneration.JVM;
 
-import org.javatuples.Pair;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
-import projectI.AST.Declarations.IdentifierNode;
-import projectI.AST.Declarations.TypeNode;
 import projectI.AST.Expressions.*;
 import projectI.AST.Primary.BooleanLiteralNode;
 import projectI.AST.Primary.IntegralLiteralNode;
 import projectI.AST.Primary.ModifiablePrimaryNode;
 import projectI.AST.Primary.RealLiteralNode;
-import projectI.AST.ProgramNode;
 import projectI.AST.Statements.RoutineCallNode;
 import projectI.AST.Types.RuntimePrimitiveType;
 import projectI.AST.Types.RuntimeType;
-import projectI.SemanticAnalysis.SymbolTable;
-
-import java.util.List;
 
 import static org.objectweb.asm.Opcodes.*;
 import static projectI.AST.Declarations.PrimitiveType.*;
@@ -24,22 +17,20 @@ import static projectI.AST.Declarations.PrimitiveType.INTEGER;
 import static projectI.CodeGeneration.JVM.JVMUtils.*;
 
 public class ExpressionCodeGenerator {
-    private final ProgramNode program;
     private final MethodVisitor methodVisitor;
     private final ExpressionNode expression;
     private final VariableContext variableContext;
-    private final SymbolTable symbolTable;
+    private final JVMCodeGenerator generator;
 
-    public ExpressionCodeGenerator(ProgramNode program, MethodVisitor methodVisitor, ExpressionNode expression, VariableContext variableContext, SymbolTable symbolTable) {
-        this.program = program;
+    public ExpressionCodeGenerator(MethodVisitor methodVisitor, ExpressionNode expression, VariableContext variableContext, JVMCodeGenerator codeGenerator) {
         this.methodVisitor = methodVisitor;
         this.expression = expression;
         this.variableContext = variableContext;
-        this.symbolTable = symbolTable;
+        this.generator = codeGenerator;
     }
 
     public RuntimeType generate() {
-        var constant = expression.tryEvaluateConstant(symbolTable);
+        var constant = expression.tryEvaluateConstant(generator.symbolTable);
 
         if (constant != null) {
             methodVisitor.visitLdcInsn(constant);
@@ -47,7 +38,7 @@ public class ExpressionCodeGenerator {
             generate(expression);
         }
 
-        return expression.getType(symbolTable);
+        return expression.getType(generator.symbolTable);
     }
 
     public void generate(ExpressionNode expression) {
@@ -55,7 +46,7 @@ public class ExpressionCodeGenerator {
 
         if (expression.otherRelations.size() == 0) return;
 
-        var type = ((RuntimePrimitiveType) expression.relation.getType(symbolTable)).type;
+        var type = ((RuntimePrimitiveType) expression.relation.getType(generator.symbolTable)).type;
         if (type == REAL) {
             methodVisitor.visitInsn(D2I);
         }
@@ -109,11 +100,11 @@ public class ExpressionCodeGenerator {
         if (relation.otherSimple == null) return;
         if (relation.comparison == null) return;
 
-        var type = ((RuntimePrimitiveType) relation.simple.getType(symbolTable)).type;
+        var type = ((RuntimePrimitiveType) relation.simple.getType(generator.symbolTable)).type;
         if (type == BOOLEAN)
             type = INTEGER;
 
-        var otherType = ((RuntimePrimitiveType) relation.otherSimple.getType(symbolTable)).type;
+        var otherType = ((RuntimePrimitiveType) relation.otherSimple.getType(generator.symbolTable)).type;
         if (otherType == BOOLEAN)
             otherType = INTEGER;
 
@@ -162,12 +153,12 @@ public class ExpressionCodeGenerator {
         generate(simple.summand);
         if (simple.otherSummands.size() == 0) return;
 
-        var summandType = ((RuntimePrimitiveType) simple.summand.getType(symbolTable)).type;
+        var summandType = ((RuntimePrimitiveType) simple.summand.getType(generator.symbolTable)).type;
         if (summandType == BOOLEAN)
             summandType = INTEGER;
 
         for (var otherSummand : simple.otherSummands) {
-            var otherSummandType = ((RuntimePrimitiveType) otherSummand.node.getType(symbolTable)).type;
+            var otherSummandType = ((RuntimePrimitiveType) otherSummand.node.getType(generator.symbolTable)).type;
             if (otherSummandType == BOOLEAN)
                 otherSummandType = INTEGER;
 
@@ -210,12 +201,12 @@ public class ExpressionCodeGenerator {
 
         if (summand.otherFactors.size() > 0)
         {
-            var type = ((RuntimePrimitiveType) summand.factor.getType(symbolTable)).type;
+            var type = ((RuntimePrimitiveType) summand.factor.getType(generator.symbolTable)).type;
             if (type == BOOLEAN)
                 type = INTEGER;
 
             for (var factor : summand.otherFactors) {
-                var factorType = ((RuntimePrimitiveType) factor.node.getType(symbolTable)).type;
+                var factorType = ((RuntimePrimitiveType) factor.node.getType(generator.symbolTable)).type;
                 if (factorType == BOOLEAN)
                     factorType = INTEGER;
 
@@ -264,7 +255,7 @@ public class ExpressionCodeGenerator {
 
     private void generate(FactorNode factor) {
         if (factor instanceof ModifiablePrimaryNode) {
-            generateGet(methodVisitor, (ModifiablePrimaryNode) factor, symbolTable, program, variableContext);
+            generateGet(methodVisitor, (ModifiablePrimaryNode) factor, variableContext, generator);
         } else if (factor instanceof ExpressionNode) {
             generate((ExpressionNode) factor);
         } else if (factor instanceof IntegralLiteralNode) {
@@ -277,7 +268,7 @@ public class ExpressionCodeGenerator {
             var literal = (BooleanLiteralNode) factor;
             methodVisitor.visitLdcInsn(literal.value ? 1 : 0);
         } else if (factor instanceof RoutineCallNode){
-            generateRoutineCall(program, methodVisitor, (RoutineCallNode) factor, variableContext, symbolTable);
+            generateRoutineCall(generator.program, methodVisitor, (RoutineCallNode) factor, variableContext, generator.symbolTable, generator);
         } else {
             throw new IllegalStateException();
         }

@@ -6,5 +6,5 @@ var b : record
 end
 
 routine main() is
-
+    printInt(b.y.z)
 end

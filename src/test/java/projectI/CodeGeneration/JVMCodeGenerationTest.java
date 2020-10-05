@@ -40,13 +40,19 @@ public class JVMCodeGenerationTest extends TestCase {
         var compositeAnalyzer = new CompositeSemanticAnalyzer();
         compositeAnalyzer.analyze(program, symbolTable);
         var codeGenerator = new JVMCodeGenerator(program, symbolTable);
-        var bytes = codeGenerator.generate();
-        var classFile = Path.of("target", "tests", "Program.class");
+        var files = codeGenerator.generate();
+
         if (!Files.exists(Path.of("target", "tests")))
             Files.createDirectories(Path.of("target", "tests"));
-        if (Files.exists(classFile))
-            Files.delete(classFile);
-        Files.write(classFile, bytes, StandardOpenOption.CREATE_NEW);
+
+        for (var className : files.keySet()) {
+            var classFile = Path.of("target", "tests", className + ".class");
+
+            if (Files.exists(classFile))
+                Files.delete(classFile);
+
+            Files.write(classFile, files.get(className), StandardOpenOption.CREATE_NEW);
+        }
 
         var process = Runtime.getRuntime().exec("java -cp target/tests -noverify Program");
 
@@ -170,6 +176,21 @@ public class JVMCodeGenerationTest extends TestCase {
         output = getOutput("code_examples/square_input.txt", "25");
         expectedOutput = new StringBuilder();
         expectedOutput.append(625).append(System.lineSeparator());
+        Assert.assertEquals(expectedOutput.toString(), output);
+    }
+
+    public void testRecordDefinition() throws Exception {
+        var output = getOutput("code_examples/record_definition.txt");
+        var expectedOutput = new StringBuilder();
+        expectedOutput.append(1).append(System.lineSeparator());
+        expectedOutput.append(2).append(System.lineSeparator());
+        Assert.assertEquals(expectedOutput.toString(), output);
+    }
+
+    public void testNestedRecord() throws Exception {
+        var output = getOutput("code_examples/nested_record.txt");
+        var expectedOutput = new StringBuilder();
+        expectedOutput.append(4).append(System.lineSeparator());
         Assert.assertEquals(expectedOutput.toString(), output);
     }
 }
