@@ -197,6 +197,14 @@ public class JVMCodeGenerationTest extends TestCase {
         Assert.assertEquals(expectedOutput.toString(), output);
     }
 
+    public void testCounter() throws Exception {
+        var output = getOutput("code_examples/counter.txt");
+        var expectedOutput = new StringBuilder();
+        expectedOutput.append(0).append(System.lineSeparator());
+        expectedOutput.append(1).append(System.lineSeparator());
+        Assert.assertEquals(expectedOutput.toString(), output);
+    }
+
     public void testRecords1() throws Exception {
         var output = getOutput("code_examples/records1.txt");
         var expectedOutput = new StringBuilder();
