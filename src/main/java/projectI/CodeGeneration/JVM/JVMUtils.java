@@ -170,9 +170,29 @@ public class JVMUtils {
                 methodVisitor.visitFieldInsn(GETFIELD, outerRecordTypeName, memberAccessor.name.name, descriptor);
                 type = fieldType;
             } else if (accessor instanceof ModifiablePrimaryNode.ArraySize && type instanceof RuntimeArrayType) {
-                throw new IllegalStateException();
+                methodVisitor.visitInsn(ARRAYLENGTH);
+                type = new RuntimePrimitiveType(PrimitiveType.INTEGER);
             } else if (accessor instanceof ModifiablePrimaryNode.Indexer && type instanceof RuntimeArrayType) {
-                throw new IllegalStateException();
+                var indexAccessor = (ModifiablePrimaryNode.Indexer) accessor;
+                var arrayType = (RuntimeArrayType) type;
+
+                pushExpression(codeGenerator.program, methodVisitor, indexAccessor.value, variableContext, codeGenerator.symbolTable, codeGenerator);
+                generateCastIfNecessary(methodVisitor, indexAccessor.value.getType(codeGenerator.symbolTable), new RuntimePrimitiveType(PrimitiveType.INTEGER));
+                methodVisitor.visitInsn(ICONST_1);
+                methodVisitor.visitInsn(ISUB);
+
+                int opcode;
+                if (arrayType.elementType instanceof RuntimePrimitiveType) {
+                    opcode = switch (((RuntimePrimitiveType) arrayType.elementType).type) {
+                        case INTEGER, BOOLEAN -> IALOAD;
+                        case REAL -> DALOAD;
+                    };
+                } else {
+                    opcode = AALOAD;
+                }
+
+                methodVisitor.visitInsn(opcode);
+                type = arrayType.elementType;
             }
         }
     }
@@ -240,19 +260,42 @@ public class JVMUtils {
             }
 
             var variableType = modifiablePrimary.getType(symbolTable);
-            // evaluate assigned expression
-            var expressionType = pushExpression(program, methodVisitor, expression, variableContext, symbolTable, codeGenerator);
-            // cast it to the type of the variable
-            generateCastIfNecessary(methodVisitor, expressionType, variableType);
             var lastAccessor = modifiablePrimary.accessors.get(accessors);
 
             if (lastAccessor instanceof ModifiablePrimaryNode.Member) {
                 var lastMemberAccessor = (ModifiablePrimaryNode.Member) lastAccessor;
                 var recordName = codeGenerator.recordClassNames.get(preLastType);
                 var descriptor = getJavaTypeName(variableType, codeGenerator);
+                // evaluate assigned expression
+                var expressionType = pushExpression(program, methodVisitor, expression, variableContext, symbolTable, codeGenerator);
+                // cast it to the type of the variable
+                generateCastIfNecessary(methodVisitor, expressionType, variableType);
                 methodVisitor.visitFieldInsn(PUTFIELD, recordName, lastMemberAccessor.name.name, descriptor);
-            } else if (variableType instanceof RuntimeArrayType) {
-                throw new IllegalStateException();
+            } else if (lastAccessor instanceof ModifiablePrimaryNode.Indexer) {
+                var lastIndexAccessor = (ModifiablePrimaryNode.Indexer) lastAccessor;
+                // push index
+                pushExpression(program, methodVisitor, lastIndexAccessor.value, variableContext, symbolTable, codeGenerator);
+                generateCastIfNecessary(methodVisitor, lastIndexAccessor.value.getType(symbolTable), new RuntimePrimitiveType(PrimitiveType.INTEGER));
+                methodVisitor.visitInsn(ICONST_1);
+                methodVisitor.visitInsn(ISUB);
+                // evaluate assigned expression
+                var expressionType = pushExpression(program, methodVisitor, expression, variableContext, symbolTable, codeGenerator);
+                // cast it to the type of the variable
+                generateCastIfNecessary(methodVisitor, expressionType, variableType);
+
+                // determine the element type
+                var arrayType = (RuntimeArrayType) preLastType;
+                var elementType = arrayType.elementType;
+                int opcode;
+                if (elementType instanceof RuntimePrimitiveType) {
+                    opcode = switch (((RuntimePrimitiveType) elementType).type) {
+                        case INTEGER, BOOLEAN -> IASTORE;
+                        case REAL -> DASTORE;
+                    };
+                } else {
+                    opcode = AASTORE;
+                }
+                methodVisitor.visitInsn(opcode);
             } else {
                 throw new IllegalStateException();
             }
@@ -288,5 +331,46 @@ public class JVMUtils {
         descriptor.append(')');
         descriptor.append(getJavaTypeName(routineType.returnType, codeGenerator));
         return descriptor.toString();
+    }
+
+    public static void generateDefaultInitialization(MethodVisitor methodVisitor, RuntimeType type, JVMCodeGenerator codeGenerator) {
+        if (type instanceof RuntimePrimitiveType) {
+            switch (((RuntimePrimitiveType) type).type) {
+                case INTEGER, BOOLEAN -> methodVisitor.visitInsn(ICONST_0);
+                case REAL -> methodVisitor.visitInsn(DCONST_0);
+            }
+        } else if (type instanceof RuntimeRecordType) {
+            var recordClassName = codeGenerator.recordClassNames.get(type);
+            methodVisitor.visitTypeInsn(NEW, recordClassName);
+            methodVisitor.visitInsn(DUP);
+            methodVisitor.visitMethodInsn(INVOKESPECIAL, recordClassName, "<init>", "()V", false);
+        } else if (type instanceof RuntimeArrayType) {
+            var arrayType = (RuntimeArrayType) type;
+            var elementType = arrayType.elementType;
+            methodVisitor.visitLdcInsn(arrayType.size);
+            var elementTypeName = getJavaTypeName(elementType, codeGenerator);
+
+            if (elementType instanceof RuntimePrimitiveType) {
+                var opcode = switch (((RuntimePrimitiveType) elementType).type) {
+                    case INTEGER, BOOLEAN -> T_INT;
+                    case REAL -> T_DOUBLE;
+                };
+                methodVisitor.visitIntInsn(NEWARRAY, opcode);
+            } else {
+                methodVisitor.visitTypeInsn(ANEWARRAY, elementTypeName);
+            }
+
+            if (elementType instanceof RuntimePrimitiveType)
+                return;
+
+            for (var i = 0; i < arrayType.size; i++) {
+                methodVisitor.visitInsn(DUP);
+                methodVisitor.visitLdcInsn(i);
+                generateDefaultInitialization(methodVisitor, elementType, codeGenerator);
+                methodVisitor.visitInsn(AASTORE);
+            }
+        } else {
+            throw new IllegalStateException();
+        }
     }
 }

@@ -220,4 +220,51 @@ public class JVMCodeGenerationTest extends TestCase {
         expectedOutput.append(2).append(System.lineSeparator());
         Assert.assertEquals(expectedOutput.toString(), output);
     }
+
+    public void testLocalArray() throws Exception {
+        var output = getOutput("code_examples/local_array.txt");
+        var expectedOutput = new StringBuilder();
+        expectedOutput.append(10).append(System.lineSeparator());
+        expectedOutput.append(2).append(System.lineSeparator());
+        expectedOutput.append(5).append(System.lineSeparator());
+        Assert.assertEquals(expectedOutput.toString(), output);
+    }
+
+    public void testArrayOfRecords1() throws Exception {
+        var output = getOutput("code_examples/array_of_records1.txt");
+        var expectedOutput = new StringBuilder();
+        expectedOutput.append(1).append(System.lineSeparator());
+        expectedOutput.append(true).append(System.lineSeparator());
+        expectedOutput.append(16).append(System.lineSeparator());
+        Assert.assertEquals(expectedOutput.toString(), output);
+    }
+
+    public void testMultidimensionalArray() throws Exception {
+        var output = getOutput("code_examples/multidimensional_array.txt");
+        var expectedOutput = new StringBuilder();
+        expectedOutput.append(0).append(System.lineSeparator());
+        expectedOutput.append(0).append(System.lineSeparator());
+        expectedOutput.append(0).append(System.lineSeparator());
+        expectedOutput.append(0).append(System.lineSeparator());
+        expectedOutput.append(0).append(System.lineSeparator());
+        expectedOutput.append(0).append(System.lineSeparator());
+        expectedOutput.append(0).append(System.lineSeparator());
+        expectedOutput.append(0).append(System.lineSeparator());
+        expectedOutput.append(0).append(System.lineSeparator());
+        Assert.assertEquals(expectedOutput.toString(), output);
+    }
+
+    public void testGlobalArray() throws Exception {
+        var output = getOutput("code_examples/global_array.txt");
+        var expectedOutput = new StringBuilder();
+        expectedOutput.append(5).append(System.lineSeparator());
+        Assert.assertEquals(expectedOutput.toString(), output);
+    }
+
+    public void testRecordWithArray() throws Exception {
+        var output = getOutput("code_examples/record_with_array.txt");
+        var expectedOutput = new StringBuilder();
+        expectedOutput.append(5).append(System.lineSeparator());
+        Assert.assertEquals(expectedOutput.toString(), output);
+    }
 }

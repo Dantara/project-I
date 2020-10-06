@@ -112,7 +112,9 @@ public class JVMCodeGenerator implements ICodeGenerator {
                 ctorVisitor.visitMethodInsn(INVOKESPECIAL, variableRecordName, "<init>", "()V", false);
                 ctorVisitor.visitFieldInsn(PUTFIELD, name, variable.getValue0(), descriptor);
             } else if (variableType instanceof RuntimeArrayType) {
-                throw new IllegalStateException();
+                ctorVisitor.visitVarInsn(ALOAD, 0);
+                generateDefaultInitialization(ctorVisitor, variableType, this);
+                ctorVisitor.visitFieldInsn(PUTFIELD, name, variable.getValue0(), descriptor);
             }
         }
 
@@ -152,15 +154,16 @@ public class JVMCodeGenerator implements ICodeGenerator {
 
         if (type instanceof RuntimePrimitiveType && value != null) {
             staticCtorVisitor.visitLdcInsn(value);
-            staticCtorVisitor.visitFieldInsn(PUTSTATIC, className, variable.identifier.name, typeName);
         } else if (type instanceof RuntimeRecordType) {
             staticCtorVisitor.visitTypeInsn(NEW, typeName);
             staticCtorVisitor.visitInsn(DUP);
             staticCtorVisitor.visitMethodInsn(INVOKESPECIAL, typeName, "<init>", "()V", false);
-            staticCtorVisitor.visitFieldInsn(PUTSTATIC, className, variable.identifier.name, typeName);
+
         } else if (type instanceof RuntimeArrayType) {
-            throw new IllegalStateException();
+            generateDefaultInitialization(staticCtorVisitor, type, this);
         }
+
+        staticCtorVisitor.visitFieldInsn(PUTSTATIC, className, variable.identifier.name, typeName);
     }
 
     private void generate(MethodVisitor methodVisitor, StatementNode statement, RoutineDeclarationNode routine, VariableContext context) {
@@ -225,20 +228,7 @@ public class JVMCodeGenerator implements ICodeGenerator {
     }
 
     private void generateLocalVariableDefaultInitialization(MethodVisitor methodVisitor, RuntimeType type, int variableId) {
-        if (type instanceof RuntimePrimitiveType) {
-            switch (((RuntimePrimitiveType) type).type) {
-                case INTEGER, BOOLEAN -> methodVisitor.visitInsn(ICONST_0);
-                case REAL -> methodVisitor.visitInsn(DCONST_0);
-            }
-        } else if (type instanceof RuntimeRecordType){
-            var recordClassName = recordClassNames.get(type);
-            methodVisitor.visitTypeInsn(NEW, recordClassName);
-            methodVisitor.visitInsn(DUP);
-            methodVisitor.visitMethodInsn(INVOKESPECIAL, recordClassName, "<init>", "()V", false);
-        } else {
-            throw new IllegalStateException();
-        }
-
+        generateDefaultInitialization(methodVisitor, type, this);
         storeVariable(methodVisitor, type, variableId);
     }
 
@@ -291,7 +281,6 @@ public class JVMCodeGenerator implements ICodeGenerator {
     private void generateForLoop(MethodVisitor methodVisitor, ForLoopNode forLoop, RoutineDeclarationNode routine, VariableContext context) {
         // define the iterator variable
         var variableId = context.defineVariable(forLoop, forLoop.variable.name);
-        generateLocalVariableDefaultInitialization(methodVisitor, new RuntimePrimitiveType(PrimitiveType.INTEGER), variableId);
 
         var exitLabel = new Label();
         var loopLabel = new Label();

@@ -83,7 +83,7 @@ public class ParserCodeExamplesTest extends TestCase {
                         typedVariable("myRec", "rec"),
                         recordMemberAssignment("myRec", "either", toExpression(trueLiteral)),
                         recordMemberAssignment("myRec", "num", toExpression(arraySize("arr"))),
-                        arrayIndexAssignment("arr", 0, variableValue("myRec")))
+                        arrayIndexAssignment("arr", 1, variableValue("myRec")))
         );
 
         assertNotNull(program);
