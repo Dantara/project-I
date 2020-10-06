@@ -278,4 +278,11 @@ public class JVMCodeGenerationTest extends TestCase {
         expectedOutput.append(8.0).append(System.lineSeparator());
         Assert.assertEquals(expectedOutput.toString(), output);
     }
+
+    public void testArrayWithoutSize() throws Exception {
+        var output = getOutput("code_examples/array_without_size1.txt");
+        var expectedOutput = new StringBuilder();
+        expectedOutput.append(23).append(System.lineSeparator());
+        Assert.assertEquals(expectedOutput.toString(), output);
+    }
 }
