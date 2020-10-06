@@ -96,8 +96,14 @@ public class JVMCodeGenerator implements ICodeGenerator {
             classWriter.visitField(ACC_PUBLIC, variable.getValue0(), descriptor, null, null);
 
             if (variableType instanceof RuntimePrimitiveType && variable.getValue2() != null) {
+                var initialValue = variable.getValue2();
                 ctorVisitor.visitVarInsn(ALOAD, 0);
-                ctorVisitor.visitLdcInsn(variable.getValue2());
+                ctorVisitor.visitLdcInsn(initialValue);
+                var primitiveType = initialValue instanceof Integer ?
+                        PrimitiveType.INTEGER : initialValue instanceof Double ?
+                        PrimitiveType.REAL : PrimitiveType.BOOLEAN;
+                var initialValueType = new RuntimePrimitiveType(primitiveType);
+                generateCastIfNecessary(ctorVisitor, initialValueType, variableType);
                 ctorVisitor.visitFieldInsn(PUTFIELD, name, variable.getValue0(), descriptor);
             } if (variableType instanceof RuntimeRecordType) {
                 var variableRecordName = recordClassNames.get(variableType);
