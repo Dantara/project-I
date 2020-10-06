@@ -213,4 +213,11 @@ public class JVMCodeGenerationTest extends TestCase {
         expectedOutput.append(2.0).append(System.lineSeparator());
         Assert.assertEquals(expectedOutput.toString(), output);
     }
+
+    public void testAnalogueTypes() throws Exception {
+        var output = getOutput("code_examples/analogue_types.txt");
+        var expectedOutput = new StringBuilder();
+        expectedOutput.append(2).append(System.lineSeparator());
+        Assert.assertEquals(expectedOutput.toString(), output);
+    }
 }
