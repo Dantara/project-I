@@ -3,11 +3,9 @@ package projectI.CodeGeneration.JVM;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Opcodes;
 import projectI.AST.Declarations.*;
 import projectI.AST.Flow.ForLoopNode;
 import projectI.AST.Flow.IfStatementNode;
-import projectI.AST.Flow.RangeNode;
 import projectI.AST.Flow.WhileLoopNode;
 import projectI.AST.ProgramNode;
 import projectI.AST.Statements.AssignmentNode;
@@ -42,7 +40,7 @@ public class JVMCodeGenerator implements ICodeGenerator {
 
         // define a class
         classWriter.visit(V1_7, ACC_PUBLIC, className, null, "java/lang/Object", null);
-        var cctorVisitor = classWriter.visitMethod(ACC_STATIC, "<clinit>", "()V", null, null);
+        var staticCtorVisitor = classWriter.visitMethod(ACC_STATIC, "<clinit>", "()V", null, null);
         // generate built-in functions
         generateBuiltIns(classWriter);
 
@@ -51,11 +49,11 @@ public class JVMCodeGenerator implements ICodeGenerator {
             if (declaration instanceof RoutineDeclarationNode)
                 generateMethod(classWriter, (RoutineDeclarationNode) declaration);
             else if (declaration instanceof VariableDeclarationNode)
-                generateField(classWriter, cctorVisitor, (VariableDeclarationNode) declaration);
+                generateField(classWriter, staticCtorVisitor, (VariableDeclarationNode) declaration);
         }
 
-        cctorVisitor.visitInsn(RETURN);
-        cctorVisitor.visitEnd();
+        staticCtorVisitor.visitInsn(RETURN);
+        staticCtorVisitor.visitEnd();
         classWriter.visitEnd();
         files.put(className, classWriter.toByteArray());
         return files;
@@ -145,7 +143,7 @@ public class JVMCodeGenerator implements ICodeGenerator {
             generate(methodVisitor, statement, routine, context);
     }
 
-    private void generateField(ClassWriter classWriter, MethodVisitor cctorVisitor, VariableDeclarationNode variable) {
+    private void generateField(ClassWriter classWriter, MethodVisitor staticCtorVisitor, VariableDeclarationNode variable) {
         var value = variable.expression != null ? variable.expression.tryEvaluateConstant(symbolTable) : null;
         var type = variable.type != null  ? variable.type.getType(symbolTable) : variable.expression.getType(symbolTable);
         var typeName = getJavaTypeName(type, this);
@@ -153,13 +151,13 @@ public class JVMCodeGenerator implements ICodeGenerator {
         classWriter.visitField(ACC_STATIC + ACC_PUBLIC, variable.identifier.name, typeName, null, value);
 
         if (type instanceof RuntimePrimitiveType && value != null) {
-            cctorVisitor.visitLdcInsn(value);
-            cctorVisitor.visitFieldInsn(PUTSTATIC, className, variable.identifier.name, typeName);
+            staticCtorVisitor.visitLdcInsn(value);
+            staticCtorVisitor.visitFieldInsn(PUTSTATIC, className, variable.identifier.name, typeName);
         } else if (type instanceof RuntimeRecordType) {
-            cctorVisitor.visitTypeInsn(NEW, typeName);
-            cctorVisitor.visitInsn(DUP);
-            cctorVisitor.visitMethodInsn(INVOKESPECIAL, typeName, "<init>", "()V", false);
-            cctorVisitor.visitFieldInsn(PUTSTATIC, className, variable.identifier.name, typeName);
+            staticCtorVisitor.visitTypeInsn(NEW, typeName);
+            staticCtorVisitor.visitInsn(DUP);
+            staticCtorVisitor.visitMethodInsn(INVOKESPECIAL, typeName, "<init>", "()V", false);
+            staticCtorVisitor.visitFieldInsn(PUTSTATIC, className, variable.identifier.name, typeName);
         } else if (type instanceof RuntimeArrayType) {
             throw new IllegalStateException();
         }
@@ -256,14 +254,7 @@ public class JVMCodeGenerator implements ICodeGenerator {
     }
 
     private void generateAssignment(MethodVisitor methodVisitor, AssignmentNode assignment, VariableContext context) {
-//        // evaluate assigned expression
-//        var expressionType = pushExpression(program, methodVisitor, assignment.assignedValue, context, symbolTable, this);
-//        var variableType = assignment.modifiable.identifier.getType(symbolTable);
-//        // cast it to the type of the variable
-//        generateCastIfNecessary(methodVisitor, expressionType, variableType);
-
-        // assign the value
-        generateSet(methodVisitor, assignment.modifiable, context, this, assignment.assignedValue);
+        generateSet(methodVisitor, assignment.modifiable, assignment.assignedValue, context, this);
     }
 
     private void generateIfStatement(MethodVisitor methodVisitor, IfStatementNode ifStatement, RoutineDeclarationNode routine, VariableContext context) {

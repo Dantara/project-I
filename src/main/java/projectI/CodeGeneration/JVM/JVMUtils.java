@@ -191,7 +191,7 @@ public class JVMUtils {
         return -1;
     }
 
-    public static void generateSet(MethodVisitor methodVisitor, ModifiablePrimaryNode modifiablePrimary, VariableContext variableContext, JVMCodeGenerator codeGenerator, ExpressionNode expression) {
+    public static void generateSet(MethodVisitor methodVisitor, ModifiablePrimaryNode modifiablePrimary, ExpressionNode expression, VariableContext variableContext, JVMCodeGenerator codeGenerator) {
         var name = modifiablePrimary.identifier.name;
         var symbolTable = codeGenerator.symbolTable;
         var program = codeGenerator.program;
