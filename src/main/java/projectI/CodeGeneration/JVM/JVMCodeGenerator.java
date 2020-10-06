@@ -87,6 +87,8 @@ public class JVMCodeGenerator implements ICodeGenerator {
 
         classWriter.visit(V1_7, ACC_PUBLIC, name, null, "java/lang/Object", null);
         var ctorVisitor = classWriter.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);
+        ctorVisitor.visitVarInsn(ALOAD, 0);
+        ctorVisitor.visitMethodInsn(INVOKESPECIAL, "java/lang/Object", "<init>", "()V", false);
 
         for (var variable : recordType.variables) {
             var variableType = variable.getValue1();
@@ -94,8 +96,8 @@ public class JVMCodeGenerator implements ICodeGenerator {
             classWriter.visitField(ACC_PUBLIC, variable.getValue0(), descriptor, null, null);
 
             if (variableType instanceof RuntimePrimitiveType && variable.getValue2() != null) {
-                var initialValue = variable.getValue2();
                 ctorVisitor.visitVarInsn(ALOAD, 0);
+                var initialValue = variable.getValue2();
                 ctorVisitor.visitLdcInsn(initialValue);
                 var primitiveType = initialValue instanceof Integer ?
                         PrimitiveType.INTEGER : initialValue instanceof Double ?
@@ -105,7 +107,6 @@ public class JVMCodeGenerator implements ICodeGenerator {
                 ctorVisitor.visitFieldInsn(PUTFIELD, name, variable.getValue0(), descriptor);
             } if (variableType instanceof RuntimeRecordType) {
                 var variableRecordName = recordClassNames.get(variableType);
-
                 ctorVisitor.visitVarInsn(ALOAD, 0);
                 ctorVisitor.visitTypeInsn(NEW, variableRecordName);
                 ctorVisitor.visitInsn(DUP);
