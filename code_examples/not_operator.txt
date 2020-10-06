@@ -1,0 +1,6 @@
+routine main() is
+    printInt(not true)
+    printInt(not false)
+    printInt(not 2)
+    printInt(not 0)
+end

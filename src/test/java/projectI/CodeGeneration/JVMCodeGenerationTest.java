@@ -285,4 +285,24 @@ public class JVMCodeGenerationTest extends TestCase {
         expectedOutput.append(23).append(System.lineSeparator());
         Assert.assertEquals(expectedOutput.toString(), output);
     }
+
+    public void testLinkedList() throws Exception {
+        var output = getOutput("code_examples/linked_list.txt");
+        var expectedOutput = new StringBuilder();
+        expectedOutput.append(1).append(System.lineSeparator());
+        expectedOutput.append(2).append(System.lineSeparator());
+        expectedOutput.append(3).append(System.lineSeparator());
+        expectedOutput.append(4).append(System.lineSeparator());
+        Assert.assertEquals(expectedOutput.toString(), output);
+    }
+
+    public void testNotOperator() throws Exception {
+        var output = getOutput("code_examples/not_operator.txt");
+        var expectedOutput = new StringBuilder();
+        expectedOutput.append(0).append(System.lineSeparator());
+        expectedOutput.append(1).append(System.lineSeparator());
+        expectedOutput.append(0).append(System.lineSeparator());
+        expectedOutput.append(1).append(System.lineSeparator());
+        Assert.assertEquals(expectedOutput.toString(), output);
+    }
 }

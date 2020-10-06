@@ -35,6 +35,10 @@ public class Parser {
     }
 
     private ProgramNode tryParseProgram(int begin, int endExclusive) {
+        if (!checkMatchingParentheses(begin, endExclusive)) {
+            return null;
+        }
+
         var program = new ProgramNode();
         int left = begin;
 
@@ -74,6 +78,33 @@ public class Parser {
             return null;
 
         return program;
+    }
+
+    private boolean checkMatchingParentheses(int left, int rightExclusive) {
+        var stack = new Stack<String>();
+
+        for (var index = left; index < rightExclusive; index++) {
+            var token = tokens[index];
+            switch (token.getLexeme()) {
+                case "(", "[" -> stack.push(token.getLexeme());
+                case ")" -> {
+                    if (stack.size() == 0 || !stack.pop().equals("("))
+                    {
+                        errors.add(new ExpectedOperatorError("(", locations[index - 1].getPosition()));
+                        return false;
+                    }
+                }
+                case "]" -> {
+                    if (stack.size() == 0 || !stack.pop().equals("["))
+                    {
+                        errors.add(new ExpectedOperatorError("[", locations[index - 1].getPosition()));
+                        return false;
+                    }
+                }
+            }
+        }
+
+        return true;
     }
 
     private void expectedDeclaration(int begin, int endExclusive) {

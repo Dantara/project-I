@@ -1089,4 +1089,9 @@ public class ParserTest extends TestCase {
 
         assertNotNull(range);
     }
+
+    public void testFuncLoop() throws InvalidLexemeException {
+        var loop = createParser("while not a(b(1)) loop end").tryParseWhileLoop(0, 11);
+        assertNotNull(loop);
+    }
  }

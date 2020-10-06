@@ -144,9 +144,21 @@ public class ExpressionCodeGenerator {
     }
 
     private void generate(NegatedRelationNode relation) {
-        methodVisitor.visitLdcInsn(1);
         generate(relation.innerRelation);
-        methodVisitor.visitLdcInsn(ISUB);
+        generateCastIfNecessary(methodVisitor, relation.innerRelation.getType(generator.symbolTable), new RuntimePrimitiveType(INTEGER));
+
+        var falseLabel = new Label();
+        var exitLabel = new Label();
+        methodVisitor.visitJumpInsn(IFEQ, falseLabel);
+
+        // true -> false
+        methodVisitor.visitInsn(ICONST_0);
+        methodVisitor.visitJumpInsn(GOTO, exitLabel);
+        // false -> true
+        methodVisitor.visitLabel(falseLabel);
+        methodVisitor.visitInsn(ICONST_1);
+        // exit
+        methodVisitor.visitLabel(exitLabel);
     }
 
     private void generate(SimpleNode simple) {
@@ -260,10 +272,27 @@ public class ExpressionCodeGenerator {
             generate((ExpressionNode) factor);
         } else if (factor instanceof IntegralLiteralNode) {
             var literal = (IntegralLiteralNode) factor;
-            methodVisitor.visitLdcInsn(literal.value);
+            var value = literal.value;
+
+            if (literal.sign != null) {
+                switch (literal.sign) {
+                    case MINUS -> value = -value;
+                    case NOT -> value = value == 0 ? 1 : 0;
+                }
+            }
+
+            methodVisitor.visitLdcInsn(value);
         } else if (factor instanceof RealLiteralNode) {
             var literal = (RealLiteralNode) factor;
-            methodVisitor.visitLdcInsn(literal.value);
+            var value = literal.value;
+
+            if (literal.sign != null) {
+                if (literal.sign == RealLiteralNode.Sign.MINUS) {
+                    value = -value;
+                }
+            }
+
+            methodVisitor.visitLdcInsn(value);
         } else if (factor instanceof BooleanLiteralNode) {
             var literal = (BooleanLiteralNode) factor;
             methodVisitor.visitLdcInsn(literal.value ? 1 : 0);
