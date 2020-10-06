@@ -35,7 +35,7 @@ public class Parser {
     }
 
     private ProgramNode tryParseProgram(int begin, int endExclusive) {
-        if (!checkMatchingParentheses(begin, endExclusive)) {
+        if (!checkMatchingTokens(begin, endExclusive)) {
             return null;
         }
 
@@ -80,28 +80,55 @@ public class Parser {
         return program;
     }
 
-    private boolean checkMatchingParentheses(int left, int rightExclusive) {
-        var stack = new Stack<String>();
+    private boolean checkMatchingTokens(int left, int rightExclusive) {
+        var stack = new Stack<Integer>();
 
         for (var index = left; index < rightExclusive; index++) {
             var token = tokens[index];
             switch (token.getLexeme()) {
-                case "(", "[" -> stack.push(token.getLexeme());
+                case "(", "[", "routine", "while", "record", "for", "if" -> stack.push(index);
                 case ")" -> {
-                    if (stack.size() == 0 || !stack.pop().equals("("))
+                    if (stack.size() == 0 || !tokens[stack.pop()].getLexeme().equals("("))
                     {
                         errors.add(new ExpectedOperatorError("(", locations[index - 1].getPosition()));
                         return false;
                     }
                 }
                 case "]" -> {
-                    if (stack.size() == 0 || !stack.pop().equals("["))
+                    if (stack.size() == 0 || !tokens[stack.pop()].getLexeme().equals("["))
                     {
-                        errors.add(new ExpectedOperatorError("[", locations[index - 1].getPosition()));
+                        errors.add(new ExpectedOperatorError("[", locations[index].getPosition()));
                         return false;
                     }
                 }
+                case "end" -> {
+                    if (stack.size() == 0 || !tokens[stack.peek()].getLexeme().equals("routine") &&
+                            !tokens[stack.peek()].getLexeme().equals("while") &&
+                            !tokens[stack.peek()].getLexeme().equals("record") &&
+                            !tokens[stack.peek()].getLexeme().equals("for") &&
+                            !tokens[stack.peek()].getLexeme().equals("if"))
+                    {
+                        errors.add(new ExpectedKeywordError("BLOCK_START", locations[index].getPosition()));
+                        return false;
+                    }
+
+                    stack.pop();
+                }
             }
+        }
+
+        if (stack.size() > 0) {
+
+            while (stack.size() > 0) {
+                var index = (int) stack.pop();
+                switch (tokens[index].getLexeme()) {
+                    case "[" -> errors.add(new ExpectedOperatorError("]", locations[index].getPosition()));
+                    case "(" -> errors.add(new ExpectedOperatorError(")", locations[index].getPosition()));
+                    case "routine", "while", "record", "for", "if" -> errors.add(new ExpectedKeywordError("BLOCK_START", locations[index].getPosition()));
+                }
+            }
+
+            return false;
         }
 
         return true;

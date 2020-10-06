@@ -279,4 +279,10 @@ public class ParserCodeExamplesTest extends TestCase {
 
         assertNotNull(program);
     }
+
+    public void testParenthesisMismatchInvalid() throws IOException, InvalidLexemeException {
+        var program = tryParseProgram("code_examples/parenthesis_mismatch_invalid.txt");
+
+        assertNull(program);
+    }
 }
