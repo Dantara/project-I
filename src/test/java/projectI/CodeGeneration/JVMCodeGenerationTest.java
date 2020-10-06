@@ -36,6 +36,9 @@ public class JVMCodeGenerationTest extends TestCase {
         var lexer = new Lexer();
         var parser = new Parser(lexer.scan(sourceCode), lexer.getLexemesWithLocations());
         var program = parser.tryParseProgram();
+        if (program == null)
+            fail("Failed to parse the program.");
+
         var symbolTable = new SymbolTable();
         var compositeAnalyzer = new CompositeSemanticAnalyzer();
         compositeAnalyzer.analyze(program, symbolTable);
@@ -265,6 +268,14 @@ public class JVMCodeGenerationTest extends TestCase {
         var output = getOutput("code_examples/record_with_array.txt");
         var expectedOutput = new StringBuilder();
         expectedOutput.append(5).append(System.lineSeparator());
+        Assert.assertEquals(expectedOutput.toString(), output);
+    }
+
+    public void testMatrix() throws Exception {
+        var output = getOutput("code_examples/matrix.txt");
+        var expectedOutput = new StringBuilder();
+        expectedOutput.append(1.0).append(System.lineSeparator());
+        expectedOutput.append(8.0).append(System.lineSeparator());
         Assert.assertEquals(expectedOutput.toString(), output);
     }
 }
