@@ -1,0 +1,11 @@
+routine main() is
+    var arr : array[10] integer
+    printInt(arr.size)
+
+    for i in 1..arr.size loop
+        arr[i] := i
+    end
+
+    printInt(arr[2])
+    printInt(arr[5])
+end

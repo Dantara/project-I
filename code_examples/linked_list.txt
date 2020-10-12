@@ -1,0 +1,54 @@
+type node_ptr is integer
+
+type node is record
+    var value is 0
+    var next : node_ptr
+end
+
+var buffer : array[256] node
+var counter is 0
+
+routine is_null(ptr: node_ptr): boolean is
+    return ptr = 0
+end
+
+routine dereference(ptr: node_ptr): node is
+    return buffer[ptr]
+end
+
+routine new_node(value: integer): node_ptr is
+    counter := counter + 1
+    var n is buffer[counter]
+    n.value := value
+    return counter
+end
+
+routine add_last(head : node, last_node_ptr : node_ptr) is
+    var current is head
+
+    while not is_null(current.next) loop
+        current := dereference(current.next)
+    end
+
+    current.next := last_node_ptr
+end
+
+routine print_all(head_ptr : node_ptr) is
+    var current_ptr is head_ptr
+
+    while not is_null(current_ptr) loop
+        var current is dereference(current_ptr)
+        printInt(current.value)
+        current_ptr := current.next
+    end
+end
+
+routine main() is
+    var head_ptr is new_node(1)
+
+    add_last(dereference(head_ptr), new_node(2))
+    add_last(dereference(head_ptr), new_node(3))
+    add_last(dereference(head_ptr), new_node(4))
+
+    print_all(head_ptr)
+end

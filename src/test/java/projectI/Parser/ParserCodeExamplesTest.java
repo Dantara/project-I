@@ -83,7 +83,7 @@ public class ParserCodeExamplesTest extends TestCase {
                         typedVariable("myRec", "rec"),
                         recordMemberAssignment("myRec", "either", toExpression(trueLiteral)),
                         recordMemberAssignment("myRec", "num", toExpression(arraySize("arr"))),
-                        arrayIndexAssignment("arr", 0, variableValue("myRec")))
+                        arrayIndexAssignment("arr", 1, variableValue("myRec")))
         );
 
         assertNotNull(program);
@@ -270,6 +270,18 @@ public class ParserCodeExamplesTest extends TestCase {
 
     public void testRecords_Invalid() throws IOException, InvalidLexemeException {
         var program = tryParseProgram("code_examples/records_invalid.txt");
+
+        assertNull(program);
+    }
+
+    public void testForLoop() throws IOException, InvalidLexemeException {
+        var program = tryParseProgram("code_examples/for_loop.txt");
+
+        assertNotNull(program);
+    }
+
+    public void testParenthesisMismatchInvalid() throws IOException, InvalidLexemeException {
+        var program = tryParseProgram("code_examples/parenthesis_mismatch_invalid.txt");
 
         assertNull(program);
     }

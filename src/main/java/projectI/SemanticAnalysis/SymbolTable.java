@@ -9,6 +9,8 @@ import projectI.SemanticAnalysis.Exceptions.IdentifierAlreadyDefinedException;
 import projectI.SemanticAnalysis.Exceptions.SemanticAnalysisException;
 import projectI.SemanticAnalysis.Exceptions.UndefinedSymbolException;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 
 public class SymbolTable {
@@ -25,6 +27,11 @@ public class SymbolTable {
         } else {
             throw new IdentifierAlreadyDefinedException(this, scope, identifier);
         }
+    }
+
+    public boolean isDefinedAt(ASTNode scope, String identifier) {
+        var types = getTypesDefinedAt(scope);
+        return types.containsKey(identifier);
     }
 
     private HashMap<String, RuntimeType> getTypesDefinedAt(ASTNode scope) {
@@ -61,5 +68,17 @@ public class SymbolTable {
         }
 
         return InvalidRuntimeType.instance;
+    }
+
+    public RuntimeType[] getAllDefinedTypes() {
+        var types = new ArrayList<RuntimeType>();
+
+        for (var typeMap : this.types.values()) {
+            types.addAll(typeMap.values());
+        }
+
+        var result = new RuntimeType[types.size()];
+        types.toArray(result);
+        return result;
     }
 }

@@ -1,0 +1,4 @@
+routine main() is
+    var n is readInt()
+    printInt(n * n)
+end

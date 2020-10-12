@@ -1083,4 +1083,15 @@ public class ParserTest extends TestCase {
 
         assertNotNull(variable);
     }
+
+    public void testReverseRange() throws InvalidLexemeException {
+        var range = createParser("in reverse 1..5").tryParseRange(0, 5);
+
+        assertNotNull(range);
+    }
+
+    public void testFuncLoop() throws InvalidLexemeException {
+        var loop = createParser("while not a(b(1)) loop end").tryParseWhileLoop(0, 11);
+        assertNotNull(loop);
+    }
  }

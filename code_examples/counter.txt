@@ -1,0 +1,19 @@
+type counter is record
+    var value is 0
+end
+
+routine new_counter(): counter is
+    var result : counter
+    return result
+end
+
+routine increment(c: counter) is
+    c.value := c.value + 1
+end
+
+routine main() is
+    var c is new_counter()
+    printInt(c.value)
+    increment(c)
+    printInt(c.value)
+end

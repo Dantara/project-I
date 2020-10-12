@@ -1056,7 +1056,7 @@ public class LexerTest extends TestCase {
 
                 identifier("arr"),
                 operator("["),
-                literal("0"),
+                literal("1"),
                 operator("]"),
                 operator(":="),
                 identifier("myRec"),

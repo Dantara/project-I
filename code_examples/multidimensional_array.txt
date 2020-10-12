@@ -1,0 +1,9 @@
+routine main() is
+    var arr : array[3] array[3] integer
+
+    for i in 1..3 loop
+        for j in 1..3 loop
+            printInt(arr[i][j])
+        end
+    end
+end

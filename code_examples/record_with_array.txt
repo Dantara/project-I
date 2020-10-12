@@ -1,0 +1,7 @@
+var list : record
+    var elements : array[5] integer
+end
+
+routine main() is
+    printInt(list.elements.size)
+end

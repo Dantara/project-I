@@ -1,0 +1,13 @@
+routine sqrt(n: integer) : integer is
+    for i in 1..n loop
+        if n = i * i then
+            return i
+        end
+    end
+
+    return -1
+end
+
+routine main() is
+    printInt(sqrt(25))
+end

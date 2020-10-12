@@ -1,13 +1,16 @@
 package projectI;
 
 import projectI.AST.ProgramNode;
+import projectI.CodeGeneration.JVM.JVMCodeGenerator;
 import projectI.Lexer.InvalidLexemeException;
 import projectI.Lexer.Lexer;
 import projectI.Parser.Parser;
 import projectI.SemanticAnalysis.CompositeSemanticAnalyzer;
 import projectI.SemanticAnalysis.Exceptions.SemanticAnalysisException;
+import projectI.SemanticAnalysis.SymbolTable;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Scanner;
@@ -31,7 +34,21 @@ public class App
 
                 if (program != null && program.validate()) {
                     System.out.println(program);
-                    runSemanticAnalysis(program);
+                    var symbolTable = new SymbolTable();
+
+                    if (runSemanticAnalysis(program, symbolTable)) {
+                        var generator = new JVMCodeGenerator(program, symbolTable);
+                        var files = generator.generate();
+
+
+                        for (var className : files.keySet()) {
+                            try (FileOutputStream stream = new FileOutputStream("target/" + className + ".class")) {
+                                stream.write(files.get(className));
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
                 } else {
                     printParsingErrors(parser);
                 }
@@ -75,16 +92,17 @@ public class App
         }
     }
 
-    private static void runSemanticAnalysis(ProgramNode program) {
+    private static boolean runSemanticAnalysis(ProgramNode program, SymbolTable symbolTable) {
         try {
-            analyzer.analyze(program);
+            analyzer.analyze(program, symbolTable);
         } catch (SemanticAnalysisException e) {
             System.err.println("Semantic analysis not passed.");
             System.err.println(e.getMessage());
-            return;
+            return false;
         }
 
         System.out.println("Semantic analysis passed.");
+        return true;
     }
 
     private final static CompositeSemanticAnalyzer analyzer = new CompositeSemanticAnalyzer();

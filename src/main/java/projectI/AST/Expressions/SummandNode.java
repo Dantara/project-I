@@ -195,7 +195,7 @@ public class SummandNode implements ASTNode {
             var otherType = otherFactor.node.getType(symbolTable);
             if (!(otherType instanceof RuntimePrimitiveType)) return InvalidRuntimeType.instance;
             var otherPrimitiveType = (RuntimePrimitiveType) otherType;
-            if (primitiveType == otherPrimitiveType) continue;
+            if (primitiveType.equals(otherPrimitiveType)) continue;
 
             if (primitiveType.type == PrimitiveType.INTEGER && otherPrimitiveType.type != PrimitiveType.REAL ||
                     primitiveType.type == PrimitiveType.REAL && otherPrimitiveType.type != PrimitiveType.INTEGER)

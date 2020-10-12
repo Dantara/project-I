@@ -23,9 +23,9 @@ public final class RuntimeRecordType implements RuntimeType {
         for (int index = 0; index < variables.size(); index++) {
             var variable = variables.get(index);
             var thatVariable = that.variables.get(index);
-            if (!variable.getValue0().equals(thatVariable.getValue0())) return false;
-            if (!variable.getValue1().equals(thatVariable.getValue1())) return false;
-            if (!variable.getValue2().equals(thatVariable.getValue2())) return false;
+            if (!Objects.equals(variable.getValue0(), thatVariable.getValue0())) return false;
+            if (!Objects.equals(variable.getValue1(), thatVariable.getValue1())) return false;
+            if (!Objects.equals(variable.getValue2(), thatVariable.getValue2())) return false;
         }
 
         return true;

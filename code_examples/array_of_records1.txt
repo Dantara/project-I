@@ -7,10 +7,14 @@ type recordArray16 is array[16] rec
 
 routine main() is
     var arr : recordArray16
+    arr[5].num := 1
+    printInt(arr[5].num)
     var myRec : rec
 
     myRec.either := true
     myRec.num := arr.size
 
     arr[1] := myRec
+    printBoolean(arr[1].either)
+    printInt(arr[1].num)
 end

@@ -1,0 +1,15 @@
+var g is 1
+
+routine add(a: integer, b: integer): integer is
+    return a + b
+end
+
+routine increment_g() is
+    g := g + 1
+end
+
+routine main() is
+    increment_g()
+    var sum is add(g, 1)
+    printInt(sum)
+end

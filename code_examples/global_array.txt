@@ -1,0 +1,5 @@
+var arr : array[5] integer
+
+routine main() is
+    printInt(arr.size)
+end
