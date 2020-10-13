@@ -137,6 +137,17 @@ public class JVMCodeGenerationTest extends TestCase {
         Assert.assertEquals(expectedOutput.toString(), output);
     }
 
+    public void testForLoop1() throws Exception {
+        var output = getOutput("code_examples/for_loop1.txt", "5");
+        var expectedOutput = new StringBuilder();
+        expectedOutput.append(1).append(System.lineSeparator());
+        expectedOutput.append(2).append(System.lineSeparator());
+        expectedOutput.append(3).append(System.lineSeparator());
+        expectedOutput.append(4).append(System.lineSeparator());
+        expectedOutput.append(5).append(System.lineSeparator());
+        Assert.assertEquals(expectedOutput.toString(), output);
+    }
+
     public void testWhileLoop1() throws Exception {
         var output = getOutput("code_examples/while_loop1.txt");
         var expectedOutput = new StringBuilder();
@@ -146,6 +157,13 @@ public class JVMCodeGenerationTest extends TestCase {
 
     public void testEvenNumbersSum() throws Exception {
         var output = getOutput("code_examples/even_numbers_sum.txt");
+        var expectedOutput = new StringBuilder();
+        expectedOutput.append(2 + 4 + 6 + 8 + 10).append(System.lineSeparator());
+        Assert.assertEquals(expectedOutput.toString(), output);
+    }
+
+    public void testEvenNumbersSum1() throws Exception {
+        var output = getOutput("code_examples/even_numbers_sum1.txt", "10");
         var expectedOutput = new StringBuilder();
         expectedOutput.append(2 + 4 + 6 + 8 + 10).append(System.lineSeparator());
         Assert.assertEquals(expectedOutput.toString(), output);
@@ -163,10 +181,36 @@ public class JVMCodeGenerationTest extends TestCase {
         Assert.assertEquals(expectedOutput.toString(), output);
     }
 
+    public void testFibonacci() throws Exception {
+        var output = getOutput("code_examples/fibonacci.txt", "5");
+        var expectedOutput = new StringBuilder();
+        expectedOutput.append(3).append(System.lineSeparator());
+        Assert.assertEquals(expectedOutput.toString(), output);
+
+        output = getOutput("code_examples/factorial.txt", "10");
+        expectedOutput = new StringBuilder();
+        expectedOutput.append(34).append(System.lineSeparator());
+        Assert.assertEquals(expectedOutput.toString(), output);
+    }
+
     public void testNaiveSqrt() throws Exception {
         var output = getOutput("code_examples/naive_sqrt.txt");
         var expectedOutput = new StringBuilder();
         expectedOutput.append(5).append(System.lineSeparator());
+        Assert.assertEquals(expectedOutput.toString(), output);
+    }
+
+    public void testNaiveSqrt1() throws Exception {
+        var output = getOutput("code_examples/naive_sqrt1.txt", "9");
+        var expectedOutput = new StringBuilder();
+        expectedOutput.append(3).append(System.lineSeparator());
+        Assert.assertEquals(expectedOutput.toString(), output);
+    }
+
+    public void testFindMax() throws Exception {
+        var output = getOutput("code_examples/find_max.txt");
+        var expectedOutput = new StringBuilder();
+        expectedOutput.append(20).append(System.lineSeparator());
         Assert.assertEquals(expectedOutput.toString(), output);
     }
 
@@ -179,6 +223,25 @@ public class JVMCodeGenerationTest extends TestCase {
         output = getOutput("code_examples/square_input.txt", "25");
         expectedOutput = new StringBuilder();
         expectedOutput.append(625).append(System.lineSeparator());
+        Assert.assertEquals(expectedOutput.toString(), output);
+    }
+
+    public void testDifference() throws Exception {
+        var output = getOutput("code_examples/difference.txt");
+        var expectedOutput = new StringBuilder();
+        expectedOutput.append(2).append(System.lineSeparator());
+        Assert.assertEquals(expectedOutput.toString(), output);
+    }
+
+    public void testAbsoluteValue() throws Exception {
+        var output = getOutput("code_examples/absolute_value.txt", "-6");
+        var expectedOutput = new StringBuilder();
+        expectedOutput.append(6).append(System.lineSeparator());
+        Assert.assertEquals(expectedOutput.toString(), output);
+
+        output = getOutput("code_examples/absolute_value.txt", "25");
+        expectedOutput = new StringBuilder();
+        expectedOutput.append(25).append(System.lineSeparator());
         Assert.assertEquals(expectedOutput.toString(), output);
     }
 
@@ -230,6 +293,15 @@ public class JVMCodeGenerationTest extends TestCase {
         expectedOutput.append(10).append(System.lineSeparator());
         expectedOutput.append(2).append(System.lineSeparator());
         expectedOutput.append(5).append(System.lineSeparator());
+        Assert.assertEquals(expectedOutput.toString(), output);
+    }
+
+    public void testLocalArray1() throws Exception {
+        var output = getOutput("code_examples/local_array1.txt", "7");
+        var expectedOutput = new StringBuilder();
+        expectedOutput.append(7).append(System.lineSeparator());
+        expectedOutput.append(3).append(System.lineSeparator());
+        expectedOutput.append(2).append(System.lineSeparator());
         Assert.assertEquals(expectedOutput.toString(), output);
     }
 
@@ -303,6 +375,23 @@ public class JVMCodeGenerationTest extends TestCase {
         expectedOutput.append(1).append(System.lineSeparator());
         expectedOutput.append(0).append(System.lineSeparator());
         expectedOutput.append(1).append(System.lineSeparator());
+        Assert.assertEquals(expectedOutput.toString(), output);
+    }
+
+    public void testNestedLoop1() throws Exception {
+        var output = getOutput("code_examples/nested_loop1.txt", "2");
+        var expectedOutput = new StringBuilder();
+        expectedOutput.append(2).append(System.lineSeparator());
+        expectedOutput.append(3).append(System.lineSeparator());
+        expectedOutput.append(4).append(System.lineSeparator());
+        expectedOutput.append(6).append(System.lineSeparator());
+        Assert.assertEquals(expectedOutput.toString(), output);
+    }
+
+    public void testNestedLoop2() throws Exception {
+        var output = getOutput("code_examples/nested_loop2.txt", "5");
+        var expectedOutput = new StringBuilder();
+        expectedOutput.append(35).append(System.lineSeparator());
         Assert.assertEquals(expectedOutput.toString(), output);
     }
 }

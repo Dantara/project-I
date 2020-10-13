@@ -1,0 +1,12 @@
+routine main() is
+    var a : readInt()
+    var arr : array[a] integer
+    printInt(arr.size)
+
+    for i in 1..arr.size loop
+        arr[i] := i
+    end
+
+    printInt(arr[3])
+    printInt(arr[2])
+end

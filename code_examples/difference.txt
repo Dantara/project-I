@@ -1,6 +1,6 @@
 routine main() is
-    var a is readInt()
-    var b is readInt()
+    var a is 5
+    var b is 3
     if a > b then
         printInt(a - b)
     else
