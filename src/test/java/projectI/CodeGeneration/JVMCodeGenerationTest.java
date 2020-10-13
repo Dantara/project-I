@@ -307,7 +307,7 @@ public class JVMCodeGenerationTest extends TestCase {
     }
 
     public void testReadReal() throws Exception {
-        var output = getOutput("code_examples/read_real.txt", "1,5");
+        var output = getOutput("code_examples/read_real.txt", "1.5");
         var expectedOutput = new StringBuilder();
         expectedOutput.append(2.25).append(System.lineSeparator());
         Assert.assertEquals(expectedOutput.toString(), output);
