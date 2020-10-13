@@ -36,7 +36,7 @@ public class JVMCodeGenerator implements ICodeGenerator {
     public HashMap<String, byte[]> generate() {
         var files = new HashMap<String, byte[]>();
         generateRecordClasses(files);
-        ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS);
+        ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS + ClassWriter.COMPUTE_FRAMES);
 
         // define a class
         classWriter.visit(V1_7, ACC_PUBLIC, className, null, "java/lang/Object", null);
@@ -83,7 +83,7 @@ public class JVMCodeGenerator implements ICodeGenerator {
             }
         }
 
-        ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS);
+        ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS + ClassWriter.COMPUTE_FRAMES);
 
         classWriter.visit(V1_7, ACC_PUBLIC, name, null, "java/lang/Object", null);
         var ctorVisitor = classWriter.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);

@@ -57,7 +57,7 @@ public class JVMCodeGenerationTest extends TestCase {
             Files.write(classFile, files.get(className), StandardOpenOption.CREATE_NEW);
         }
 
-        var process = Runtime.getRuntime().exec("java -cp target/tests -noverify Program");
+        var process = Runtime.getRuntime().exec("java -cp target/tests Program");
 
         if (input.length > 0) {
             var processInput = new BufferedWriter(new OutputStreamWriter(process.getOutputStream()));
