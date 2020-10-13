@@ -35,7 +35,11 @@ public class JVMUtils {
     }
 
     public static void generateEntryPoint(MethodVisitor mainVisitor, String entryPointFunctionName, String cliArgs) {
-        if (cliArgs != "") {
+        if (entryPointFunctionName == null || entryPointFunctionName.equals("")) {
+            entryPointFunctionName = "main";
+        }
+
+        if (cliArgs != null && !cliArgs.equals("")) {
             var cliEntries = cliArgs.split(" ");
 
             mainVisitor.visitLdcInsn(cliEntries.length);
