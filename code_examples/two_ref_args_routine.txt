@@ -1,0 +1,14 @@
+routine add(a: array[1] integer, b: array[1] integer) : integer is
+    var first is a[1]
+    var second is b[1]
+    return first + second
+end
+
+routine main() is
+    var a : array[1] integer
+    a[1] := 5
+    var b : array[1] integer
+    b[1] := 100
+    var c is add(a, b)
+    printInt(c)
+end

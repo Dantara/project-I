@@ -1,0 +1,8 @@
+routine sum(a: real, b: real): real is
+    return a + b
+end
+
+routine main() is
+    var c is sum(100000, 500)
+    printInt(c)
+end
