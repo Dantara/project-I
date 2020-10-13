@@ -52,6 +52,7 @@ public class JVMCodeGenerator implements ICodeGenerator {
                 generateField(classWriter, staticCtorVisitor, (VariableDeclarationNode) declaration);
         }
 
+        staticCtorVisitor.visitMaxs(0, 0);
         staticCtorVisitor.visitInsn(RETURN);
         staticCtorVisitor.visitEnd();
         classWriter.visitEnd();
@@ -120,6 +121,7 @@ public class JVMCodeGenerator implements ICodeGenerator {
         }
 
         ctorVisitor.visitInsn(RETURN);
+        ctorVisitor.visitMaxs(0, 0);
         ctorVisitor.visitEnd();
         classWriter.visitEnd();
         files.put(name, classWriter.toByteArray());
