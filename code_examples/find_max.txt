@@ -1,0 +1,9 @@
+routine main() is
+    var a is readInt()
+    var b is readInt()
+    if a > b then
+        printInt(a)
+    else
+        printInt(b)
+    end
+end

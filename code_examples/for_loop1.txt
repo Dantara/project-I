@@ -1,0 +1,5 @@
+routine main() is
+    for i in 1..readInt() loop
+        printInt(i)
+    end
+end
