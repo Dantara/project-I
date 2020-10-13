@@ -1,0 +1,8 @@
+routine main() is
+    var a is readBoolean()
+    var b : boolean
+    if a then
+        b := false
+    end
+    printBoolean(b)
+end
