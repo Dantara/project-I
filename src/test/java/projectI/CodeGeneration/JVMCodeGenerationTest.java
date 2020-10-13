@@ -182,13 +182,8 @@ public class JVMCodeGenerationTest extends TestCase {
     }
 
     public void testFibonacci() throws Exception {
-        var output = getOutput("code_examples/fibonacci.txt", "5");
+        var output = getOutput("code_examples/fibonacci.txt", "10");
         var expectedOutput = new StringBuilder();
-        expectedOutput.append(3).append(System.lineSeparator());
-        Assert.assertEquals(expectedOutput.toString(), output);
-
-        output = getOutput("code_examples/factorial.txt", "10");
-        expectedOutput = new StringBuilder();
         expectedOutput.append(34).append(System.lineSeparator());
         Assert.assertEquals(expectedOutput.toString(), output);
     }
@@ -297,11 +292,10 @@ public class JVMCodeGenerationTest extends TestCase {
     }
 
     public void testLocalArray1() throws Exception {
-        var output = getOutput("code_examples/local_array1.txt", "7");
+        var output = getOutput("code_examples/local_array1.txt", "5");
         var expectedOutput = new StringBuilder();
-        expectedOutput.append(7).append(System.lineSeparator());
         expectedOutput.append(3).append(System.lineSeparator());
-        expectedOutput.append(2).append(System.lineSeparator());
+        expectedOutput.append(0).append(System.lineSeparator());
         Assert.assertEquals(expectedOutput.toString(), output);
     }
 
