@@ -209,7 +209,7 @@ public class JVMCodeGenerator implements ICodeGenerator {
     }
 
     private void generateLocalVariableDeclaration(MethodVisitor methodVisitor, VariableDeclarationNode variableDeclaration, VariableContext context) {
-        var id = context.defineVariable(variableDeclaration.getParent(), variableDeclaration.identifier.name);
+        var id = context.defineVariable(variableDeclaration.getParent(), variableDeclaration.identifier.name, variableDeclaration.getType(symbolTable));
         generateLocalVariableInitialization(methodVisitor, context, variableDeclaration, id);
     }
 
@@ -284,7 +284,7 @@ public class JVMCodeGenerator implements ICodeGenerator {
 
     private void generateForLoop(MethodVisitor methodVisitor, ForLoopNode forLoop, RoutineDeclarationNode routine, VariableContext context) {
         // define the iterator variable
-        var variableId = context.defineVariable(forLoop, forLoop.variable.name);
+        var variableId = context.defineVariable(forLoop, forLoop.variable.name, new RuntimePrimitiveType(PrimitiveType.INTEGER));
 
         var exitLabel = new Label();
         var loopLabel = new Label();
