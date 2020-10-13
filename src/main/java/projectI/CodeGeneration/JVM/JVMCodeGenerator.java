@@ -298,7 +298,7 @@ public class JVMCodeGenerator implements ICodeGenerator {
         storeVariable(methodVisitor, new RuntimePrimitiveType(PrimitiveType.INTEGER), variableId);
 
         // evaluate the final value
-        var finalValueId = context.defineVariable(forLoop, forLoop.variable.name + "_final");
+        var finalValueId = context.defineVariable(forLoop, forLoop.variable.name + "_final", new RuntimePrimitiveType(PrimitiveType.INTEGER));
         pushExpression(program, methodVisitor, finalValue, context, symbolTable, this);
         storeVariable(methodVisitor, new RuntimePrimitiveType(PrimitiveType.INTEGER), finalValueId);
 
