@@ -1,0 +1,15 @@
+routine main() is
+    var a is readInt()
+    var arr : array[10] integer
+
+    for i in 1..a loop
+        arr[i] := i
+    end
+
+    for i in a..arr.size loop
+        arr[i] := 0
+    end
+
+    printInt(arr[3])
+    printInt(arr[9])
+end

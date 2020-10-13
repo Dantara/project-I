@@ -1,0 +1,9 @@
+routine main() is
+    var a is 15
+    var b is 20
+    if a > b then
+        printInt(a)
+    else
+        printInt(b)
+    end
+end

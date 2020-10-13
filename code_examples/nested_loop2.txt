@@ -1,0 +1,12 @@
+routine main() is
+
+    var counter is 0
+    var a is readInt()
+    for i in 1 .. a loop
+        for j in 2 .. 7 loop
+            counter := i * j
+        end
+    end
+
+    printInt(counter)
+end
