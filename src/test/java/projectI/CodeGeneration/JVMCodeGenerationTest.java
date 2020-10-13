@@ -371,6 +371,20 @@ public class JVMCodeGenerationTest extends TestCase {
         Assert.assertEquals(expectedOutput.toString(), output);
     }
 
+    public void testReadReal() throws Exception {
+        var output = getOutput("code_examples/read_real.txt", "1.5");
+        var expectedOutput = new StringBuilder();
+        expectedOutput.append(2.25).append(System.lineSeparator());
+        Assert.assertEquals(expectedOutput.toString(), output);
+    }
+
+    public void testReadBoolean() throws Exception {
+        var output = getOutput("code_examples/read_Boolean.txt", "true");
+        var expectedOutput = new StringBuilder();
+        expectedOutput.append(false).append(System.lineSeparator());
+        Assert.assertEquals(expectedOutput.toString(), output);
+    }
+
     public void testArray2D() throws Exception {
         var output = getOutput("code_examples/array_2d.txt");
         var expectedOutput = new StringBuilder();
