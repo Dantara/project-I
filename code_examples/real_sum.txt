@@ -1,0 +1,4 @@
+routine main() is
+    var a is readReal()
+    printReal(a * 1.5)
+end

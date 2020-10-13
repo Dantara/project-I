@@ -1,0 +1,4 @@
+routine main() is
+    var a is readBoolean()
+    printBoolean(a)
+end

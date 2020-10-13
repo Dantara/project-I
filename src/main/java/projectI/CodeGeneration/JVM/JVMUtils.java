@@ -25,6 +25,7 @@ public class JVMUtils {
         generatePrint(classWriter, PrimitiveType.BOOLEAN, "printBoolean", "(I)V");
         generatePrint(classWriter, PrimitiveType.REAL, "printReal", "(D)V");
         generateReadInt(classWriter);
+        generateReadReal(classWriter);
 
         MethodVisitor mainVisitor = classWriter.visitMethod(ACC_PUBLIC + ACC_STATIC, "main", "([Ljava/lang/String;)V", null, null);
         mainVisitor.visitMethodInsn(INVOKESTATIC, "Program", "main", "()V", false);
@@ -60,6 +61,36 @@ public class JVMUtils {
         mv.visitMaxs(0, 0);
         mv.visitEnd();
     }
+
+    public static void generateReadReal(ClassWriter classWriter) {
+        MethodVisitor mv = classWriter.visitMethod(ACC_PUBLIC + ACC_STATIC, "readReal", "()D", null, null);
+        mv.visitCode();
+
+        mv.visitTypeInsn(NEW, "java/util/Scanner");
+        mv.visitInsn(DUP);
+        mv.visitFieldInsn(Opcodes.GETSTATIC, "java/lang/System", "in", "Ljava/io/InputStream;");
+        mv.visitMethodInsn(INVOKESPECIAL, "java/util/Scanner", "<init>", "(Ljava/io/InputStream;)V", false);
+        mv.visitVarInsn(ASTORE, 0);
+
+        var loopLabel = new Label();
+        mv.visitLabel(loopLabel);
+
+        mv.visitVarInsn(ALOAD, 0);
+        mv.visitMethodInsn(INVOKEVIRTUAL, "java/util/Scanner", "hasNextDouble", "()Z", false);
+        mv.visitJumpInsn(IFEQ, loopLabel);
+
+
+        mv.visitVarInsn(ALOAD, 0);
+        mv.visitMethodInsn(INVOKEVIRTUAL, "java/util/Scanner", "nextDouble", "()D", false);
+        mv.visitVarInsn(DSTORE, 1);
+
+        mv.visitVarInsn(DLOAD, 1);
+        mv.visitInsn(DRETURN);
+
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
+    }
+
 
     public static void generatePrint(ClassWriter classWriter, PrimitiveType primitive, String name, String descriptor) {
         MethodVisitor mv = classWriter.visitMethod(ACC_PUBLIC + ACC_STATIC, name, descriptor, null, null);
