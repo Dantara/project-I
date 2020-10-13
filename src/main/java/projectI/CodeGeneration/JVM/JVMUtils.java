@@ -27,9 +27,32 @@ public class JVMUtils {
         generateReadInt(classWriter);
 
         MethodVisitor mainVisitor = classWriter.visitMethod(ACC_PUBLIC + ACC_STATIC, "main", "([Ljava/lang/String;)V", null, null);
-        mainVisitor.visitMethodInsn(INVOKESTATIC, "Program", "main", "()V", false);
+
+        generateEntryPoint(mainVisitor, System.getProperty("entryPoint"), System.getProperty("cliArgs"));
+
         mainVisitor.visitInsn(RETURN);
         mainVisitor.visitEnd();
+    }
+
+    public static void generateEntryPoint(MethodVisitor mainVisitor, String entryPointFunctionName, String cliArgs) {
+        if (cliArgs != "") {
+            var cliEntries = cliArgs.split(" ");
+
+            mainVisitor.visitLdcInsn(cliEntries.length);
+            mainVisitor.visitVarInsn(NEWARRAY, T_DOUBLE);
+            mainVisitor.visitInsn(DUP);
+    
+            for (int i = 0; i < cliEntries.length; i++) {
+                mainVisitor.visitLdcInsn(i);
+                mainVisitor.visitLdcInsn(Double.parseDouble(cliEntries[i]));
+                mainVisitor.visitInsn(DASTORE);
+                mainVisitor.visitInsn(DUP);                
+            }
+
+            mainVisitor.visitMethodInsn(INVOKESTATIC, "Program", entryPointFunctionName, "([D)V", false);
+        } else {
+            mainVisitor.visitMethodInsn(INVOKESTATIC, "Program", entryPointFunctionName, "()V", false);
+        }
     }
 
     public static void generateReadInt(ClassWriter classWriter) {
