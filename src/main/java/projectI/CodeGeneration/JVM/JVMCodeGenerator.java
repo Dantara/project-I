@@ -294,11 +294,16 @@ public class JVMCodeGenerator implements ICodeGenerator {
         // store the initial value in the iterator
         storeVariable(methodVisitor, new RuntimePrimitiveType(PrimitiveType.INTEGER), variableId);
 
+        // evaluate the final value
+        var finalValueId = context.defineVariable(forLoop, forLoop.variable.name + "_final");
+        pushExpression(program, methodVisitor, finalValue, context, symbolTable, this);
+        storeVariable(methodVisitor, new RuntimePrimitiveType(PrimitiveType.INTEGER), finalValueId);
+
         methodVisitor.visitLabel(loopLabel);
 
         // check range
         methodVisitor.visitVarInsn(ILOAD, variableId);
-        pushExpression(program, methodVisitor, finalValue, context, symbolTable, this);
+        methodVisitor.visitVarInsn(ILOAD, finalValueId);
         var exitOpcode = range.reverse ? IF_ICMPLT : IF_ICMPGT;
         // if iterator is outside the range, exit
         methodVisitor.visitJumpInsn(exitOpcode, exitLabel);
