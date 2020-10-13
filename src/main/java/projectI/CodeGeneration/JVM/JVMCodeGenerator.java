@@ -36,7 +36,7 @@ public class JVMCodeGenerator implements ICodeGenerator {
     public HashMap<String, byte[]> generate() {
         var files = new HashMap<String, byte[]>();
         generateRecordClasses(files);
-        ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS);
+        ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS + ClassWriter.COMPUTE_FRAMES);
 
         // define a class
         classWriter.visit(V1_7, ACC_PUBLIC, className, null, "java/lang/Object", null);
@@ -52,6 +52,7 @@ public class JVMCodeGenerator implements ICodeGenerator {
                 generateField(classWriter, staticCtorVisitor, (VariableDeclarationNode) declaration);
         }
 
+        staticCtorVisitor.visitMaxs(0, 0);
         staticCtorVisitor.visitInsn(RETURN);
         staticCtorVisitor.visitEnd();
         classWriter.visitEnd();
@@ -83,7 +84,7 @@ public class JVMCodeGenerator implements ICodeGenerator {
             }
         }
 
-        ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS);
+        ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS + ClassWriter.COMPUTE_FRAMES);
 
         classWriter.visit(V1_7, ACC_PUBLIC, name, null, "java/lang/Object", null);
         var ctorVisitor = classWriter.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);
@@ -120,13 +121,14 @@ public class JVMCodeGenerator implements ICodeGenerator {
         }
 
         ctorVisitor.visitInsn(RETURN);
+        ctorVisitor.visitMaxs(0, 0);
         ctorVisitor.visitEnd();
         classWriter.visitEnd();
         files.put(name, classWriter.toByteArray());
     }
 
     private void generateMethod(ClassWriter classWriter, RoutineDeclarationNode routine) {
-        var context = new VariableContext(routine);
+        var context = new VariableContext(symbolTable, routine);
         var descriptor = getDescriptor((RuntimeRoutineType) symbolTable.getType(routine, routine.name.name), this);
         // generate method
         MethodVisitor methodVisitor = classWriter.visitMethod(ACC_PUBLIC + ACC_STATIC, routine.name.name, descriptor, null, null);
@@ -156,9 +158,10 @@ public class JVMCodeGenerator implements ICodeGenerator {
         if (type instanceof RuntimePrimitiveType && value != null) {
             staticCtorVisitor.visitLdcInsn(value);
         } else if (type instanceof RuntimeRecordType) {
-            staticCtorVisitor.visitTypeInsn(NEW, typeName);
+            var recordName = recordClassNames.get(type);
+            staticCtorVisitor.visitTypeInsn(NEW, recordName);
             staticCtorVisitor.visitInsn(DUP);
-            staticCtorVisitor.visitMethodInsn(INVOKESPECIAL, typeName, "<init>", "()V", false);
+            staticCtorVisitor.visitMethodInsn(INVOKESPECIAL, recordName, "<init>", "()V", false);
 
         } else if (type instanceof RuntimeArrayType) {
             generateDefaultInitialization(staticCtorVisitor, type, this);
@@ -206,7 +209,7 @@ public class JVMCodeGenerator implements ICodeGenerator {
     }
 
     private void generateLocalVariableDeclaration(MethodVisitor methodVisitor, VariableDeclarationNode variableDeclaration, VariableContext context) {
-        var id = context.defineVariable(variableDeclaration.getParent(), variableDeclaration.identifier.name);
+        var id = context.defineVariable(variableDeclaration.getParent(), variableDeclaration.identifier.name, variableDeclaration.getType(symbolTable));
         generateLocalVariableInitialization(methodVisitor, context, variableDeclaration, id);
     }
 
@@ -281,7 +284,7 @@ public class JVMCodeGenerator implements ICodeGenerator {
 
     private void generateForLoop(MethodVisitor methodVisitor, ForLoopNode forLoop, RoutineDeclarationNode routine, VariableContext context) {
         // define the iterator variable
-        var variableId = context.defineVariable(forLoop, forLoop.variable.name);
+        var variableId = context.defineVariable(forLoop, forLoop.variable.name, new RuntimePrimitiveType(PrimitiveType.INTEGER));
 
         var exitLabel = new Label();
         var loopLabel = new Label();
@@ -295,7 +298,7 @@ public class JVMCodeGenerator implements ICodeGenerator {
         storeVariable(methodVisitor, new RuntimePrimitiveType(PrimitiveType.INTEGER), variableId);
 
         // evaluate the final value
-        var finalValueId = context.defineVariable(forLoop, forLoop.variable.name + "_final");
+        var finalValueId = context.defineVariable(forLoop, forLoop.variable.name + "_final", new RuntimePrimitiveType(PrimitiveType.INTEGER));
         pushExpression(program, methodVisitor, finalValue, context, symbolTable, this);
         storeVariable(methodVisitor, new RuntimePrimitiveType(PrimitiveType.INTEGER), finalValueId);
 

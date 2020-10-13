@@ -1,0 +1,7 @@
+routine main() is
+    var a : array[5] array[5] integer
+    a[1][2] := 2
+    a[1][3] := 4
+    var value is a[1][2]
+    printInt(value)
+end

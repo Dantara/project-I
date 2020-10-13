@@ -11,11 +11,10 @@ import projectI.SemanticAnalysis.CompositeSemanticAnalyzer;
 import projectI.SemanticAnalysis.SymbolTable;
 
 import java.io.BufferedWriter;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
+import java.nio.file.*;
 import java.util.Scanner;
 
 public class JVMCodeGenerationTest extends TestCase {
@@ -57,7 +56,7 @@ public class JVMCodeGenerationTest extends TestCase {
             Files.write(classFile, files.get(className), StandardOpenOption.CREATE_NEW);
         }
 
-        var process = Runtime.getRuntime().exec("java -cp target/tests -noverify Program");
+        var process = Runtime.getRuntime().exec("java -cp target/tests Program");
 
         if (input.length > 0) {
             var processInput = new BufferedWriter(new OutputStreamWriter(process.getOutputStream()));
@@ -372,6 +371,27 @@ public class JVMCodeGenerationTest extends TestCase {
         Assert.assertEquals(expectedOutput.toString(), output);
     }
 
+    public void testArray2D() throws Exception {
+        var output = getOutput("code_examples/array_2d.txt");
+        var expectedOutput = new StringBuilder();
+        expectedOutput.append(2).append(System.lineSeparator());
+        Assert.assertEquals(expectedOutput.toString(), output);
+    }
+
+    public void testSum() throws Exception {
+        var output = getOutput("code_examples/sum.txt");
+        var expectedOutput = new StringBuilder();
+        expectedOutput.append(100500).append(System.lineSeparator());
+        Assert.assertEquals(expectedOutput.toString(), output);
+    }
+
+    public void testTwoRefArgsRoutine() throws Exception {
+        var output = getOutput("code_examples/two_ref_args_routine.txt");
+        var expectedOutput = new StringBuilder();
+        expectedOutput.append(105).append(System.lineSeparator());
+        Assert.assertEquals(expectedOutput.toString(), output);
+    }
+  
     public void testNestedLoop1() throws Exception {
         var output = getOutput("code_examples/nested_loop1.txt", "2");
         var expectedOutput = new StringBuilder();
