@@ -32,6 +32,7 @@ public class JVMUtils {
 
         generateEntryPoint(mainVisitor, System.getProperty("entryPoint"), System.getProperty("cliArgs"));
 
+        mainVisitor.visitMaxs(0, 0);
         mainVisitor.visitInsn(RETURN);
         mainVisitor.visitEnd();
     }
