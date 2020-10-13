@@ -26,6 +26,7 @@ public class JVMUtils {
         generatePrint(classWriter, PrimitiveType.REAL, "printReal", "(D)V");
         generateReadInt(classWriter);
         generateReadReal(classWriter);
+        generateReadBoolean(classWriter);
 
         MethodVisitor mainVisitor = classWriter.visitMethod(ACC_PUBLIC + ACC_STATIC, "main", "([Ljava/lang/String;)V", null, null);
         mainVisitor.visitMethodInsn(INVOKESTATIC, "Program", "main", "()V", false);
@@ -91,6 +92,34 @@ public class JVMUtils {
         mv.visitEnd();
     }
 
+    public static void generateReadBoolean(ClassWriter classWriter) {
+        MethodVisitor mv = classWriter.visitMethod(ACC_PUBLIC + ACC_STATIC, "readBoolean", "()I", null, null);
+        mv.visitCode();
+
+        mv.visitTypeInsn(NEW, "java/util/Scanner");
+        mv.visitInsn(DUP);
+        mv.visitFieldInsn(Opcodes.GETSTATIC, "java/lang/System", "in", "Ljava/io/InputStream;");
+        mv.visitMethodInsn(INVOKESPECIAL, "java/util/Scanner", "<init>", "(Ljava/io/InputStream;)V", false);
+        mv.visitVarInsn(ASTORE, 0);
+
+        var loopLabel = new Label();
+        mv.visitLabel(loopLabel);
+
+        mv.visitVarInsn(ALOAD, 0);
+        mv.visitMethodInsn(INVOKEVIRTUAL, "java/util/Scanner", "hasNextBoolean", "()Z", false);
+        mv.visitJumpInsn(IFEQ, loopLabel);
+
+
+        mv.visitVarInsn(ALOAD, 0);
+        mv.visitMethodInsn(INVOKEVIRTUAL, "java/util/Scanner", "nextBoolean", "()Z", false);
+        mv.visitVarInsn(ISTORE, 1);
+
+        mv.visitVarInsn(ILOAD, 1);
+        mv.visitInsn(IRETURN);
+
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
+    }
 
     public static void generatePrint(ClassWriter classWriter, PrimitiveType primitive, String name, String descriptor) {
         MethodVisitor mv = classWriter.visitMethod(ACC_PUBLIC + ACC_STATIC, name, descriptor, null, null);

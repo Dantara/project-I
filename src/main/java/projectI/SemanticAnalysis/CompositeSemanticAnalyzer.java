@@ -31,8 +31,8 @@ public final class CompositeSemanticAnalyzer implements SemanticAnalyzer {
         var readReal = new RuntimeRoutineType(new RuntimePrimitiveType(PrimitiveType.REAL));
         symbolTable.defineType(program, "readReal", readReal);
 
-//        var readBoolean = new RuntimeRoutineType(new RuntimePrimitiveType(PrimitiveType.INTEGER));
-//        symbolTable.defineType(program, "readBoolean", readBoolean);
+        var readBoolean = new RuntimeRoutineType(new RuntimePrimitiveType(PrimitiveType.BOOLEAN));
+        symbolTable.defineType(program, "readBoolean", readBoolean);
 
 
         if (program == null)
