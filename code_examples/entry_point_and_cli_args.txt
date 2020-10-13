@@ -1,0 +1,9 @@
+routine square(x : real) : real is
+    return x * x
+end
+
+routine entry(arr : array[] real) is
+    for i in 1..arr.size loop
+        printInt(square(arr[i]))
+    end
+end
