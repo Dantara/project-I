@@ -25,7 +25,9 @@ public class JVMUtils {
         generatePrint(classWriter, PrimitiveType.BOOLEAN, "printBoolean", "(I)V");
         generatePrint(classWriter, PrimitiveType.REAL, "printReal", "(D)V");
         generateReadInt(classWriter);
-
+        generateReadReal(classWriter);
+        generateReadBoolean(classWriter);
+        
         MethodVisitor mainVisitor = classWriter.visitMethod(ACC_PUBLIC + ACC_STATIC, "main", "([Ljava/lang/String;)V", null, null);
         mainVisitor.visitMethodInsn(INVOKESTATIC, "Program", "main", "()V", false);
         mainVisitor.visitInsn(RETURN);
