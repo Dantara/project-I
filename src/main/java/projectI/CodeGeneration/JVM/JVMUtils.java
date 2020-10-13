@@ -105,6 +105,10 @@ public class JVMUtils {
     }
 
     public static String getJavaTypeName(RuntimeType runtimeType, JVMCodeGenerator codeGenerator) {
+        return getJavaTypeName(runtimeType, codeGenerator, false);
+    }
+
+    public static String getJavaTypeName(RuntimeType runtimeType, JVMCodeGenerator codeGenerator, boolean simple) {
         if (runtimeType == null || runtimeType.equals(VoidRuntimeType.instance))
             return "V";
 
@@ -114,9 +118,9 @@ public class JVMUtils {
                 case REAL -> "D";
             };
         } else if (runtimeType instanceof RuntimeArrayType) {
-            return "[" + getJavaTypeName(((RuntimeArrayType) runtimeType).elementType, codeGenerator);
+            return "[" + getJavaTypeName(((RuntimeArrayType) runtimeType).elementType, codeGenerator, simple);
         } else if (runtimeType instanceof RuntimeRecordType){
-            return "L" + codeGenerator.recordClassNames.get(runtimeType) + ";";
+            return simple ? codeGenerator.recordClassNames.get(runtimeType) : "L" + codeGenerator.recordClassNames.get(runtimeType) + ";";
         } else {
             throw new IllegalStateException();
         }
@@ -348,7 +352,7 @@ public class JVMUtils {
             var arrayType = (RuntimeArrayType) type;
             var elementType = arrayType.elementType;
             methodVisitor.visitLdcInsn(arrayType.size);
-            var elementTypeName = getJavaTypeName(elementType, codeGenerator);
+            var elementTypeName = getJavaTypeName(elementType, codeGenerator, true);
 
             if (elementType instanceof RuntimePrimitiveType) {
                 var opcode = switch (((RuntimePrimitiveType) elementType).type) {

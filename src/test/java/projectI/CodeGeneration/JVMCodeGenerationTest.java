@@ -11,11 +11,10 @@ import projectI.SemanticAnalysis.CompositeSemanticAnalyzer;
 import projectI.SemanticAnalysis.SymbolTable;
 
 import java.io.BufferedWriter;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
+import java.nio.file.*;
 import java.util.Scanner;
 
 public class JVMCodeGenerationTest extends TestCase {

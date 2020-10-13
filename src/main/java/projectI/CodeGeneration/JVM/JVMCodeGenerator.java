@@ -158,9 +158,10 @@ public class JVMCodeGenerator implements ICodeGenerator {
         if (type instanceof RuntimePrimitiveType && value != null) {
             staticCtorVisitor.visitLdcInsn(value);
         } else if (type instanceof RuntimeRecordType) {
-            staticCtorVisitor.visitTypeInsn(NEW, typeName);
+            var recordName = recordClassNames.get(type);
+            staticCtorVisitor.visitTypeInsn(NEW, recordName);
             staticCtorVisitor.visitInsn(DUP);
-            staticCtorVisitor.visitMethodInsn(INVOKESPECIAL, typeName, "<init>", "()V", false);
+            staticCtorVisitor.visitMethodInsn(INVOKESPECIAL, recordName, "<init>", "()V", false);
 
         } else if (type instanceof RuntimeArrayType) {
             generateDefaultInitialization(staticCtorVisitor, type, this);
