@@ -311,4 +311,18 @@ public class JVMCodeGenerationTest extends TestCase {
         expectedOutput.append(2).append(System.lineSeparator());
         Assert.assertEquals(expectedOutput.toString(), output);
     }
+
+    public void testSum() throws Exception {
+        var output = getOutput("code_examples/sum.txt");
+        var expectedOutput = new StringBuilder();
+        expectedOutput.append(100500).append(System.lineSeparator());
+        Assert.assertEquals(expectedOutput.toString(), output);
+    }
+
+    public void testTwoRefArgsRoutine() throws Exception {
+        var output = getOutput("code_examples/two_ref_args_routine.txt");
+        var expectedOutput = new StringBuilder();
+        expectedOutput.append(105).append(System.lineSeparator());
+        Assert.assertEquals(expectedOutput.toString(), output);
+    }
 }

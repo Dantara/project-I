@@ -128,7 +128,7 @@ public class JVMCodeGenerator implements ICodeGenerator {
     }
 
     private void generateMethod(ClassWriter classWriter, RoutineDeclarationNode routine) {
-        var context = new VariableContext(routine);
+        var context = new VariableContext(symbolTable, routine);
         var descriptor = getDescriptor((RuntimeRoutineType) symbolTable.getType(routine, routine.name.name), this);
         // generate method
         MethodVisitor methodVisitor = classWriter.visitMethod(ACC_PUBLIC + ACC_STATIC, routine.name.name, descriptor, null, null);

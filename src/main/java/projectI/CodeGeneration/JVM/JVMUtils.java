@@ -136,14 +136,7 @@ public class JVMUtils {
         if (codeGenerator.symbolTable.isDefinedAt(codeGenerator.program, name)) {
             methodVisitor.visitFieldInsn(GETSTATIC, "Program", name, getJavaTypeName(codeGenerator.symbolTable.getType(modifiablePrimary, name), codeGenerator));
         } else {
-            var parameterIndex = tryGetParameterIndex(variableContext, name);
-            int variableIndex;
-
-            if (parameterIndex == -1) {
-                variableIndex = variableContext.tryGetIndexOf(modifiablePrimary, name);
-            } else {
-                variableIndex = parameterIndex;
-            }
+            int variableIndex = variableContext.tryGetIndexOf(modifiablePrimary, name);
 
             var type = codeGenerator.symbolTable.getType(modifiablePrimary, name);
 
@@ -201,20 +194,6 @@ public class JVMUtils {
         }
     }
 
-    private static int tryGetParameterIndex(VariableContext variableContext, String name) {
-        var routine = variableContext.routine;
-
-        List<Pair<IdentifierNode, TypeNode>> parameters = routine.parameters.parameters;
-
-        for (int index = 0; index < parameters.size(); index++) {
-            Pair<IdentifierNode, TypeNode> parameter = parameters.get(index);
-            if (parameter.getValue0().name.equals(name))
-                return index;
-        }
-
-        return -1;
-    }
-
     public static void generateSet(MethodVisitor methodVisitor, ModifiablePrimaryNode modifiablePrimary, ExpressionNode expression, VariableContext variableContext, JVMCodeGenerator codeGenerator) {
         var name = modifiablePrimary.identifier.name;
         var symbolTable = codeGenerator.symbolTable;
@@ -229,14 +208,7 @@ public class JVMUtils {
             if (symbolTable.isDefinedAt(program, name)) {
                 methodVisitor.visitFieldInsn(PUTSTATIC, "Program", name, JVMUtils.getJavaTypeName(symbolTable.getType(modifiablePrimary, name), codeGenerator));
             } else {
-                var parameterIndex = tryGetParameterIndex(variableContext, name);
-                int variableIndex;
-
-                if (parameterIndex == -1) {
-                    variableIndex = variableContext.tryGetIndexOf(modifiablePrimary, name);
-                } else {
-                    variableIndex = parameterIndex;
-                }
+                int variableIndex = variableContext.tryGetIndexOf(modifiablePrimary, name);
 
                 var type = symbolTable.getType(modifiablePrimary, name);
 
